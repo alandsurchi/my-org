@@ -38,8 +38,10 @@ const AboutSection = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 mb-6 animate-scale-in">
             <Heart className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            {t('aboutTitle')}
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              {t('aboutTitle')}
+            </span>
           </h2>
           <div className="w-32 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
         </div>
@@ -47,7 +49,7 @@ const AboutSection = () => {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="fade-in-on-scroll">
             <div className="prose prose-lg max-w-none">
-              <p className="text-xl text-gray-700 leading-relaxed font-light">
+              <p className="text-xl text-gray-700 leading-relaxed font-light" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
                 {t('aboutDescription')}
               </p>
             </div>
