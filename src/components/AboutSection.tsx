@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Heart, Users, Globe, Target } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 const AboutSection = () => {
   const { t } = useLanguage();
@@ -24,13 +24,6 @@ const AboutSection = () => {
     return () => observer.disconnect();
   }, []);
 
-  const stats = [
-    { icon: Users, number: '50+', label: 'Communities Served' },
-    { icon: Heart, number: '10K+', label: 'Lives Impacted' },
-    { icon: Globe, number: '15+', label: 'Years of Service' },
-    { icon: Target, number: '100+', label: 'Projects Completed' }
-  ];
-
   return (
     <section id="about" className="py-24 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
       {/* Background decorations */}
@@ -49,22 +42,6 @@ const AboutSection = () => {
             About MROVDOSTAN
           </h2>
           <div className="w-32 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
-        </div>
-
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
-          {stats.map((stat, index) => {
-            const IconComponent = stat.icon;
-            return (
-              <div key={index} className="text-center fade-in-on-scroll glass p-6 rounded-2xl hover-lift">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 mb-4 animate-scale-in">
-                  <IconComponent className="w-8 h-8 text-white" />
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{stat.number}</div>
-                <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
-              </div>
-            );
-          })}
         </div>
 
         <div className="grid lg:grid-cols-2 gap-16 items-center">
