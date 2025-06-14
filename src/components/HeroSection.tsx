@@ -24,11 +24,6 @@ const HeroSection = () => {
         <p className="text-xl md:text-2xl mb-8 leading-relaxed animate-fade-in">
           {t('heroSubtitle')}
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
-            {t('donateNow')}
-          </Button>
-        </div>
       </div>
     </section>
   );

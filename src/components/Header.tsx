@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { LogIn, Globe, Menu, X } from 'lucide-react';
+import { LogIn, Globe, Menu, X, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -21,12 +21,21 @@ const Header = () => {
   };
 
   const navigationItems = [
+    { id: 'home', label: 'Home', isButton: true },
     { id: 'about', label: 'About' },
     { id: 'projects', label: 'Projects' },
     { id: 'news', label: 'News' },
     { id: 'gallery', label: 'Gallery' },
     { id: 'staff', label: 'Staff' }
   ];
+
+  const handleNavigation = (item: any) => {
+    if (item.id === 'home') {
+      navigate('/');
+    } else {
+      scrollToSection(item.id);
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
@@ -46,9 +55,10 @@ const Header = () => {
             {navigationItems.map((item) => (
               <button 
                 key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium relative group"
+                onClick={() => handleNavigation(item)}
+                className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium relative group flex items-center"
               >
+                {item.id === 'home' && <Home className="w-4 h-4 mr-1" />}
                 {item.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-200"></span>
               </button>
@@ -92,9 +102,13 @@ const Header = () => {
                   {navigationItems.map((item) => (
                     <button 
                       key={item.id}
-                      onClick={() => scrollToSection(item.id)}
-                      className="text-left text-gray-700 hover:text-blue-600 transition-colors font-medium py-2"
+                      onClick={() => {
+                        handleNavigation(item);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="text-left text-gray-700 hover:text-blue-600 transition-colors font-medium py-2 flex items-center"
                     >
+                      {item.id === 'home' && <Home className="w-4 h-4 mr-2" />}
                       {item.label}
                     </button>
                   ))}
