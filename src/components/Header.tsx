@@ -35,31 +35,31 @@ const Header = () => {
               onClick={() => scrollToSection('about')}
               className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
             >
-              {t('about')}
+              About
             </button>
             <button 
               onClick={() => scrollToSection('projects')}
               className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
             >
-              {t('projects')}
+              Projects
             </button>
             <button 
               onClick={() => scrollToSection('news')}
               className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
             >
-              {t('news')}
+              News
             </button>
             <button 
               onClick={() => scrollToSection('gallery')}
               className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
             >
-              {t('gallery')}
+              Gallery
             </button>
             <button 
               onClick={() => scrollToSection('staff')}
               className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
             >
-              {t('staff')}
+              Staff
             </button>
           </nav>
 
@@ -80,26 +80,26 @@ const Header = () => {
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
                   <LogIn className="w-4 h-4 mr-2" />
-                  {t('login')}
+                  Login
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>{t('staffLogin')}</DialogTitle>
+                  <DialogTitle>Staff Login</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="email">{t('email')}</Label>
+                    <Label htmlFor="email">Email</Label>
                     <Input id="email" type="email" placeholder="admin@mrovdostan.org" />
                   </div>
                   <div>
-                    <Label htmlFor="password">{t('password')}</Label>
+                    <Label htmlFor="password">Password</Label>
                     <Input id="password" type="password" />
                   </div>
                   <div className="flex space-x-2">
-                    <Button className="flex-1">{t('loginButton')}</Button>
+                    <Button className="flex-1">Login</Button>
                     <Button variant="outline" onClick={() => setIsLoginOpen(false)}>
-                      {t('cancel')}
+                      Cancel
                     </Button>
                   </div>
                 </div>
