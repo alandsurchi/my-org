@@ -23,7 +23,7 @@ const Header = () => {
   const navigationItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'about', label: 'About', icon: Info },
-    { id: 'projects', label: 'Projects', icon: Briefcase },
+    { id: 'projects', label: 'Activities', icon: Briefcase },
     { id: 'news', label: 'News', icon: Newspaper },
     { id: 'gallery', label: 'Gallery', icon: Image },
     { id: 'staff', label: 'Staff', icon: Users }
