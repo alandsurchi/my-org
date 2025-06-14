@@ -1,63 +1,49 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowDown, Sparkles } from 'lucide-react';
-
 const HeroSection = () => {
-  const { t } = useLanguage();
+  const {
+    t
+  } = useLanguage();
   const heroRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate');
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
     const elements = document.querySelectorAll('.fade-in-on-scroll');
-    elements.forEach((el) => observer.observe(el));
-
+    elements.forEach(el => observer.observe(el));
     return () => observer.disconnect();
   }, []);
-
   const scrollToNext = () => {
     const nextSection = document.getElementById('about');
     if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
+      nextSection.scrollIntoView({
+        behavior: 'smooth'
+      });
     }
   };
-
-  return (
-    <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
+  return <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Animated background with parallax effect */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')`
-        }}
-      >
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000" style={{
+      backgroundImage: `url('https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')`
+    }}>
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 via-purple-900/60 to-black/50"></div>
         
         {/* Floating particles */}
         <div className="absolute inset-0">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-white rounded-full opacity-30 animate-float"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 6}s`,
-                animationDuration: `${4 + Math.random() * 4}s`
-              }}
-            />
-          ))}
+          {[...Array(6)].map((_, i) => <div key={i} className="absolute w-2 h-2 bg-white rounded-full opacity-30 animate-float" style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animationDelay: `${Math.random() * 6}s`,
+          animationDuration: `${4 + Math.random() * 4}s`
+        }} />)}
         </div>
       </div>
       
@@ -83,13 +69,12 @@ const HeroSection = () => {
           </div>
           
           {/* Beautiful scroll button */}
-          <button 
-            onClick={scrollToNext}
-            className="group relative flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 border-white/30 backdrop-blur-sm bg-white/10 hover:bg-white/20 hover:border-white/50 transition-all duration-300 hover:scale-110"
-          >
+          <button onClick={scrollToNext} className="group relative flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 border-white/30 backdrop-blur-sm bg-white/10 hover:bg-white/20 hover:border-white/50 transition-all duration-300 hover:scale-110">
             {/* Pulsing ring animation */}
             <div className="absolute inset-0 rounded-full border-2 border-white/20 animate-ping"></div>
-            <div className="absolute inset-0 rounded-full border-2 border-white/10 animate-ping" style={{ animationDelay: '0.5s' }}></div>
+            <div className="absolute inset-0 rounded-full border-2 border-white/10 animate-ping" style={{
+            animationDelay: '0.5s'
+          }}></div>
             
             {/* Arrow icon */}
             <ArrowDown className="w-6 h-6 text-white/90 group-hover:text-white transition-all duration-300 animate-bounce" />
@@ -105,25 +90,8 @@ const HeroSection = () => {
 
       {/* Animated waves */}
       <div className="absolute bottom-0 left-0 w-full overflow-hidden">
-        <svg 
-          className="relative block w-full h-20" 
-          data-name="Layer 1" 
-          xmlns="http://www.w3.org/2000/svg" 
-          viewBox="0 0 1200 120" 
-          preserveAspectRatio="none"
-        >
-          <path 
-            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
-            className="fill-white/10"
-          ></path>
-          <path 
-            d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" 
-            className="fill-white/5"
-          ></path>
-        </svg>
+        
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default HeroSection;
