@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 
 type Language = 'en' | 'ar' | 'ku';
@@ -23,10 +22,11 @@ const translations = {
     join: 'Join',
     
     // Hero section
-    heroTitle: 'Building Hope for Tomorrow',
-    heroSubtitle: 'MROVDOSTAN is dedicated to creating lasting change in communities through education, healthcare, and sustainable development programs.',
+    heroTitle: 'Building Hope, Transforming Lives',
+    heroSubtitle: 'Humanitarian Aid for Kurdistan',
     donateNow: 'Donate Now',
     learnMore: 'Learn More',
+    discoverMore: 'Discover More',
     
     // About section
     aboutTitle: 'About MROVDOSTAN',
@@ -152,10 +152,11 @@ const translations = {
     join: 'انضم',
     
     // Hero section
-    heroTitle: 'بناء الأمل للغد',
-    heroSubtitle: 'مروڤدوستان مكرسة لإحداث تغيير دائم في المجتمعات من خلال برامج التعليم والرعاية الصحية والتنمية المستدامة.',
+    heroTitle: 'بناء الأمل، تحويل الحياة',
+    heroSubtitle: 'المساعدات الإنسانية لكردستان',
     donateNow: 'تبرع الآن',
     learnMore: 'اعرف أكثر',
+    discoverMore: 'اكتشف المزيد',
     
     // About section
     aboutTitle: 'حول مروڤدوستان',
@@ -281,10 +282,11 @@ const translations = {
     join: 'بەشداری بکە',
     
     // Hero section
-    heroTitle: 'ئومێد دروستکردن بۆ سبەینێ',
-    heroSubtitle: 'مروڤدۆستان خۆی تەرخان کردووە بۆ دروستکردنی گۆڕانکاری بەردەوام لە کۆمەڵگاکاندا لە ڕێگەی پڕۆگرامەکانی پەروەردە، چاودێری تەندروستی و گەشەسەندنی بەردەوام.',
+    heroTitle: 'ئومێد دروستکردن، ژیان گۆڕین',
+    heroSubtitle: 'یارمەتی مرۆیی بۆ کوردستان',
     donateNow: 'ئێستا بەخشین بکە',
     learnMore: 'زیاتر فێربە',
+    discoverMore: 'زیاتر بدۆزەرەوە',
     
     // About section
     aboutTitle: 'دەربارەی مروڤدۆستان',
