@@ -1,8 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ArrowDown, Sparkles } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 
 const HeroSection = () => {
   const { t } = useLanguage();
@@ -66,7 +65,7 @@ const HeroSection = () => {
       
       <div className="relative z-10 text-center text-white max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 md:mb-6 fade-in-on-scroll bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent leading-tight">
-          MROVDOSTAN
+          {t('orgName')}
         </h1>
         
         <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-12 leading-relaxed fade-in-on-scroll glass px-4 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl">
