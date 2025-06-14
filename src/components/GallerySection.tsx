@@ -10,32 +10,32 @@ const GallerySection = () => {
     {
       id: 1,
       url: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      description: 'Children participating in educational activities'
+      descriptionKey: 'childrenEducation'
     },
     {
       id: 2,
       url: 'https://images.unsplash.com/photo-1439886183900-e79ec0057170?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      description: 'Community health program in action'
+      descriptionKey: 'communityHealth'
     },
     {
       id: 3,
       url: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      description: 'Wildlife conservation efforts'
+      descriptionKey: 'wildlifeConservation'
     },
     {
       id: 4,
       url: 'https://images.unsplash.com/photo-1517022812141-23620dba5c23?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      description: 'Agricultural development project'
+      descriptionKey: 'agriculturalDevelopment'
     },
     {
       id: 5,
       url: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      description: 'Educational workshop for women'
+      descriptionKey: 'womenWorkshop'
     },
     {
       id: 6,
       url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      description: 'Technology training session'
+      descriptionKey: 'technologyTraining'
     }
   ];
 
@@ -53,13 +53,13 @@ const GallerySection = () => {
               <div className="aspect-square overflow-hidden">
                 <img 
                   src={image.url} 
-                  alt={image.description}
+                  alt={t(image.descriptionKey)}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
               </div>
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-end">
                 <div className="p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <p className="text-sm">{image.description}</p>
+                  <p className="text-sm">{t(image.descriptionKey)}</p>
                 </div>
               </div>
             </div>

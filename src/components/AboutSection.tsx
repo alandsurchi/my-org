@@ -39,7 +39,7 @@ const AboutSection = () => {
             <Heart className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            About MROVDOSTAN
+            {t('aboutTitle')}
           </h2>
           <div className="w-32 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
         </div>
@@ -48,7 +48,7 @@ const AboutSection = () => {
           <div className="fade-in-on-scroll">
             <div className="prose prose-lg max-w-none">
               <p className="text-xl text-gray-700 leading-relaxed font-light">
-                For over a decade, <span className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">MROVDOSTAN</span> has been dedicated to transforming lives and communities across the Kurdistan region through sustainable development and humanitarian aid. Founded in 2010, we emerged from a simple belief: every person deserves access to basic necessities like clean water, education, healthcare, and opportunity. What started as a small group of volunteers has grown into a regional movement reaching over 50 communities across Kurdistan. Through our comprehensive programs in education, healthcare, economic development, and human rights advocacy, we continue to build hope for tomorrow while addressing today's most urgent needs.
+                {t('aboutDescription')}
               </p>
             </div>
           </div>

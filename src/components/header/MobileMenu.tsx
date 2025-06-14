@@ -5,6 +5,7 @@ import { Home, Info, Briefcase, Newspaper, Image, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MobileMenuProps {
   isMobileMenuOpen: boolean;
@@ -22,14 +23,15 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   getMobileButtonStyling
 }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const navigationItems = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'about', label: 'About', icon: Info },
-    { id: 'projects', label: 'Activities', icon: Briefcase },
-    { id: 'news', label: 'News', icon: Newspaper },
-    { id: 'gallery', label: 'Gallery', icon: Image },
-    { id: 'staff', label: 'Staff', icon: Users }
+    { id: 'home', labelKey: 'home', icon: Home },
+    { id: 'about', labelKey: 'about', icon: Info },
+    { id: 'projects', labelKey: 'projects', icon: Briefcase },
+    { id: 'news', labelKey: 'news', icon: Newspaper },
+    { id: 'gallery', labelKey: 'gallery', icon: Image },
+    { id: 'staff', labelKey: 'staff', icon: Users }
   ];
 
   return (
@@ -62,7 +64,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                 }`}
               >
                 <IconComponent className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110" />
-                {item.label}
+                {t(item.labelKey)}
               </button>
             );
           })}
@@ -75,7 +77,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             }}
           >
             <LogIn className="w-4 h-4 mr-2" />
-            Sign Up
+            {t('signUp')}
           </Button>
         </div>
       </SheetContent>

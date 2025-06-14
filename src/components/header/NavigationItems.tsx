@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Home, Info, Briefcase, Newspaper, Image, Users } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NavigationItemsProps {
   activeSection: string;
@@ -13,13 +14,15 @@ const NavigationItems: React.FC<NavigationItemsProps> = ({
   getTextStyling,
   handleNavigation
 }) => {
+  const { t } = useLanguage();
+
   const navigationItems = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'about', label: 'About', icon: Info },
-    { id: 'projects', label: 'Activities', icon: Briefcase },
-    { id: 'news', label: 'News', icon: Newspaper },
-    { id: 'gallery', label: 'Gallery', icon: Image },
-    { id: 'staff', label: 'Staff', icon: Users }
+    { id: 'home', labelKey: 'home', icon: Home },
+    { id: 'about', labelKey: 'about', icon: Info },
+    { id: 'projects', labelKey: 'projects', icon: Briefcase },
+    { id: 'news', labelKey: 'news', icon: Newspaper },
+    { id: 'gallery', labelKey: 'gallery', icon: Image },
+    { id: 'staff', labelKey: 'staff', icon: Users }
   ];
 
   return (
@@ -34,7 +37,7 @@ const NavigationItems: React.FC<NavigationItemsProps> = ({
             className={`relative group flex items-center font-medium transition-all duration-300 hover:scale-105 touch-manipulation ${getTextStyling(item.id)}`}
           >
             <IconComponent className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:scale-110" />
-            <span className="text-sm xl:text-base">{item.label}</span>
+            <span className="text-sm xl:text-base">{t(item.labelKey)}</span>
             <span className={`absolute -bottom-2 left-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 rounded-full ${
               isActive ? 'w-full' : 'w-0 group-hover:w-full'
             }`}></span>

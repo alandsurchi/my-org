@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -16,12 +17,12 @@ const Footer = () => {
               <span className="text-xl font-bold">MROVDOSTAN</span>
             </div>
             <p className="text-gray-400 leading-relaxed">
-              Building hope for tomorrow through sustainable development, education, and healthcare initiatives.
+              {t('footerDescription')}
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('quickLinks')}</h3>
             <ul className="space-y-2">
               <li><a href="#about" className="text-gray-400 hover:text-white transition-colors">{t('about')}</a></li>
               <li><a href="#projects" className="text-gray-400 hover:text-white transition-colors">{t('projects')}</a></li>
@@ -32,7 +33,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('contactInfo')}</h3>
             <ul className="space-y-2 text-gray-400">
               <li>📧 info@mrovdostan.org</li>
               <li>📱 +964 750 123 4567</li>
@@ -41,7 +42,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('followUs')}</h3>
             <div className="flex space-x-4">
               <a href="#" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
                 <span className="text-white font-bold">f</span>
@@ -58,7 +59,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400">
-            © 2024 MROVDOSTAN. All rights reserved. | Built with ❤️ for making a difference.
+            {t('footerCopyright')}
           </p>
         </div>
       </div>

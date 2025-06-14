@@ -13,28 +13,30 @@ const NewsSection = () => {
 
   const newsData = {
     placesVisited: [
-      { id: 1, title: 'Visit to Erbil Schools', date: '2024-06-10', description: 'Successful visit to 5 schools in Erbil province' },
-      { id: 2, title: 'Dohuk Healthcare Assessment', date: '2024-06-05', description: 'Comprehensive assessment of healthcare needs in Dohuk' }
+      { id: 1, titleKey: 'erbilSchoolsTitle', date: '2024-06-10', descriptionKey: 'erbilSchoolsDesc' },
+      { id: 2, titleKey: 'dohukHealthcareTitle', date: '2024-06-05', descriptionKey: 'dohukHealthcareDesc' }
     ],
     visitors: [
-      { id: 1, title: 'UN Representative Visit', date: '2024-06-08', description: 'Meeting with UN officials to discuss collaboration' },
-      { id: 2, title: 'Government Officials Meeting', date: '2024-06-03', description: 'Strategic planning session with local government' }
+      { id: 1, titleKey: 'unVisitTitle', date: '2024-06-08', descriptionKey: 'unVisitDesc' },
+      { id: 2, titleKey: 'govMeetingTitle', date: '2024-06-03', descriptionKey: 'govMeetingDesc' }
     ],
     certificatesReceived: [
-      { id: 1, title: 'Excellence in Education Award', date: '2024-05-30', description: 'Recognition for outstanding educational initiatives' },
-      { id: 2, title: 'Healthcare Innovation Certificate', date: '2024-05-25', description: 'Acknowledgment for innovative healthcare solutions' }
+      { id: 1, titleKey: 'excellenceAwardTitle', date: '2024-05-30', descriptionKey: 'excellenceAwardDesc' },
+      { id: 2, titleKey: 'healthcareInnovationTitle', date: '2024-05-25', descriptionKey: 'healthcareInnovationDesc' }
     ],
     certificatesAwarded: [
-      { id: 1, title: 'Community Leader Certification', date: '2024-06-01', description: 'Awarded to outstanding community leaders' },
-      { id: 2, title: 'Volunteer Excellence Award', date: '2024-05-28', description: 'Recognition for dedicated volunteers' }
+      { id: 1, titleKey: 'communityLeaderTitle', date: '2024-06-01', descriptionKey: 'communityLeaderDesc' },
+      { id: 2, titleKey: 'volunteerExcellenceTitle', date: '2024-05-28', descriptionKey: 'volunteerExcellenceDesc' }
     ]
   };
 
   const filterNews = (newsItems: any[]) => {
-    return newsItems.filter(item =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    return newsItems.filter(item => {
+      const title = t(item.titleKey);
+      const description = t(item.descriptionKey);
+      return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             description.toLowerCase().includes(searchTerm.toLowerCase());
+    });
   };
 
   return (
@@ -68,11 +70,11 @@ const NewsSection = () => {
               {filterNews(newsData.placesVisited).map((item) => (
                 <Card key={item.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <CardTitle className="text-lg">{item.title}</CardTitle>
+                    <CardTitle className="text-lg">{t(item.titleKey)}</CardTitle>
                     <CardDescription>{item.date}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-700">{item.description}</p>
+                    <p className="text-gray-700">{t(item.descriptionKey)}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -84,11 +86,11 @@ const NewsSection = () => {
               {filterNews(newsData.visitors).map((item) => (
                 <Card key={item.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <CardTitle className="text-lg">{item.title}</CardTitle>
+                    <CardTitle className="text-lg">{t(item.titleKey)}</CardTitle>
                     <CardDescription>{item.date}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-700">{item.description}</p>
+                    <p className="text-gray-700">{t(item.descriptionKey)}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -100,11 +102,11 @@ const NewsSection = () => {
               {filterNews(newsData.certificatesReceived).map((item) => (
                 <Card key={item.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <CardTitle className="text-lg">{item.title}</CardTitle>
+                    <CardTitle className="text-lg">{t(item.titleKey)}</CardTitle>
                     <CardDescription>{item.date}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-700">{item.description}</p>
+                    <p className="text-gray-700">{t(item.descriptionKey)}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -116,11 +118,11 @@ const NewsSection = () => {
               {filterNews(newsData.certificatesAwarded).map((item) => (
                 <Card key={item.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <CardTitle className="text-lg">{item.title}</CardTitle>
+                    <CardTitle className="text-lg">{t(item.titleKey)}</CardTitle>
                     <CardDescription>{item.date}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-700">{item.description}</p>
+                    <p className="text-gray-700">{t(item.descriptionKey)}</p>
                   </CardContent>
                 </Card>
               ))}

@@ -4,6 +4,7 @@ import { LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useHeaderState } from '@/hooks/useHeaderState';
+import { useLanguage } from '@/contexts/LanguageContext';
 import HeaderLogo from './header/HeaderLogo';
 import NavigationItems from './header/NavigationItems';
 import LanguageSelector from './header/LanguageSelector';
@@ -11,6 +12,7 @@ import MobileMenu from './header/MobileMenu';
 
 const Header = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const {
     isMobileMenuOpen,
     setIsMobileMenuOpen,
@@ -105,8 +107,8 @@ const Header = () => {
               onClick={() => navigate('/signup')}
             >
               <LogIn className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden md:inline">Sign Up</span>
-              <span className="md:hidden">Join</span>
+              <span className="hidden md:inline">{t('signUp')}</span>
+              <span className="md:hidden">{t('join')}</span>
             </Button>
 
             <MobileMenu 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -9,31 +10,31 @@ const StaffSection = () => {
   const staffMembers = [
     {
       id: 1,
-      name: 'Dr. Ahmad Rahman',
-      position: 'Executive Director',
+      nameKey: 'drAhmadName',
+      positionKey: 'drAhmadPosition',
       image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bio: 'Leading healthcare initiatives across the Kurdistan region with over 15 years of experience.'
+      bioKey: 'drAhmadBio'
     },
     {
       id: 2,
-      name: 'Sarah Mohammed',
-      position: 'Education Program Manager',
+      nameKey: 'sarahName',
+      positionKey: 'sarahPosition',
       image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bio: 'Developing educational programs and managing school construction projects.'
+      bioKey: 'sarahBio'
     },
     {
       id: 3,
-      name: 'Omar Hassan',
-      position: 'Community Outreach Coordinator',
+      nameKey: 'omarName',
+      positionKey: 'omarPosition',
       image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bio: 'Building bridges between communities and coordinating volunteer activities.'
+      bioKey: 'omarBio'
     },
     {
       id: 4,
-      name: 'Rojin Khalil',
-      position: 'Healthcare Coordinator',
+      nameKey: 'rojinName',
+      positionKey: 'rojinPosition',
       image: 'https://images.unsplash.com/photo-1469041797191-50ace28483c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bio: 'Managing mobile health clinics and medical supply distribution programs.'
+      bioKey: 'rojinBio'
     }
   ];
 
@@ -43,7 +44,7 @@ const StaffSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
             <Users className="w-10 h-10 text-blue-600" />
-            Our Staff
+            {t('staffTitle')}
           </h2>
           <div className="w-24 h-1 bg-blue-600 mx-auto"></div>
         </div>
@@ -55,15 +56,15 @@ const StaffSection = () => {
                 <div className="relative mb-6">
                   <img
                     src={member.image}
-                    alt={member.name}
+                    alt={t(member.nameKey)}
                     className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-blue-100 group-hover:border-blue-300 transition-colors"
                   />
                   <div className="absolute inset-0 rounded-full bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
                 
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{member.name}</h3>
-                <p className="text-blue-600 font-semibold mb-3">{member.position}</p>
-                <p className="text-gray-600 text-sm leading-relaxed">{member.bio}</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t(member.nameKey)}</h3>
+                <p className="text-blue-600 font-semibold mb-3">{t(member.positionKey)}</p>
+                <p className="text-gray-600 text-sm leading-relaxed">{t(member.bioKey)}</p>
               </CardContent>
             </Card>
           ))}
