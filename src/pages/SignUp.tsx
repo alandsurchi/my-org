@@ -4,22 +4,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, UserPlus, LogIn } from 'lucide-react';
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const [userType, setUserType] = useState('client');
 
   const handleSignUp = () => {
-    // Simulate sign up - in real app, this would call your auth service
+    // Simulate customer sign up - in real app, this would call your auth service
     navigate('/dashboard');
   };
 
   const handleLogin = () => {
-    // Simulate login - in real app, this would call your auth service
+    // Simulate customer login - in real app, this would call your auth service
     navigate('/dashboard');
   };
 
@@ -89,23 +87,11 @@ const SignUp = () => {
                     className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="userType" className="text-gray-700 font-medium">I am a:</Label>
-                  <Select value={userType} onValueChange={setUserType}>
-                    <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="client">Community Member/Supporter</SelectItem>
-                      <SelectItem value="staff">Staff Member</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 <Button 
                   onClick={handleSignUp}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  Create Account
+                  Join as Community Member
                 </Button>
               </TabsContent>
               
@@ -149,6 +135,15 @@ const SignUp = () => {
           <a href="#" className="text-blue-600 hover:text-blue-700 transition-colors">Terms of Service</a>
           {' '}and{' '}
           <a href="#" className="text-blue-600 hover:text-blue-700 transition-colors">Privacy Policy</a>
+        </div>
+
+        <div className="text-center mt-4">
+          <Link 
+            to="/staff-login" 
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Staff Login
+          </Link>
         </div>
       </div>
     </div>

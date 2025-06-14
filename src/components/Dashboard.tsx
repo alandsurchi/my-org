@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Upload, Trash2, Edit, Plus, Settings, LogOut } from 'lucide-react';
+import { Bell, Upload, Trash2, Edit, Plus, Settings, LogOut, Shield, Users, UserPlus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
 interface DashboardProps {
@@ -22,6 +22,12 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     { id: 1, type: 'project', title: 'New project: Clean Water Initiative launched', date: '2024-06-10', read: false },
     { id: 2, type: 'news', title: 'Visit to Erbil Schools completed', date: '2024-06-08', read: false },
     { id: 3, type: 'gallery', title: 'New photos added to Community Outreach', date: '2024-06-05', read: true }
+  ]);
+
+  const [staffMembers] = useState([
+    { id: 1, name: 'Ahmad Rahman', email: 'ahmad@mrovdostan.org', role: 'Admin', status: 'Active', joinDate: '2023-01-15' },
+    { id: 2, name: 'Sarah Mohammed', email: 'sarah@mrovdostan.org', role: 'Editor', status: 'Active', joinDate: '2023-03-20' },
+    { id: 3, name: 'Omar Hassan', email: 'omar@mrovdostan.org', role: 'Viewer', status: 'Active', joinDate: '2023-06-10' }
   ]);
 
   const markAsRead = (id: number) => {
@@ -161,11 +167,12 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
         </div>
 
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="content">Content Management</TabsTrigger>
-            <TabsTrigger value="gallery">Gallery Management</TabsTrigger>
-            <TabsTrigger value="news">News Management</TabsTrigger>
-            <TabsTrigger value="projects">Project Management</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="gallery">Gallery</TabsTrigger>
+            <TabsTrigger value="news">News</TabsTrigger>
+            <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="staff">Staff Management</TabsTrigger>
           </TabsList>
 
           <TabsContent value="content" className="space-y-6">
@@ -325,12 +332,17 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                         </div>
                         <div>
                           <Label htmlFor="newsCategory">Category</Label>
-                          <select className="w-full p-2 border rounded">
-                            <option>Places Visited</option>
-                            <option>Visitors to Organization</option>
-                            <option>Certificates Received</option>
-                            <option>Certificates Awarded</option>
-                          </select>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="places">Places Visited</SelectItem>
+                              <SelectItem value="visitors">Visitors to Organization</SelectItem>
+                              <SelectItem value="certificates-received">Certificates Received</SelectItem>
+                              <SelectItem value="certificates-awarded">Certificates Awarded</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                         <Button className="w-full">Publish Article</Button>
                       </div>
@@ -371,12 +383,17 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                         </div>
                         <div>
                           <Label htmlFor="projectCategory">Category</Label>
-                          <select className="w-full p-2 border rounded">
-                            <option>Water & Sanitation</option>
-                            <option>Education</option>
-                            <option>Emergency Relief</option>
-                            <option>Healthcare</option>
-                          </select>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="water">Water & Sanitation</SelectItem>
+                              <SelectItem value="education">Education</SelectItem>
+                              <SelectItem value="emergency">Emergency Relief</SelectItem>
+                              <SelectItem value="healthcare">Healthcare</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                         <div>
                           <Label htmlFor="projectBadge">Badge</Label>
@@ -389,6 +406,106 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="staff" className="space-y-6">
+            <div className="grid gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Staff Management
+                  </CardTitle>
+                  <CardDescription>Manage staff accounts and permissions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button>
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Add New Staff Member
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Add New Staff Member</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="staffName">Full Name</Label>
+                              <Input id="staffName" placeholder="Enter full name" />
+                            </div>
+                            <div>
+                              <Label htmlFor="staffEmailNew">Email</Label>
+                              <Input id="staffEmailNew" type="email" placeholder="Enter email address" />
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="staffRole">Role</Label>
+                            <Select>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="admin">Admin - Full access</SelectItem>
+                                <SelectItem value="editor">Editor - Can edit content</SelectItem>
+                                <SelectItem value="viewer">Viewer - View only</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label htmlFor="tempPassword">Temporary Password</Label>
+                            <Input id="tempPassword" type="password" placeholder="Set temporary password" />
+                          </div>
+                          <Button className="w-full" onClick={() => toast({ title: "Staff member added successfully" })}>
+                            Create Staff Account
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Current Staff Members
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {staffMembers.map((member) => (
+                      <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <h3 className="font-medium">{member.name}</h3>
+                          <p className="text-sm text-gray-500">{member.email}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant={member.role === 'Admin' ? 'destructive' : member.role === 'Editor' ? 'default' : 'secondary'}>
+                              {member.role}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {member.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button size="sm" variant="destructive">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
