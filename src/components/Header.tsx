@@ -11,11 +11,20 @@ const Header = () => {
   const { language, setLanguage, t } = useLanguage();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isInHeroSection, setIsInHeroSection] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 20);
+      
+      // Check if we're in the hero section (top of the page)
+      const heroSection = document.querySelector('section');
+      if (heroSection) {
+        const heroHeight = heroSection.offsetHeight;
+        setIsInHeroSection(scrollY < heroHeight - 100); // Give some buffer
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -47,12 +56,51 @@ const Header = () => {
     }
   };
 
+  // Determine header styling based on scroll and hero section
+  const getHeaderStyling = () => {
+    if (isScrolled && !isInHeroSection) {
+      return 'bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg';
+    } else if (isScrolled && isInHeroSection) {
+      return 'glass border-b border-white/20 shadow-lg';
+    } else {
+      return 'bg-transparent';
+    }
+  };
+
+  const getTextStyling = () => {
+    if (isScrolled && !isInHeroSection) {
+      return 'text-gray-700 hover:text-blue-600';
+    } else {
+      return 'text-white/90 hover:text-white';
+    }
+  };
+
+  const getLogoStyling = () => {
+    if (isScrolled && !isInHeroSection) {
+      return 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent';
+    } else {
+      return 'text-white';
+    }
+  };
+
+  const getSelectStyling = () => {
+    if (isScrolled && !isInHeroSection) {
+      return 'border-gray-200 bg-white/80 backdrop-blur-sm';
+    } else {
+      return 'border-white/30 bg-white/10 backdrop-blur-sm text-white';
+    }
+  };
+
+  const getMobileButtonStyling = () => {
+    if (isScrolled && !isInHeroSection) {
+      return 'border-gray-200 bg-white/80 backdrop-blur-sm';
+    } else {
+      return 'border-white/30 bg-white/10 backdrop-blur-sm text-white';
+    }
+  };
+
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled 
-        ? 'bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg' 
-        : 'bg-transparent'
-    }`}>
+    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${getHeaderStyling()}`}>
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 group">
@@ -64,9 +112,7 @@ const Header = () => {
               />
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
             </div>
-            <span className={`text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent transition-all duration-300 ${
-              !isScrolled ? 'text-white' : ''
-            }`}>
+            <span className={`text-xl font-bold transition-all duration-300 ${getLogoStyling()}`}>
               MROVDOSTAN
             </span>
           </div>
@@ -79,11 +125,7 @@ const Header = () => {
                 <button 
                   key={item.id}
                   onClick={() => handleNavigation(item)}
-                  className={`relative group flex items-center font-medium transition-all duration-300 hover:scale-105 ${
-                    isScrolled 
-                      ? 'text-gray-700 hover:text-blue-600' 
-                      : 'text-white/90 hover:text-white'
-                  }`}
+                  className={`relative group flex items-center font-medium transition-all duration-300 hover:scale-105 ${getTextStyling()}`}
                 >
                   <IconComponent className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:scale-110" />
                   {item.label}
@@ -99,11 +141,7 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             {/* Language Selector */}
             <Select value={language} onValueChange={(value) => setLanguage(value as any)}>
-              <SelectTrigger className={`w-auto transition-all duration-300 hover:scale-105 ${
-                isScrolled 
-                  ? 'border-gray-200 bg-white/80 backdrop-blur-sm' 
-                  : 'border-white/30 bg-white/10 backdrop-blur-sm text-white'
-              }`}>
+              <SelectTrigger className={`w-auto transition-all duration-300 hover:scale-105 ${getSelectStyling()}`}>
                 <Globe className="w-4 h-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
@@ -131,11 +169,7 @@ const Header = () => {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className={`md:hidden transition-all duration-300 hover:scale-105 ${
-                    isScrolled 
-                      ? 'border-gray-200 bg-white/80 backdrop-blur-sm' 
-                      : 'border-white/30 bg-white/10 backdrop-blur-sm text-white'
-                  }`}
+                  className={`md:hidden transition-all duration-300 hover:scale-105 ${getMobileButtonStyling()}`}
                 >
                   <Menu className="w-4 h-4" />
                 </Button>
