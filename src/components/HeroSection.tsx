@@ -4,10 +4,12 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowDown } from 'lucide-react';
 
 const HeroSection = () => {
+  console.log('HeroSection rendering');
   const { t } = useLanguage();
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    console.log('HeroSection useEffect running');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -31,6 +33,8 @@ const HeroSection = () => {
       nextSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  console.log('Organization name from translation:', t('orgName'));
 
   return (
     <section 
