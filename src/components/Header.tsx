@@ -46,7 +46,8 @@ const Header = () => {
               <img 
                 src="/lovable-uploads/2ba81074-4283-4f16-a659-4f4a054275fa.png" 
                 alt="Mrovdostan for Humanitarian Aid Logo" 
-                className="w-12 h-12 object-contain"
+                className="w-12 h-12 object-contain mix-blend-multiply"
+                style={{ background: 'transparent' }}
               />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
