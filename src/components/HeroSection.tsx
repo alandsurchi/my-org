@@ -66,20 +66,41 @@ const HeroSection = () => {
       </div>
       
       <div className="relative z-10 text-center text-white max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Organization name with improved Arabic/Kurdish text styling */}
+        {/* Organization name with enhanced readability */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 md:mb-8 fade-in-on-scroll leading-tight">
-          <span className="block text-white drop-shadow-2xl" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.3)' }}>
+          <span 
+            className="block text-white drop-shadow-2xl" 
+            style={{ 
+              textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.8), 1px 1px 3px rgba(0,0,0,1)',
+              filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.8))'
+            }}
+          >
             {t('orgName')}
           </span>
         </h1>
         
-        {/* Hero content with better structure and visibility */}
+        {/* Hero content with enhanced readability */}
         <div className="space-y-4 md:space-y-6 fade-in-on-scroll">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white leading-relaxed">
+          <h2 
+            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white leading-relaxed"
+            style={{ 
+              textShadow: '2px 2px 4px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7), 1px 1px 2px rgba(0,0,0,1)',
+              filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.8))'
+            }}
+          >
             {t('heroTitle')}
           </h2>
           
-          <p className="text-lg sm:text-xl md:text-2xl text-blue-200 font-medium glass px-6 py-3 rounded-xl inline-block">
+          <p 
+            className="text-lg sm:text-xl md:text-2xl font-medium glass px-6 py-3 rounded-xl inline-block"
+            style={{ 
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(15px)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white',
+              textShadow: '1px 1px 3px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.6)'
+            }}
+          >
             {t('heroSubtitle')}
           </p>
         </div>
@@ -90,7 +111,12 @@ const HeroSection = () => {
         <div className="flex flex-col items-center">
           {/* Animated scroll text */}
           <div className="mb-3 md:mb-4 text-center">
-            <span className="text-white/80 text-xs sm:text-sm font-medium tracking-wider uppercase">
+            <span 
+              className="text-white/90 text-xs sm:text-sm font-medium tracking-wider uppercase"
+              style={{ 
+                textShadow: '1px 1px 3px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.6)'
+              }}
+            >
               {t('discoverMore')}
             </span>
           </div>
