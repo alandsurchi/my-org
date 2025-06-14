@@ -69,19 +69,9 @@ const HeroSection = () => {
           MROVDOSTAN
         </h1>
         
-        <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-6 md:mb-8 leading-relaxed fade-in-on-scroll glass px-4 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl">
+        <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-12 leading-relaxed fade-in-on-scroll glass px-4 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl">
           <span className="block mb-1 md:mb-2">{t('heroTitle')}</span>
           <span className="text-blue-200 text-base sm:text-lg">{t('heroSubtitle')}</span>
-        </div>
-
-        {/* Call to action buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 fade-in-on-scroll">
-          <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            {t('donateNow')}
-          </Button>
-          <Button variant="outline" size="lg" className="border-white/30 text-white hover:bg-white/10 hover:border-white/50 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm transition-all duration-300 hover:scale-105">
-            {t('learnMore')}
-          </Button>
         </div>
       </div>
 
