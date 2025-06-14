@@ -41,15 +41,13 @@ const HeroSection = () => {
       ref={heroRef} 
       className="relative min-h-screen h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Responsive background with optimized image */}
+      {/* Clear background image without overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 via-purple-900/60 to-black/50"></div>
-        
         {/* Floating particles - reduced for mobile performance */}
         <div className="absolute inset-0">
           {[...Array(4)].map((_, i) => (
@@ -87,7 +85,7 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Enhanced responsive scroll indicator */}
+      {/* Centered discover more button */}
       <div className="absolute bottom-8 md:bottom-12 left-1/2 transform -translate-x-1/2 fade-in-on-scroll">
         <div className="flex flex-col items-center">
           {/* Animated scroll text */}
