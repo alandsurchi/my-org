@@ -128,16 +128,6 @@ const StaffSection = () => {
             </Card>
           ))}
         </div>
-
-        <div className="text-center mt-16 fade-in-on-scroll">
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('joinTeamTitle')}</h3>
-            <p className="text-gray-600 mb-6">{t('joinTeamDescription')}</p>
-            <button className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 hover:from-indigo-700 hover:via-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-medium transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
-              {t('joinTeam')}
-            </button>
-          </div>
-        </div>
       </div>
     </section>
   );
