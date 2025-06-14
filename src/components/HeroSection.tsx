@@ -64,13 +64,22 @@ const HeroSection = () => {
       </div>
       
       <div className="relative z-10 text-center text-white max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 md:mb-6 fade-in-on-scroll bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent leading-tight">
-          {t('orgName')}
+        {/* Organization name with improved styling */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 md:mb-8 fade-in-on-scroll leading-tight">
+          <span className="block bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+            {t('orgName')}
+          </span>
         </h1>
         
-        <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-12 leading-relaxed fade-in-on-scroll glass px-4 sm:px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl">
-          <span className="block mb-1 md:mb-2">{t('heroTitle')}</span>
-          <span className="text-blue-200 text-base sm:text-lg">{t('heroSubtitle')}</span>
+        {/* Hero content with better structure and visibility */}
+        <div className="space-y-4 md:space-y-6 fade-in-on-scroll">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white leading-relaxed">
+            {t('heroTitle')}
+          </h2>
+          
+          <p className="text-lg sm:text-xl md:text-2xl text-blue-200 font-medium glass px-6 py-3 rounded-xl inline-block">
+            {t('heroSubtitle')}
+          </p>
         </div>
       </div>
 
