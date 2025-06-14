@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Users, MapPin, Calendar, Award } from 'lucide-react';
+import { Users, Award } from 'lucide-react';
 
 const StaffSection = () => {
   const { t } = useLanguage();
@@ -13,40 +13,28 @@ const StaffSection = () => {
       nameKey: 'drAhmadName',
       positionKey: 'drAhmadPosition',
       image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bioKey: 'drAhmadBio',
-      experience: '15+ years',
-      location: 'Erbil',
-      specialization: 'Healthcare Leadership'
+      bioKey: 'drAhmadBio'
     },
     {
       id: 2,
       nameKey: 'sarahName',
       positionKey: 'sarahPosition',
       image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bioKey: 'sarahBio',
-      experience: '10+ years',
-      location: 'Dohuk',
-      specialization: 'Education Development'
+      bioKey: 'sarahBio'
     },
     {
       id: 3,
       nameKey: 'omarName',
       positionKey: 'omarPosition',
       image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bioKey: 'omarBio',
-      experience: '8+ years',
-      location: 'Sulaymaniyah',
-      specialization: 'Community Engagement'
+      bioKey: 'omarBio'
     },
     {
       id: 4,
       nameKey: 'rojinName',
       positionKey: 'rojinPosition',
       image: 'https://images.unsplash.com/photo-1469041797191-50ace28483c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bioKey: 'rojinBio',
-      experience: '12+ years',
-      location: 'Baghdad',
-      specialization: 'Mobile Healthcare'
+      bioKey: 'rojinBio'
     }
   ];
 
@@ -93,32 +81,13 @@ const StaffSection = () => {
                       <Award className="w-6 h-6 text-white" />
                     </div>
                   </div>
-                  
-                  {/* Experience badge */}
-                  <div className="absolute bottom-4 left-4">
-                    <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                      <span className="text-white text-sm font-medium">{member.experience}</span>
-                    </div>
-                  </div>
                 </div>
                 
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
                     {t(member.nameKey)}
                   </h3>
-                  <p className="text-blue-600 font-semibold mb-3">{t(member.positionKey)}</p>
-                  
-                  {/* Details */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      {member.location}
-                    </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Award className="w-4 h-4 mr-2" />
-                      {member.specialization}
-                    </div>
-                  </div>
+                  <p className="text-blue-600 font-semibold mb-4">{t(member.positionKey)}</p>
                   
                   <p className="text-gray-600 text-sm leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
                     {t(member.bioKey)}
