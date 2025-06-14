@@ -10,20 +10,29 @@ import { useLanguage } from '@/contexts/LanguageContext';
 interface MobileMenuProps {
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (open: boolean) => void;
+  isScrolled: boolean;
   activeSection: string;
-  handleNavigation: (item: any) => void;
-  getMobileButtonStyling: () => string;
+  getTextStyling: (itemId?: string) => string;
+  handleNavigation: (item: { id: string }) => void;
 }
 
 const MobileMenu: React.FC<MobileMenuProps> = ({
   isMobileMenuOpen,
   setIsMobileMenuOpen,
+  isScrolled,
   activeSection,
-  handleNavigation,
-  getMobileButtonStyling
+  getTextStyling,
+  handleNavigation
 }) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+
+  const getMobileButtonStyling = () => {
+    if (isScrolled) {
+      return "border-gray-200 bg-white/80 text-gray-800 hover:bg-white";
+    }
+    return "border-white/30 bg-white/20 text-white hover:bg-white/30";
+  };
 
   const navigationItems = [
     { id: 'home', labelKey: 'home', icon: Home },

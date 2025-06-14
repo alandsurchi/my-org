@@ -62,8 +62,8 @@ const Header = () => {
             <LanguageSelector getSelectStyling={getSelectStyling} />
             <AuthButton />
             <MobileMenu 
-              isOpen={isMobileMenuOpen}
-              setIsOpen={setIsMobileMenuOpen}
+              isMobileMenuOpen={isMobileMenuOpen}
+              setIsMobileMenuOpen={setIsMobileMenuOpen}
               isScrolled={isScrolled}
               activeSection={activeSection}
               getTextStyling={getTextStyling}
