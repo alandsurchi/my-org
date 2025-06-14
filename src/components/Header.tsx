@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { LogIn, Globe, Menu, X, Home, Info, Briefcase, Newspaper, Image, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -60,10 +59,9 @@ const Header = () => {
   const getHeaderStyling = () => {
     if (isScrolled && !isInHeroSection) {
       return 'bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg';
-    } else if (isScrolled && isInHeroSection) {
-      return 'glass border-b border-white/20 shadow-lg';
     } else {
-      return 'bg-transparent';
+      // Always show glass effect when in hero section
+      return 'glass border-b border-white/20 shadow-lg';
     }
   };
 
