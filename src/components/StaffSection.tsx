@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Users, Award, ArrowRight } from 'lucide-react';
+import { Users, ArrowRight } from 'lucide-react';
 import { useStaff } from '@/hooks/useStaff';
 
 const StaffSection = () => {
@@ -98,13 +98,6 @@ const StaffSection = () => {
                           alt={member.name_en}
                           className="w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-105"
                         />
-                      </div>
-                    </div>
-                    
-                    {/* Floating badge */}
-                    <div className="absolute top-0 right-1/2 transform translate-x-1/2 -translate-y-2">
-                      <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                        <Award className="w-5 h-5 text-white" />
                       </div>
                     </div>
                   </div>
