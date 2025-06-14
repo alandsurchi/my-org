@@ -64,9 +64,9 @@ const HeroSection = () => {
       </div>
       
       <div className="relative z-10 text-center text-white max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Organization name with improved styling */}
+        {/* Organization name with improved Arabic/Kurdish text styling */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 md:mb-8 fade-in-on-scroll leading-tight">
-          <span className="block bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+          <span className="block text-white drop-shadow-2xl" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.3)' }}>
             {t('orgName')}
           </span>
         </h1>
