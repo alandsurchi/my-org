@@ -140,7 +140,24 @@ const translations = {
     email: 'Email',
     password: 'Password',
     loginButton: 'Login',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
+    
+    // Sign Up page
+    backToHome: 'Back to Home',
+    joinTitle: 'Join MROVDOSTAN',
+    joinSubtitle: 'Connect with our community and make a difference',
+    loginTab: 'Login',
+    fullName: 'Full Name',
+    fullNamePlaceholder: 'Enter your full name',
+    emailPlaceholder: 'Enter your email',
+    passwordPlaceholder: 'Create a password',
+    loginPasswordPlaceholder: 'Enter your password',
+    joinAsMember: 'Join as Community Member',
+    forgotPassword: 'Forgot your password?',
+    termsAgreement: 'By joining, you agree to our',
+    termsOfService: 'Terms of Service',
+    and: 'and',
+    privacyPolicy: 'Privacy Policy'
   },
   ar: {
     // Organization name
@@ -273,7 +290,24 @@ const translations = {
     email: 'البريد الإلكتروني',
     password: 'كلمة المرور',
     loginButton: 'تسجيل الدخول',
-    cancel: 'إلغاء'
+    cancel: 'إلغاء',
+    
+    // Sign Up page
+    backToHome: 'العودة للرئيسية',
+    joinTitle: 'انضم إلى مروڤدوستان',
+    joinSubtitle: 'تواصل مع مجتمعنا وأحدث فرقاً',
+    loginTab: 'تسجيل الدخول',
+    fullName: 'الاسم الكامل',
+    fullNamePlaceholder: 'أدخل اسمك الكامل',
+    emailPlaceholder: 'أدخل بريدك الإلكتروني',
+    passwordPlaceholder: 'أنشئ كلمة مرور',
+    loginPasswordPlaceholder: 'أدخل كلمة المرور',
+    joinAsMember: 'انضم كعضو في المجتمع',
+    forgotPassword: 'نسيت كلمة المرور؟',
+    termsAgreement: 'بالانضمام، فإنك توافق على',
+    termsOfService: 'شروط الخدمة',
+    and: 'و',
+    privacyPolicy: 'سياسة الخصوصية'
   },
   ku: {
     // Organization name
@@ -406,7 +440,24 @@ const translations = {
     email: 'ئیمەیڵ',
     password: 'وشەی نهێنی',
     loginButton: 'چوونەژوور',
-    cancel: 'پاشگەزبوونەوە'
+    cancel: 'پاشگەزبوونەوە',
+    
+    // Sign Up page
+    backToHome: 'گەڕانەوە بۆ سەرەتا',
+    joinTitle: 'بەشداری مرۆڤدۆستان بکە',
+    joinSubtitle: 'پەیوەندی لەگەڵ کۆمەڵگاکەمان بکە و جیاوازی دروست بکە',
+    loginTab: 'چوونەژوور',
+    fullName: 'ناوی تەواو',
+    fullNamePlaceholder: 'ناوی تەواوت بنووسە',
+    emailPlaceholder: 'ئیمەیڵەکەت بنووسە',
+    passwordPlaceholder: 'وشەی نهێنی دروست بکە',
+    loginPasswordPlaceholder: 'وشەی نهێنیەکەت بنووسە',
+    joinAsMember: 'وەک ئەندامی کۆمەڵگا بەشداری بکە',
+    forgotPassword: 'وشەی نهێنیەکەت لەبیرکردووە؟',
+    termsAgreement: 'بە بەشداریکردن، ڕازی دەبیت لەسەر',
+    termsOfService: 'مەرجەکانی خزمەتگوزاری',
+    and: 'و',
+    privacyPolicy: 'سیاسەتی تایبەتی'
   }
 };
 
