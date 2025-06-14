@@ -59,24 +59,11 @@ export const useHeaderState = () => {
     return () => observer.disconnect();
   }, []);
 
-  const handleNavigation = (item: { id: string }) => {
-    const element = document.getElementById(item.id);
-    if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
-    } else if (item.id === 'home') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
   return {
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     isScrolled,
     isInHeroSection,
-    activeSection,
-    handleNavigation
+    activeSection
   };
 };

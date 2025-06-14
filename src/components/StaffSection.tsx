@@ -2,38 +2,41 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useStaff } from '@/hooks/useStaff';
-import { Users, Award, Mail, Phone } from 'lucide-react';
+import { Users, Award } from 'lucide-react';
 
 const StaffSection = () => {
-  const { t, language } = useLanguage();
-  const { staff, loading, error } = useStaff();
+  const { t } = useLanguage();
 
-  const getLocalizedText = (item: any, field: string) => {
-    if (language === 'ar' && item[`${field}_ar`]) return item[`${field}_ar`];
-    if (language === 'ku' && item[`${field}_ku`]) return item[`${field}_ku`];
-    return item[`${field}_en`];
-  };
-
-  if (loading) {
-    return (
-      <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center">Loading staff...</div>
-        </div>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center text-red-600">Error loading staff: {error}</div>
-        </div>
-      </section>
-    );
-  }
+  const staffMembers = [
+    {
+      id: 1,
+      nameKey: 'drAhmadName',
+      positionKey: 'drAhmadPosition',
+      image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+      bioKey: 'drAhmadBio'
+    },
+    {
+      id: 2,
+      nameKey: 'sarahName',
+      positionKey: 'sarahPosition',
+      image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+      bioKey: 'sarahBio'
+    },
+    {
+      id: 3,
+      nameKey: 'omarName',
+      positionKey: 'omarPosition',
+      image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+      bioKey: 'omarBio'
+    },
+    {
+      id: 4,
+      nameKey: 'rojinName',
+      positionKey: 'rojinPosition',
+      image: 'https://images.unsplash.com/photo-1469041797191-50ace28483c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+      bioKey: 'rojinBio'
+    }
+  ];
 
   return (
     <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
@@ -61,62 +64,38 @@ const StaffSection = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {staff.map((member, index) => {
-            const name = getLocalizedText(member, 'name');
-            const position = getLocalizedText(member, 'position');
-            const bio = getLocalizedText(member, 'bio');
-
-            return (
-              <Card key={member.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
-                <CardContent className="p-0">
-                  <div className="relative">
-                    <img
-                      src={member.image_url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop'}
-                      alt={name}
-                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    
-                    <div className="absolute top-4 right-4">
-                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                        <Award className="w-6 h-6 text-white" />
-                      </div>
+          {staffMembers.map((member, index) => (
+            <Card key={member.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+              <CardContent className="p-0">
+                <div className="relative">
+                  <img
+                    src={member.image}
+                    alt={t(member.nameKey)}
+                    className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  
+                  {/* Floating badge */}
+                  <div className="absolute top-4 right-4">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                      <Award className="w-6 h-6 text-white" />
                     </div>
                   </div>
+                </div>
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+                    {t(member.nameKey)}
+                  </h3>
+                  <p className="text-blue-600 font-semibold mb-4">{t(member.positionKey)}</p>
                   
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300">
-                      {name}
-                    </h3>
-                    <p className="text-blue-600 font-semibold mb-4">{position}</p>
-                    
-                    {bio && (
-                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">
-                        {bio}
-                      </p>
-                    )}
-
-                    {(member.email || member.phone) && (
-                      <div className="flex flex-col gap-2 text-sm text-gray-500">
-                        {member.email && (
-                          <div className="flex items-center gap-2">
-                            <Mail className="w-4 h-4" />
-                            <span>{member.email}</span>
-                          </div>
-                        )}
-                        {member.phone && (
-                          <div className="flex items-center gap-2">
-                            <Phone className="w-4 h-4" />
-                            <span>{member.phone}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                  <p className="text-gray-600 text-sm leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                    {t(member.bioKey)}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
