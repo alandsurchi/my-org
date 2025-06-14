@@ -6,23 +6,15 @@ import { Users, Award } from 'lucide-react';
 import { useStaff } from '@/hooks/useStaff';
 
 const StaffSection = () => {
-  console.log('🔵 StaffSection component is rendering');
-  
   const { t } = useLanguage();
   const { data: staffMembers = [], isLoading, error } = useStaff();
 
-  console.log('🔵 StaffSection render - staffMembers:', staffMembers);
-  console.log('🔵 StaffSection render - staffMembers length:', staffMembers?.length);
-  console.log('🔵 StaffSection render - isLoading:', isLoading);
-  console.log('🔵 StaffSection render - error:', error);
-
   if (isLoading) {
-    console.log('🟡 Staff section is loading...');
     return (
-      <section id="staff" className="py-24 bg-red-100 min-h-screen" style={{ backgroundColor: 'red', minHeight: '500px' }}>
+      <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="animate-pulse text-xl text-black">Loading staff...</div>
+            <div className="animate-pulse text-xl">Loading staff...</div>
           </div>
         </div>
       </section>
@@ -30,12 +22,11 @@ const StaffSection = () => {
   }
 
   if (error) {
-    console.error('🔴 Staff section error:', error);
     return (
-      <section id="staff" className="py-24 bg-red-500 min-h-screen" style={{ backgroundColor: 'red', minHeight: '500px' }}>
+      <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="text-white text-xl">Error loading staff: {error.message}</div>
+            <div className="text-red-600">Error loading staff: {error.message}</div>
           </div>
         </div>
       </section>
@@ -43,27 +34,19 @@ const StaffSection = () => {
   }
 
   if (!staffMembers || staffMembers.length === 0) {
-    console.log('🟠 No staff members found or empty array');
-    console.log('🟠 staffMembers is:', staffMembers);
-    console.log('🟠 typeof staffMembers:', typeof staffMembers);
-    console.log('🟠 Array.isArray(staffMembers):', Array.isArray(staffMembers));
     return (
-      <section id="staff" className="py-24 bg-yellow-500 min-h-screen" style={{ backgroundColor: 'yellow', minHeight: '500px' }}>
+      <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="text-black text-xl">No staff members found</div>
-            <div className="text-sm text-gray-800 mt-2">Debug: {JSON.stringify(staffMembers)}</div>
+            <div className="text-gray-600">No staff members found</div>
           </div>
         </div>
       </section>
     );
   }
 
-  console.log('🟢 Rendering staff members:', staffMembers.length);
-  console.log('🟢 Staff members data:', staffMembers);
-
   return (
-    <section id="staff" className="py-24 bg-green-100 min-h-screen" style={{ backgroundColor: 'lightgreen', minHeight: '800px', border: '5px solid red' }}>
+    <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0">
         <div className="absolute top-20 left-10 w-80 h-80 bg-gradient-to-r from-indigo-200/20 to-blue-200/20 rounded-full blur-3xl animate-float"></div>
@@ -78,54 +61,48 @@ const StaffSection = () => {
           </div>
           <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
             <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Our Team - DEBUG MODE
+              {t('staff')}
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
             Meet our dedicated team of professionals working tirelessly to make a positive impact in our communities.
           </p>
           <div className="w-32 h-1 bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 mx-auto rounded-full mt-6"></div>
-          <div className="mt-4 text-lg text-black">
-            Staff Count: {staffMembers.length} | Loading: {isLoading ? 'Yes' : 'No'} | Error: {error ? 'Yes' : 'No'}
-          </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {staffMembers.map((member, index) => {
-            console.log('🟢 Rendering individual staff member:', member);
-            return (
-              <Card key={member.id} className="group bg-white border-4 border-red-500 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s`, minHeight: '400px' }}>
-                <CardContent className="p-0">
-                  <div className="relative">
-                    <img
-                      src={member.image_url || 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'}
-                      alt={member.name_en}
-                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    
-                    {/* Floating badge */}
-                    <div className="absolute top-4 right-4">
-                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                        <Award className="w-6 h-6 text-white" />
-                      </div>
+          {staffMembers.map((member, index) => (
+            <Card key={member.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+              <CardContent className="p-0">
+                <div className="relative">
+                  <img
+                    src={member.image_url || 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'}
+                    alt={member.name_en}
+                    className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  
+                  {/* Floating badge */}
+                  <div className="absolute top-4 right-4">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                      <Award className="w-6 h-6 text-white" />
                     </div>
                   </div>
+                </div>
+                
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+                    {member.name_en}
+                  </h3>
+                  <p className="text-blue-600 font-semibold mb-4">{member.position_en}</p>
                   
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                      {member.name_en}
-                    </h3>
-                    <p className="text-blue-600 font-semibold mb-4">{member.position_en}</p>
-                    
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                      {member.bio_en}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                  <p className="text-gray-600 text-sm leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                    {member.bio_en}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
