@@ -5,9 +5,9 @@ import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
 import ProjectsSection from '@/components/ProjectsSection';
-import TeamSection from '@/components/TeamSection';
 import NewsSection from '@/components/NewsSection';
 import GallerySection from '@/components/GallerySection';
+import StaffSection from '@/components/StaffSection';
 import Footer from '@/components/Footer';
 
 const Index = () => {
@@ -18,9 +18,9 @@ const Index = () => {
         <HeroSection />
         <AboutSection />
         <ProjectsSection />
-        <TeamSection />
         <NewsSection />
         <GallerySection />
+        <StaffSection />
         <Footer />
       </div>
     </LanguageProvider>
