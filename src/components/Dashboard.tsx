@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,19 +25,19 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   
   // State for managing content
   const [images, setImages] = useState([
-    { id: 1, name: 'Hero Image', url: 'placeholder1.jpg' },
-    { id: 2, name: 'About Image', url: 'placeholder2.jpg' },
-    { id: 3, name: 'Project Image', url: 'placeholder3.jpg' },
-    { id: 4, name: 'Team Image', url: 'placeholder4.jpg' }
+    { id: 1, name: 'Hero Image', url: '/placeholder.svg' },
+    { id: 2, name: 'About Image', url: '/placeholder.svg' },
+    { id: 3, name: 'Project Image', url: '/placeholder.svg' },
+    { id: 4, name: 'Team Image', url: '/placeholder.svg' }
   ]);
 
   const [galleryItems, setGalleryItems] = useState([
-    { id: 1, title: 'Community Event', description: 'Local community gathering', url: 'gallery1.jpg' },
-    { id: 2, title: 'Water Project', description: 'Clean water initiative', url: 'gallery2.jpg' },
-    { id: 3, title: 'Education Program', description: 'School support program', url: 'gallery3.jpg' },
-    { id: 4, title: 'Healthcare Drive', description: 'Medical assistance program', url: 'gallery4.jpg' },
-    { id: 5, title: 'Emergency Relief', description: 'Disaster response efforts', url: 'gallery5.jpg' },
-    { id: 6, title: 'Youth Training', description: 'Skills development workshop', url: 'gallery6.jpg' }
+    { id: 1, title: 'Community Event', description: 'Local community gathering', url: '/placeholder.svg' },
+    { id: 2, title: 'Water Project', description: 'Clean water initiative', url: '/placeholder.svg' },
+    { id: 3, title: 'Education Program', description: 'School support program', url: '/placeholder.svg' },
+    { id: 4, title: 'Healthcare Drive', description: 'Medical assistance program', url: '/placeholder.svg' },
+    { id: 5, title: 'Emergency Relief', description: 'Disaster response efforts', url: '/placeholder.svg' },
+    { id: 6, title: 'Youth Training', description: 'Skills development workshop', url: '/placeholder.svg' }
   ]);
 
   const [newsArticles, setNewsArticles] = useState([
@@ -104,10 +103,10 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
+    if (files && files.length > 0) {
       const newImages = Array.from(files).map((file, index) => ({
-        id: images.length + index + 1,
-        name: file.name,
+        id: Date.now() + index,
+        name: file.name.replace(/\.[^/.]+$/, ""),
         url: URL.createObjectURL(file)
       }));
       setImages([...images, ...newImages]);
@@ -128,9 +127,9 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
 
   const handleGalleryUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files && galleryForm.title && galleryForm.description) {
+    if (files && files.length > 0 && galleryForm.title && galleryForm.description) {
       const newItems = Array.from(files).map((file, index) => ({
-        id: galleryItems.length + index + 1,
+        id: Date.now() + index,
         title: galleryForm.title,
         description: galleryForm.description,
         url: URL.createObjectURL(file)
@@ -141,7 +140,9 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
         title: "Gallery items added",
         description: `${files.length} item(s) have been added to the gallery.`,
       });
-    } else {
+      // Reset the file input
+      event.target.value = '';
+    } else if (!galleryForm.title || !galleryForm.description) {
       toast({
         title: "Please fill all fields",
         description: "Title and description are required.",
@@ -395,8 +396,15 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                     <div className="grid grid-cols-2 gap-4">
                       {images.map((image) => (
                         <div key={image.id} className="relative group">
-                          <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                            <span className="text-sm text-gray-500">{image.name}</span>
+                          <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+                            <img 
+                              src={image.url} 
+                              alt={image.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 rounded-b-lg">
+                            <span className="text-sm">{image.name}</span>
                           </div>
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                             <div className="flex space-x-2">
@@ -414,12 +422,15 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="imageUpload">Select Images</Label>
-                        <Input id="imageUpload" type="file" multiple accept="image/*" onChange={handleImageUpload} />
+                        <Input 
+                          id="imageUpload" 
+                          type="file" 
+                          multiple 
+                          accept="image/*" 
+                          onChange={handleImageUpload}
+                          className="cursor-pointer"
+                        />
                       </div>
-                      <Button className="w-full">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Upload Images
-                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -477,21 +488,25 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="galleryImages">Select Images</Label>
-                          <Input id="galleryImages" type="file" multiple accept="image/*" onChange={handleGalleryUpload} />
-                        </div>
-                        <div>
-                          <Label htmlFor="imageDescription">Description</Label>
+                          <Label htmlFor="galleryDescription">Description</Label>
                           <Textarea 
-                            id="imageDescription" 
+                            id="galleryDescription" 
                             placeholder="Enter image description"
                             value={galleryForm.description}
                             onChange={(e) => setGalleryForm({...galleryForm, description: e.target.value})}
                           />
                         </div>
-                        <Button className="w-full" onClick={() => document.getElementById('galleryImages')?.click()}>
-                          Add to Gallery
-                        </Button>
+                        <div>
+                          <Label htmlFor="galleryImages">Select Images</Label>
+                          <Input 
+                            id="galleryImages" 
+                            type="file" 
+                            multiple 
+                            accept="image/*" 
+                            onChange={handleGalleryUpload}
+                            className="cursor-pointer"
+                          />
+                        </div>
                       </div>
                     </DialogContent>
                   </Dialog>
@@ -499,11 +514,16 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                   <div className="grid grid-cols-3 gap-4">
                     {galleryItems.map((item) => (
                       <div key={item.id} className="relative group">
-                        <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                          <div className="text-center p-2">
-                            <p className="text-sm font-medium">{item.title}</p>
-                            <p className="text-xs text-gray-500">{item.description}</p>
-                          </div>
+                        <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+                          <img 
+                            src={item.url} 
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 rounded-b-lg">
+                          <p className="text-sm font-medium">{item.title}</p>
+                          <p className="text-xs text-gray-300">{item.description}</p>
                         </div>
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                           <div className="flex space-x-2">
