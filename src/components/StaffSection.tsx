@@ -58,7 +58,7 @@ const StaffSection = () => {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-            {t('staffDescription')}
+            Meet our dedicated team of professionals working tirelessly to make a positive impact in our communities.
           </p>
           <div className="w-32 h-1 bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 mx-auto rounded-full mt-6"></div>
         </div>
