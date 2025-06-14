@@ -77,8 +77,8 @@ const Header = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en">English</SelectItem>
-                <SelectItem value="ar">العربية</SelectItem>
                 <SelectItem value="ku">کوردی</SelectItem>
+                <SelectItem value="ar">العربية</SelectItem>
               </SelectContent>
             </Select>
 
