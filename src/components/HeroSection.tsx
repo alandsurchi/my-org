@@ -66,42 +66,19 @@ const HeroSection = () => {
       </div>
       
       <div className="relative z-10 text-center text-white max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Organization name with modern styling */}
+        {/* Organization name with card design */}
         <div className="mb-6 md:mb-8 fade-in-on-scroll">
-          <div className="relative inline-block">
-            <h1 
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent"
-              style={{
-                WebkitTextStroke: '2px rgba(255,255,255,0.8)',
-                filter: 'drop-shadow(0 0 20px rgba(0,0,0,0.8)) drop-shadow(0 0 40px rgba(0,0,0,0.6))'
-              }}
-            >
-              {t('orgName')}
-            </h1>
-            {/* Glow effect behind text */}
-            <div 
-              className="absolute inset-0 text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight text-white opacity-20 blur-sm"
-              aria-hidden="true"
-            >
-              {t('orgName')}
-            </div>
-          </div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-tight px-8 py-4 rounded-2xl backdrop-blur-md bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 border border-white/30 shadow-2xl">
+            {t('orgName')}
+          </h1>
         </div>
         
-        {/* Hero content with modern card design */}
+        {/* Hero title with matching card design */}
         <div className="space-y-6 md:space-y-8 fade-in-on-scroll">
           <div className="relative">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white leading-relaxed px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 border border-white/20 shadow-2xl">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white leading-relaxed px-8 py-4 rounded-2xl backdrop-blur-md bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 border border-white/30 shadow-2xl max-w-3xl mx-auto">
               {t('heroTitle')}
             </h2>
-          </div>
-          
-          <div className="relative">
-            <p className="text-lg sm:text-xl md:text-2xl font-medium text-white px-8 py-4 rounded-2xl backdrop-blur-md bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 border border-white/30 shadow-2xl max-w-3xl mx-auto">
-              {t('heroSubtitle')}
-            </p>
-            {/* Subtle glow effect */}
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-blue-400/10 blur-xl"></div>
           </div>
         </div>
       </div>
