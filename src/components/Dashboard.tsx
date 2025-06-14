@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Upload, Trash2, Edit, Plus, Settings, LogOut, Shield, Users, UserPlus } from 'lucide-react';
+import { Bell, Upload, Trash2, Edit, Plus, Settings, LogOut, Shield, Users, UserPlus, Home } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -99,6 +99,10 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
       title: "Logged out successfully",
       description: "You have been logged out of the staff dashboard.",
     });
+  };
+
+  const handleGoHome = () => {
+    navigate('/');
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -254,10 +258,16 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
               <h1 className="text-3xl font-bold text-gray-900">Welcome, {userName}</h1>
               <p className="text-gray-600">Stay updated with our latest activities</p>
             </div>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" onClick={handleGoHome}>
+                <Home className="w-4 h-4 mr-2" />
+                Go to Home
+              </Button>
+              <Button variant="outline" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -369,10 +379,16 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
             <h1 className="text-3xl font-bold text-gray-900">Staff Dashboard</h1>
             <p className="text-gray-600">Welcome back, {userName}</p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" onClick={handleGoHome}>
+              <Home className="w-4 h-4 mr-2" />
+              Go to Home
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="content" className="w-full">
