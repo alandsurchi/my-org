@@ -3,40 +3,23 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Users, Award } from 'lucide-react';
+import { useStaff } from '@/hooks/useStaff';
 
 const StaffSection = () => {
   const { t } = useLanguage();
+  const { data: staffMembers = [], isLoading } = useStaff();
 
-  const staffMembers = [
-    {
-      id: 1,
-      nameKey: 'drAhmadName',
-      positionKey: 'drAhmadPosition',
-      image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bioKey: 'drAhmadBio'
-    },
-    {
-      id: 2,
-      nameKey: 'sarahName',
-      positionKey: 'sarahPosition',
-      image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bioKey: 'sarahBio'
-    },
-    {
-      id: 3,
-      nameKey: 'omarName',
-      positionKey: 'omarPosition',
-      image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bioKey: 'omarBio'
-    },
-    {
-      id: 4,
-      nameKey: 'rojinName',
-      positionKey: 'rojinPosition',
-      image: 'https://images.unsplash.com/photo-1469041797191-50ace28483c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      bioKey: 'rojinBio'
-    }
-  ];
+  if (isLoading) {
+    return (
+      <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center">
+            <div className="animate-pulse">Loading staff...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
@@ -69,8 +52,8 @@ const StaffSection = () => {
               <CardContent className="p-0">
                 <div className="relative">
                   <img
-                    src={member.image}
-                    alt={t(member.nameKey)}
+                    src={member.image_url || 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'}
+                    alt={member.name_en}
                     className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
@@ -85,12 +68,12 @@ const StaffSection = () => {
                 
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                    {t(member.nameKey)}
+                    {member.name_en}
                   </h3>
-                  <p className="text-blue-600 font-semibold mb-4">{t(member.positionKey)}</p>
+                  <p className="text-blue-600 font-semibold mb-4">{member.position_en}</p>
                   
                   <p className="text-gray-600 text-sm leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                    {t(member.bioKey)}
+                    {member.bio_en}
                   </p>
                 </div>
               </CardContent>

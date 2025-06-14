@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Calendar, ArrowRight, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,72 +5,29 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useProjects } from '@/hooks/useProjects';
 
 const ProjectsSection = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const { data: projects = [], isLoading } = useProjects();
 
-  const activities = [
-    {
-      id: 1,
-      titleKey: 'cleanWaterTitle',
-      descriptionKey: 'cleanWaterDesc',
-      category: 'water',
-      badgeKey: 'survey',
-      date: '2024-01-15',
-      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop',
-      location: 'Erbil'
-    },
-    {
-      id: 2,
-      titleKey: 'educationSupportTitle',
-      descriptionKey: 'educationSupportDesc',
-      category: 'education',
-      badgeKey: 'sustainable',
-      date: '2024-01-10',
-      image: 'https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=600&h=400&fit=crop',
-      location: 'Dohuk'
-    },
-    {
-      id: 3,
-      titleKey: 'emergencyReliefTitle',
-      descriptionKey: 'emergencyReliefDesc',
-      category: 'emergency',
-      badgeKey: 'response',
-      date: '2024-01-05',
-      image: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&h=400&fit=crop',
-      location: 'Sulaymaniyah'
-    },
-    {
-      id: 4,
-      titleKey: 'healthcareMobileTitle',
-      descriptionKey: 'healthcareMobileDesc',
-      category: 'healthcare',
-      badgeKey: 'bangladesh',
-      date: '2024-01-01',
-      image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=600&h=400&fit=crop',
-      location: 'Baghdad'
-    }
-  ];
-
-  const filteredActivities = activities.filter(activity => {
-    const title = t(activity.titleKey);
-    const description = t(activity.descriptionKey);
-    const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || activity.category === selectedCategory;
+  const filteredActivities = projects.filter(project => {
+    const matchesSearch = project.title_en.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.description_en.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const getBadgeColor = (badgeKey: string) => {
+  const getBadgeColor = (category: string) => {
     const colors = {
-      'survey': 'bg-gradient-to-r from-blue-500 to-blue-600',
-      'sustainable': 'bg-gradient-to-r from-green-500 to-emerald-600',
-      'response': 'bg-gradient-to-r from-purple-500 to-purple-600',
-      'bangladesh': 'bg-gradient-to-r from-indigo-500 to-indigo-600'
+      'water': 'bg-gradient-to-r from-blue-500 to-blue-600',
+      'education': 'bg-gradient-to-r from-green-500 to-emerald-600',
+      'emergency': 'bg-gradient-to-r from-purple-500 to-purple-600',
+      'healthcare': 'bg-gradient-to-r from-indigo-500 to-indigo-600'
     };
-    return colors[badgeKey as keyof typeof colors] || 'bg-gradient-to-r from-blue-500 to-blue-600';
+    return colors[category as keyof typeof colors] || 'bg-gradient-to-r from-blue-500 to-blue-600';
   };
 
   const getCategoryIcon = (category: string) => {
@@ -83,6 +39,18 @@ const ProjectsSection = () => {
     };
     return icons[category as keyof typeof icons] || '🌟';
   };
+
+  if (isLoading) {
+    return (
+      <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center">
+            <div className="animate-pulse">Loading projects...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 relative overflow-hidden">
@@ -138,8 +106,8 @@ const ProjectsSection = () => {
             <Card key={activity.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="relative overflow-hidden">
                 <img 
-                  src={activity.image} 
-                  alt={t(activity.titleKey)}
+                  src={activity.image_url || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop'} 
+                  alt={activity.title_en}
                   className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
@@ -152,23 +120,25 @@ const ProjectsSection = () => {
                 </div>
                 
                 <div className="absolute top-4 right-4">
-                  <span className={`${getBadgeColor(activity.badgeKey)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
-                    {t(activity.badgeKey)}
+                  <span className={`${getBadgeColor(activity.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
+                    {activity.status}
                   </span>
                 </div>
 
-                <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
-                  <MapPin className="w-4 h-4 mr-1" />
-                  {activity.location}
-                </div>
+                {activity.location && (
+                  <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    {activity.location}
+                  </div>
+                )}
               </div>
               
               <CardHeader className="pb-4">
                 <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                  {t(activity.titleKey)}
+                  {activity.title_en}
                 </CardTitle>
                 <CardDescription className="text-gray-600 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                  {t(activity.descriptionKey)}
+                  {activity.description_en}
                 </CardDescription>
               </CardHeader>
               
@@ -176,7 +146,7 @@ const ProjectsSection = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center text-gray-500">
                     <Calendar className="w-4 h-4 mr-2" />
-                    <span className="text-sm font-medium">{activity.date}</span>
+                    <span className="text-sm font-medium">{new Date(activity.created_at).toLocaleDateString()}</span>
                   </div>
                   <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-auto font-medium group/btn">
                     {t('readMore')} 
