@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Calendar, ArrowRight, Award, Users, Building, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,20 +13,76 @@ const NewsSection = () => {
 
   const newsData = {
     placesVisited: [
-      { id: 1, titleKey: 'erbilSchoolsTitle', date: '2024-06-10', descriptionKey: 'erbilSchoolsDesc' },
-      { id: 2, titleKey: 'dohukHealthcareTitle', date: '2024-06-05', descriptionKey: 'dohukHealthcareDesc' }
+      { 
+        id: 1, 
+        titleKey: 'erbilSchoolsTitle', 
+        date: '2024-06-10', 
+        descriptionKey: 'erbilSchoolsDesc',
+        image: 'https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=400&h=250&fit=crop',
+        icon: Building
+      },
+      { 
+        id: 2, 
+        titleKey: 'dohukHealthcareTitle', 
+        date: '2024-06-05', 
+        descriptionKey: 'dohukHealthcareDesc',
+        image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=250&fit=crop',
+        icon: Building
+      }
     ],
     visitors: [
-      { id: 1, titleKey: 'unVisitTitle', date: '2024-06-08', descriptionKey: 'unVisitDesc' },
-      { id: 2, titleKey: 'govMeetingTitle', date: '2024-06-03', descriptionKey: 'govMeetingDesc' }
+      { 
+        id: 1, 
+        titleKey: 'unVisitTitle', 
+        date: '2024-06-08', 
+        descriptionKey: 'unVisitDesc',
+        image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop',
+        icon: Users
+      },
+      { 
+        id: 2, 
+        titleKey: 'govMeetingTitle', 
+        date: '2024-06-03', 
+        descriptionKey: 'govMeetingDesc',
+        image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop',
+        icon: Users
+      }
     ],
     certificatesReceived: [
-      { id: 1, titleKey: 'excellenceAwardTitle', date: '2024-05-30', descriptionKey: 'excellenceAwardDesc' },
-      { id: 2, titleKey: 'healthcareInnovationTitle', date: '2024-05-25', descriptionKey: 'healthcareInnovationDesc' }
+      { 
+        id: 1, 
+        titleKey: 'excellenceAwardTitle', 
+        date: '2024-05-30', 
+        descriptionKey: 'excellenceAwardDesc',
+        image: 'https://images.unsplash.com/photo-1569025743873-ea3a9ade89f9?w=400&h=250&fit=crop',
+        icon: Award
+      },
+      { 
+        id: 2, 
+        titleKey: 'healthcareInnovationTitle', 
+        date: '2024-05-25', 
+        descriptionKey: 'healthcareInnovationDesc',
+        image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop',
+        icon: Award
+      }
     ],
     certificatesAwarded: [
-      { id: 1, titleKey: 'communityLeaderTitle', date: '2024-06-01', descriptionKey: 'communityLeaderDesc' },
-      { id: 2, titleKey: 'volunteerExcellenceTitle', date: '2024-05-28', descriptionKey: 'volunteerExcellenceDesc' }
+      { 
+        id: 1, 
+        titleKey: 'communityLeaderTitle', 
+        date: '2024-06-01', 
+        descriptionKey: 'communityLeaderDesc',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop',
+        icon: Trophy
+      },
+      { 
+        id: 2, 
+        titleKey: 'volunteerExcellenceTitle', 
+        date: '2024-05-28', 
+        descriptionKey: 'volunteerExcellenceDesc',
+        image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=250&fit=crop',
+        icon: Trophy
+      }
     ]
   };
 
@@ -39,99 +95,128 @@ const NewsSection = () => {
     });
   };
 
+  const getTabIcon = (tabValue: string) => {
+    const icons = {
+      'placesVisited': '📍',
+      'visitors': '👥',
+      'certificatesReceived': '🏆',
+      'certificatesAwarded': '🎖️'
+    };
+    return icons[tabValue as keyof typeof icons] || '📰';
+  };
+
+  const renderNewsGrid = (newsItems: any[]) => (
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {filterNews(newsItems).map((item, index) => {
+        const IconComponent = item.icon;
+        return (
+          <Card key={item.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+            <div className="relative overflow-hidden">
+              <img 
+                src={item.image} 
+                alt={t(item.titleKey)}
+                className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              
+              <div className="absolute top-4 right-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                  <IconComponent className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              
+              <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
+                <Calendar className="w-4 h-4 mr-2" />
+                {item.date}
+              </div>
+            </div>
+            
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+                {t(item.titleKey)}
+              </CardTitle>
+              <CardDescription className="text-gray-600 leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                {t(item.descriptionKey)}
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="pt-0">
+              <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium group/btn justify-between">
+                {t('readMore')}
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+              </Button>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+
   return (
-    <section id="news" className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('newsTitle')}</h2>
-          <div className="w-24 h-1 bg-blue-600 mx-auto"></div>
+    <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 via-blue-50/20 to-gray-50 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0">
+        <div className="absolute top-32 right-10 w-80 h-80 bg-gradient-to-r from-purple-200/20 to-blue-200/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-32 left-10 w-96 h-96 bg-gradient-to-r from-blue-200/20 to-green-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-pink-200/20 to-purple-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-20 fade-in-on-scroll">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-purple-600 to-blue-600 mb-8 animate-scale-in shadow-2xl">
+            <span className="text-3xl">📰</span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
+            <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              {t('newsTitle')}
+            </span>
+          </h2>
+          <div className="w-32 h-1 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 mx-auto rounded-full"></div>
         </div>
 
-        <div className="relative mb-8">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <div className="relative mb-12 fade-in-on-scroll">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <Input
             placeholder={t('searchNews')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 max-w-md mx-auto"
+            className="pl-12 h-14 border-0 bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl max-w-lg mx-auto focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
           />
         </div>
 
         <Tabs defaultValue="placesVisited" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="placesVisited">{t('placesVisited')}</TabsTrigger>
-            <TabsTrigger value="visitors">{t('visitorsToOrg')}</TabsTrigger>
-            <TabsTrigger value="certificatesReceived">{t('certificatesReceived')}</TabsTrigger>
-            <TabsTrigger value="certificatesAwarded">{t('certificatesAwarded')}</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-12 bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl p-2 h-auto">
+            {Object.keys(newsData).map((key) => (
+              <TabsTrigger 
+                key={key}
+                value={key} 
+                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl py-3 px-4 flex items-center gap-2 font-medium transition-all duration-300"
+              >
+                <span className="text-lg">{getTabIcon(key)}</span>
+                <span className="hidden sm:inline">{t(key)}</span>
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="placesVisited" className="mt-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filterNews(newsData.placesVisited).map((item) => (
-                <Card key={item.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{t(item.titleKey)}</CardTitle>
-                    <CardDescription>{item.date}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700">{t(item.descriptionKey)}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {renderNewsGrid(newsData.placesVisited)}
           </TabsContent>
 
           <TabsContent value="visitors" className="mt-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filterNews(newsData.visitors).map((item) => (
-                <Card key={item.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{t(item.titleKey)}</CardTitle>
-                    <CardDescription>{item.date}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700">{t(item.descriptionKey)}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {renderNewsGrid(newsData.visitors)}
           </TabsContent>
 
           <TabsContent value="certificatesReceived" className="mt-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filterNews(newsData.certificatesReceived).map((item) => (
-                <Card key={item.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{t(item.titleKey)}</CardTitle>
-                    <CardDescription>{item.date}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700">{t(item.descriptionKey)}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {renderNewsGrid(newsData.certificatesReceived)}
           </TabsContent>
 
           <TabsContent value="certificatesAwarded" className="mt-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filterNews(newsData.certificatesAwarded).map((item) => (
-                <Card key={item.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{t(item.titleKey)}</CardTitle>
-                    <CardDescription>{item.date}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700">{t(item.descriptionKey)}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {renderNewsGrid(newsData.certificatesAwarded)}
           </TabsContent>
         </Tabs>
 
-        <div className="text-center mt-12">
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+        <div className="text-center mt-16 fade-in-on-scroll">
+          <Button size="lg" className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
             {t('viewAllNews')}
           </Button>
         </div>
