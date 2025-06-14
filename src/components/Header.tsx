@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { LogIn, Globe, Menu, X, Home, Info, Briefcase, Newspaper, Image, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -44,10 +43,9 @@ const Header = () => {
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 flex items-center justify-center">
               <img 
-                src="/lovable-uploads/2ba81074-4283-4f16-a659-4f4a054275fa.png" 
+                src="/lovable-uploads/eb6198ca-261c-4e22-ba5c-9af9f83d0c52.png" 
                 alt="Mrovdostan for Humanitarian Aid Logo" 
-                className="w-12 h-12 object-contain mix-blend-multiply"
-                style={{ background: 'transparent' }}
+                className="w-12 h-12 object-contain"
               />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
