@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Users, Award } from 'lucide-react';
+import { Users, Award, ArrowRight } from 'lucide-react';
 import { useStaff } from '@/hooks/useStaff';
 
 const StaffSection = () => {
@@ -58,7 +59,7 @@ const StaffSection = () => {
   console.log('🟢 Staff members data:', staffMembers);
 
   return (
-    <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden w-full">
+    <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden w-full min-h-screen">
       {/* Background decorations */}
       <div className="absolute inset-0">
         <div className="absolute top-20 left-10 w-80 h-80 bg-gradient-to-r from-indigo-200/20 to-blue-200/20 rounded-full blur-3xl animate-float"></div>
@@ -82,35 +83,39 @@ const StaffSection = () => {
           <div className="w-32 h-1 bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 mx-auto rounded-full mt-6"></div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 w-full mb-16">
           {staffMembers.map((member, index) => {
             console.log('🟢 Rendering individual staff member:', member);
             return (
-              <Card key={member.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll w-full" style={{ animationDelay: `${index * 0.1}s` }}>
-                <CardContent className="p-0">
-                  <div className="relative">
-                    <img
-                      src={member.image_url || 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'}
-                      alt={member.name_en}
-                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <Card key={member.id} className="group bg-white/90 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll w-full" style={{ animationDelay: `${index * 0.1}s` }}>
+                <CardContent className="p-8 text-center">
+                  <div className="relative mb-6">
+                    {/* Circular image with gradient border */}
+                    <div className="relative mx-auto w-32 h-32 mb-4">
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 rounded-full p-1">
+                        <img
+                          src={member.image_url || 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'}
+                          alt={member.name_en}
+                          className="w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                    </div>
                     
                     {/* Floating badge */}
-                    <div className="absolute top-4 right-4">
-                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                        <Award className="w-6 h-6 text-white" />
+                    <div className="absolute top-0 right-1/2 transform translate-x-1/2 -translate-y-2">
+                      <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                        <Award className="w-5 h-5 text-white" />
                       </div>
                     </div>
                   </div>
                   
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
                       {member.name_en}
                     </h3>
-                    <p className="text-blue-600 font-semibold mb-4">{member.position_en}</p>
+                    <p className="text-blue-600 font-semibold text-sm uppercase tracking-wider">{member.position_en}</p>
                     
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                    <p className="text-gray-600 text-sm leading-relaxed" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
                       {member.bio_en}
                     </p>
                   </div>
@@ -118,6 +123,16 @@ const StaffSection = () => {
               </Card>
             );
           })}
+        </div>
+
+        {/* See All Staff Button */}
+        <div className="text-center fade-in-on-scroll">
+          <Button 
+            className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 hover:from-indigo-700 hover:via-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group"
+          >
+            See All Staff
+            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+          </Button>
         </div>
       </div>
     </section>
