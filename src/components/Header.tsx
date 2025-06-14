@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { LogIn, Globe, Menu, X, Home } from 'lucide-react';
+import { LogIn, Globe, Menu, X, Home, Info, Briefcase, Newspaper, Image, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -21,12 +21,12 @@ const Header = () => {
   };
 
   const navigationItems = [
-    { id: 'home', label: 'Home', isButton: true },
-    { id: 'about', label: 'About' },
-    { id: 'projects', label: 'Projects' },
-    { id: 'news', label: 'News' },
-    { id: 'gallery', label: 'Gallery' },
-    { id: 'staff', label: 'Staff' }
+    { id: 'home', label: 'Home', icon: Home },
+    { id: 'about', label: 'About', icon: Info },
+    { id: 'projects', label: 'Projects', icon: Briefcase },
+    { id: 'news', label: 'News', icon: Newspaper },
+    { id: 'gallery', label: 'Gallery', icon: Image },
+    { id: 'staff', label: 'Staff', icon: Users }
   ];
 
   const handleNavigation = (item: any) => {
@@ -52,17 +52,20 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navigationItems.map((item) => (
-              <button 
-                key={item.id}
-                onClick={() => handleNavigation(item)}
-                className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium relative group flex items-center"
-              >
-                {item.id === 'home' && <Home className="w-4 h-4 mr-1" />}
-                {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-200"></span>
-              </button>
-            ))}
+            {navigationItems.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <button 
+                  key={item.id}
+                  onClick={() => handleNavigation(item)}
+                  className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium relative group flex items-center"
+                >
+                  <IconComponent className="w-4 h-4 mr-1" />
+                  {item.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-200"></span>
+                </button>
+              );
+            })}
           </nav>
 
           <div className="flex items-center space-x-4">
@@ -99,19 +102,22 @@ const Header = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] bg-white/95 backdrop-blur-md">
                 <div className="flex flex-col space-y-4 mt-8">
-                  {navigationItems.map((item) => (
-                    <button 
-                      key={item.id}
-                      onClick={() => {
-                        handleNavigation(item);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="text-left text-gray-700 hover:text-blue-600 transition-colors font-medium py-2 flex items-center"
-                    >
-                      {item.id === 'home' && <Home className="w-4 h-4 mr-2" />}
-                      {item.label}
-                    </button>
-                  ))}
+                  {navigationItems.map((item) => {
+                    const IconComponent = item.icon;
+                    return (
+                      <button 
+                        key={item.id}
+                        onClick={() => {
+                          handleNavigation(item);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="text-left text-gray-700 hover:text-blue-600 transition-colors font-medium py-2 flex items-center"
+                      >
+                        <IconComponent className="w-4 h-4 mr-2" />
+                        {item.label}
+                      </button>
+                    );
+                  })}
                   <Button 
                     variant="outline" 
                     className="mt-4 justify-start bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 hover:from-blue-700 hover:to-purple-700"
