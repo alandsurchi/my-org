@@ -11,9 +11,11 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">M</span>
-              </div>
+              <img 
+                src="/lovable-uploads/2ba81074-4283-4f16-a659-4f4a054275fa.png" 
+                alt="MROVDOSTAN Logo" 
+                className="w-10 h-10 rounded-lg object-cover"
+              />
               <span className="text-xl font-bold">MROVDOSTAN</span>
             </div>
             <p className="text-gray-400 leading-relaxed">
