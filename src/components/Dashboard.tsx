@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useStaffAuth } from '@/contexts/StaffAuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useNews } from '@/hooks/useNews';
+import { useProjects } from '@/hooks/useProjects';
+import { useGallery, useCreateGalleryItem, useDeleteGalleryItem } from '@/hooks/useGallery';
+import { useWebsiteImages, useCreateWebsiteImage, useDeleteWebsiteImage } from '@/hooks/useWebsiteImages';
+import { useStaffAccounts, useCreateStaffAccount, useDeleteStaffAccount } from '@/hooks/useStaffAccounts';
+import { useFileUpload } from '@/hooks/useFileUpload';
 
 interface DashboardProps {
   userType: 'client' | 'staff';
@@ -22,41 +29,22 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const { toast } = useToast();
   const { logout } = useStaffAuth();
   const navigate = useNavigate();
-  
-  // State for managing content
-  const [images, setImages] = useState([
-    { id: 1, name: 'Hero Image', url: '/placeholder.svg' },
-    { id: 2, name: 'About Image', url: '/placeholder.svg' },
-    { id: 3, name: 'Project Image', url: '/placeholder.svg' },
-    { id: 4, name: 'Team Image', url: '/placeholder.svg' }
-  ]);
+  const { uploadFile, uploading } = useFileUpload();
 
-  const [galleryItems, setGalleryItems] = useState([
-    { id: 1, title: 'Community Event', description: 'Local community gathering', url: '/placeholder.svg' },
-    { id: 2, title: 'Water Project', description: 'Clean water initiative', url: '/placeholder.svg' },
-    { id: 3, title: 'Education Program', description: 'School support program', url: '/placeholder.svg' },
-    { id: 4, title: 'Healthcare Drive', description: 'Medical assistance program', url: '/placeholder.svg' },
-    { id: 5, title: 'Emergency Relief', description: 'Disaster response efforts', url: '/placeholder.svg' },
-    { id: 6, title: 'Youth Training', description: 'Skills development workshop', url: '/placeholder.svg' }
-  ]);
+  // Real data from Supabase
+  const { data: news = [] } = useNews();
+  const { data: projects = [] } = useProjects();
+  const { data: galleryItems = [] } = useGallery();
+  const { data: websiteImages = [] } = useWebsiteImages();
+  const { data: staffAccounts = [] } = useStaffAccounts();
 
-  const [newsArticles, setNewsArticles] = useState([
-    { id: 1, title: 'Visit to Local School', category: 'places', date: '2024-06-10' },
-    { id: 2, title: 'UN Representative Meeting', category: 'visitors', date: '2024-06-08' },
-    { id: 3, title: 'Excellence Award Received', category: 'certificatesReceived', date: '2024-06-05' }
-  ]);
-
-  const [projects, setProjects] = useState([
-    { id: 1, title: 'Clean Water Initiative', category: 'water', status: 'active', badge: 'Sustainable' },
-    { id: 2, title: 'Education Support Program', category: 'education', status: 'active', badge: 'Impact' },
-    { id: 3, title: 'Emergency Relief Effort', category: 'emergency', status: 'completed', badge: 'Response' }
-  ]);
-
-  const [staffMembers, setStaffMembers] = useState([
-    { id: 1, name: 'Ahmad Rahman', email: 'ahmad@mrovdostan.org', role: 'Admin', status: 'Active', joinDate: '2023-01-15' },
-    { id: 2, name: 'Sarah Mohammed', email: 'sarah@mrovdostan.org', role: 'Editor', status: 'Active', joinDate: '2023-03-20' },
-    { id: 3, name: 'Omar Hassan', email: 'omar@mrovdostan.org', role: 'Viewer', status: 'Active', joinDate: '2023-06-10' }
-  ]);
+  // Mutations
+  const createGalleryItem = useCreateGalleryItem();
+  const deleteGalleryItem = useDeleteGalleryItem();
+  const createWebsiteImage = useCreateWebsiteImage();
+  const deleteWebsiteImage = useDeleteWebsiteImage();
+  const createStaffAccount = useCreateStaffAccount();
+  const deleteStaffAccount = useDeleteStaffAccount();
 
   // Form states
   const [newStaffForm, setNewStaffForm] = useState({
@@ -64,19 +52,6 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     email: '',
     role: '',
     password: ''
-  });
-
-  const [newArticleForm, setNewArticleForm] = useState({
-    title: '',
-    content: '',
-    category: ''
-  });
-
-  const [newProjectForm, setNewProjectForm] = useState({
-    title: '',
-    description: '',
-    category: '',
-    badge: ''
   });
 
   const [galleryForm, setGalleryForm] = useState({
@@ -105,40 +80,48 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     navigate('/');
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-      const newImages = Array.from(files).map((file, index) => ({
-        id: Date.now() + index,
-        name: file.name.replace(/\.[^/.]+$/, ""),
-        url: URL.createObjectURL(file)
-      }));
-      setImages([...images, ...newImages]);
+      for (const file of Array.from(files)) {
+        const imageUrl = await uploadFile(file);
+        if (imageUrl) {
+          await createWebsiteImage.mutateAsync({
+            name: file.name.replace(/\.[^/.]+$/, ""),
+            image_url: imageUrl
+          });
+        }
+      }
       toast({
         title: "Images uploaded successfully",
         description: `${files.length} image(s) have been uploaded.`,
       });
+      // Reset the file input
+      event.target.value = '';
     }
   };
 
-  const handleDeleteImage = (id: number) => {
-    setImages(images.filter(img => img.id !== id));
+  const handleDeleteImage = async (id: string) => {
+    await deleteWebsiteImage.mutateAsync(id);
     toast({
       title: "Image deleted",
       description: "The image has been removed successfully.",
     });
   };
 
-  const handleGalleryUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0 && galleryForm.title && galleryForm.description) {
-      const newItems = Array.from(files).map((file, index) => ({
-        id: Date.now() + index,
-        title: galleryForm.title,
-        description: galleryForm.description,
-        url: URL.createObjectURL(file)
-      }));
-      setGalleryItems([...galleryItems, ...newItems]);
+      for (const file of Array.from(files)) {
+        const imageUrl = await uploadFile(file);
+        if (imageUrl) {
+          await createGalleryItem.mutateAsync({
+            title: galleryForm.title,
+            description: galleryForm.description,
+            image_url: imageUrl
+          });
+        }
+      }
       setGalleryForm({ title: '', description: '' });
       toast({
         title: "Gallery items added",
@@ -155,77 +138,35 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     }
   };
 
-  const handleDeleteGalleryItem = (id: number) => {
-    setGalleryItems(galleryItems.filter(item => item.id !== id));
+  const handleDeleteGalleryItem = async (id: string) => {
+    await deleteGalleryItem.mutateAsync(id);
     toast({
       title: "Gallery item deleted",
       description: "The gallery item has been removed successfully.",
     });
   };
 
-  const handleCreateArticle = () => {
-    if (newArticleForm.title && newArticleForm.content && newArticleForm.category) {
-      const newArticle = {
-        id: newsArticles.length + 1,
-        title: newArticleForm.title,
-        category: newArticleForm.category,
-        date: new Date().toISOString().split('T')[0]
-      };
-      setNewsArticles([...newsArticles, newArticle]);
-      setNewArticleForm({ title: '', content: '', category: '' });
-      toast({
-        title: "Article published",
-        description: "The news article has been published successfully.",
-      });
-    } else {
-      toast({
-        title: "Please fill all fields",
-        description: "All fields are required to publish an article.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleCreateProject = () => {
-    if (newProjectForm.title && newProjectForm.description && newProjectForm.category && newProjectForm.badge) {
-      const newProject = {
-        id: projects.length + 1,
-        title: newProjectForm.title,
-        category: newProjectForm.category,
-        status: 'active' as const,
-        badge: newProjectForm.badge
-      };
-      setProjects([...projects, newProject]);
-      setNewProjectForm({ title: '', description: '', category: '', badge: '' });
-      toast({
-        title: "Project created",
-        description: "The new project has been created successfully.",
-      });
-    } else {
-      toast({
-        title: "Please fill all fields",
-        description: "All fields are required to create a project.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleAddStaffMember = () => {
+  const handleAddStaffMember = async () => {
     if (newStaffForm.name && newStaffForm.email && newStaffForm.role && newStaffForm.password) {
-      const newMember = {
-        id: staffMembers.length + 1,
-        name: newStaffForm.name,
-        email: newStaffForm.email,
-        role: newStaffForm.role,
-        status: 'Active' as const,
-        joinDate: new Date().toISOString().split('T')[0]
-      };
-      setStaffMembers([...staffMembers, newMember]);
-      setNewStaffForm({ name: '', email: '', role: '', password: '' });
-      toast({
-        title: "Staff member added",
-        description: "The new staff member has been added successfully.",
-      });
+      try {
+        await createStaffAccount.mutateAsync({
+          name: newStaffForm.name,
+          email: newStaffForm.email,
+          role: newStaffForm.role,
+          password: newStaffForm.password
+        });
+        setNewStaffForm({ name: '', email: '', role: '', password: '' });
+        toast({
+          title: "Staff member added",
+          description: "The new staff member has been added successfully.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error adding staff member",
+          description: "Failed to add the staff member. Email might already exist.",
+          variant: "destructive"
+        });
+      }
     } else {
       toast({
         title: "Please fill all fields",
@@ -235,8 +176,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     }
   };
 
-  const handleDeleteStaffMember = (id: number) => {
-    setStaffMembers(staffMembers.filter(member => member.id !== id));
+  const handleDeleteStaffMember = async (id: string) => {
+    await deleteStaffAccount.mutateAsync(id);
     toast({
       title: "Staff member removed",
       description: "The staff member has been removed successfully.",
@@ -310,7 +251,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
               <CardContent>
                 <div className="space-y-2">
                   {projects.slice(0, 3).map((project) => (
-                    <div key={project.id} className="text-sm">• {project.title}</div>
+                    <div key={project.id} className="text-sm">• {project.title_en}</div>
                   ))}
                 </div>
               </CardContent>
@@ -410,13 +351,17 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                      {images.map((image) => (
+                      {websiteImages.map((image) => (
                         <div key={image.id} className="relative group">
                           <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
                             <img 
-                              src={image.url} 
+                              src={image.image_url || '/placeholder.svg'} 
                               alt={image.name}
                               className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = '/placeholder.svg';
+                              }}
                             />
                           </div>
                           <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 rounded-b-lg">
@@ -427,7 +372,12 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                               <Button size="sm" variant="secondary">
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button size="sm" variant="destructive" onClick={() => handleDeleteImage(image.id)}>
+                              <Button 
+                                size="sm" 
+                                variant="destructive" 
+                                onClick={() => handleDeleteImage(image.id)}
+                                disabled={deleteWebsiteImage.isPending}
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
@@ -445,7 +395,11 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                           accept="image/*" 
                           onChange={handleImageUpload}
                           className="cursor-pointer"
+                          disabled={uploading || createWebsiteImage.isPending}
                         />
+                        {(uploading || createWebsiteImage.isPending) && (
+                          <p className="text-sm text-gray-500 mt-2">Uploading...</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -521,7 +475,11 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                             accept="image/*" 
                             onChange={handleGalleryUpload}
                             className="cursor-pointer"
+                            disabled={uploading || createGalleryItem.isPending}
                           />
+                          {(uploading || createGalleryItem.isPending) && (
+                            <p className="text-sm text-gray-500 mt-2">Uploading...</p>
+                          )}
                         </div>
                       </div>
                     </DialogContent>
@@ -532,9 +490,13 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                       <div key={item.id} className="relative group">
                         <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
                           <img 
-                            src={item.url} 
+                            src={item.image_url || '/placeholder.svg'} 
                             alt={item.title}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/placeholder.svg';
+                            }}
                           />
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 rounded-b-lg">
@@ -546,7 +508,12 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                             <Button size="sm" variant="secondary">
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDeleteGalleryItem(item.id)}>
+                            <Button 
+                              size="sm" 
+                              variant="destructive" 
+                              onClick={() => handleDeleteGalleryItem(item.id)}
+                              disabled={deleteGalleryItem.isPending}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -563,78 +530,33 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
             <Card>
               <CardHeader>
                 <CardTitle>News Management</CardTitle>
-                <CardDescription>Create and manage news articles</CardDescription>
+                <CardDescription>View and manage news articles from the database</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create New Article
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle>Create News Article</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="newsTitle">Title</Label>
-                          <Input 
-                            id="newsTitle" 
-                            placeholder="Enter article title"
-                            value={newArticleForm.title}
-                            onChange={(e) => setNewArticleForm({...newArticleForm, title: e.target.value})}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="newsContent">Content</Label>
-                          <Textarea 
-                            id="newsContent" 
-                            placeholder="Enter article content" 
-                            rows={6}
-                            value={newArticleForm.content}
-                            onChange={(e) => setNewArticleForm({...newArticleForm, content: e.target.value})}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="newsCategory">Category</Label>
-                          <Select value={newArticleForm.category} onValueChange={(value) => setNewArticleForm({...newArticleForm, category: value})}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="places">Places Visited</SelectItem>
-                              <SelectItem value="visitors">Visitors to Organization</SelectItem>
-                              <SelectItem value="certificatesReceived">Certificates Received</SelectItem>
-                              <SelectItem value="certificatesAwarded">Certificates Awarded</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <Button className="w-full" onClick={handleCreateArticle}>Publish Article</Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Published Articles</h3>
-                    {newsArticles.map((article) => (
-                      <div key={article.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <h4 className="font-medium">{article.title}</h4>
-                          <p className="text-sm text-gray-500">Category: {article.category} | Date: {article.date}</p>
+                    <h3 className="text-lg font-semibold">Published Articles ({news.length})</h3>
+                    {news.length === 0 ? (
+                      <p className="text-gray-500">No news articles found in the database.</p>
+                    ) : (
+                      news.map((article) => (
+                        <div key={article.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-medium">{article.title_en}</h4>
+                            <p className="text-sm text-gray-500">Category: {article.category} | Date: {article.date}</p>
+                            <p className="text-sm text-gray-600 mt-1">{article.description_en}</p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button size="sm" variant="destructive">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button size="sm" variant="destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -645,93 +567,41 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
             <Card>
               <CardHeader>
                 <CardTitle>Project Management</CardTitle>
-                <CardDescription>Create and manage project activities</CardDescription>
+                <CardDescription>View and manage project activities from the database</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create New Project
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle>Create New Project</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="projectTitle">Project Title</Label>
-                          <Input 
-                            id="projectTitle" 
-                            placeholder="Enter project title"
-                            value={newProjectForm.title}
-                            onChange={(e) => setNewProjectForm({...newProjectForm, title: e.target.value})}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="projectDescription">Description</Label>
-                          <Textarea 
-                            id="projectDescription" 
-                            placeholder="Enter project description" 
-                            rows={4}
-                            value={newProjectForm.description}
-                            onChange={(e) => setNewProjectForm({...newProjectForm, description: e.target.value})}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="projectCategory">Category</Label>
-                          <Select value={newProjectForm.category} onValueChange={(value) => setNewProjectForm({...newProjectForm, category: value})}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="water">Water & Sanitation</SelectItem>
-                              <SelectItem value="education">Education</SelectItem>
-                              <SelectItem value="emergency">Emergency Relief</SelectItem>
-                              <SelectItem value="healthcare">Healthcare</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label htmlFor="projectBadge">Badge</Label>
-                          <Input 
-                            id="projectBadge" 
-                            placeholder="e.g., Survey, Sustainable, Response"
-                            value={newProjectForm.badge}
-                            onChange={(e) => setNewProjectForm({...newProjectForm, badge: e.target.value})}
-                          />
-                        </div>
-                        <Button className="w-full" onClick={handleCreateProject}>Create Project</Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Current Projects</h3>
-                    {projects.map((project) => (
-                      <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <h4 className="font-medium">{project.title}</h4>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline">{project.category}</Badge>
-                            <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
-                              {project.status}
-                            </Badge>
-                            <Badge variant="secondary">{project.badge}</Badge>
+                    <h3 className="text-lg font-semibold">Current Projects ({projects.length})</h3>
+                    {projects.length === 0 ? (
+                      <p className="text-gray-500">No projects found in the database.</p>
+                    ) : (
+                      projects.map((project) => (
+                        <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-medium">{project.title_en}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{project.description_en}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Badge variant="outline">{project.category}</Badge>
+                              <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
+                                {project.status}
+                              </Badge>
+                              {project.location && (
+                                <Badge variant="secondary">{project.location}</Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button size="sm" variant="destructive">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button size="sm" variant="destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -806,8 +676,12 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                               onChange={(e) => setNewStaffForm({...newStaffForm, password: e.target.value})}
                             />
                           </div>
-                          <Button className="w-full" onClick={handleAddStaffMember}>
-                            Create Staff Account
+                          <Button 
+                            className="w-full" 
+                            onClick={handleAddStaffMember}
+                            disabled={createStaffAccount.isPending}
+                          >
+                            {createStaffAccount.isPending ? 'Creating...' : 'Create Staff Account'}
                           </Button>
                         </div>
                       </DialogContent>
@@ -825,31 +699,40 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {staffMembers.map((member) => (
-                      <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex-1">
-                          <h3 className="font-medium">{member.name}</h3>
-                          <p className="text-sm text-gray-500">{member.email}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant={member.role === 'Admin' ? 'destructive' : member.role === 'Editor' ? 'default' : 'secondary'}>
-                              {member.role}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {member.status}
-                            </Badge>
-                            <span className="text-xs text-gray-400">Joined: {member.joinDate}</span>
+                    {staffAccounts.length === 0 ? (
+                      <p className="text-gray-500">No staff accounts found. Add some staff members to get started.</p>
+                    ) : (
+                      staffAccounts.map((member) => (
+                        <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex-1">
+                            <h3 className="font-medium">{member.name}</h3>
+                            <p className="text-sm text-gray-500">{member.email}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant={member.role === 'admin' ? 'destructive' : member.role === 'editor' ? 'default' : 'secondary'}>
+                                {member.role}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {member.status}
+                              </Badge>
+                              <span className="text-xs text-gray-400">Joined: {new Date(member.created_at).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="destructive" 
+                              onClick={() => handleDeleteStaffMember(member.id)}
+                              disabled={deleteStaffAccount.isPending}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="outline">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDeleteStaffMember(member.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>
