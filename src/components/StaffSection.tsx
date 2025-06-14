@@ -72,15 +72,6 @@ const StaffSection = () => {
             </Card>
           ))}
         </div>
-
-        <div className="text-center mt-12">
-          <p className="text-lg text-gray-600 mb-6">
-            {t('joinStaffText')}
-          </p>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-            {t('joinStaff')}
-          </button>
-        </div>
       </div>
     </section>
   );
