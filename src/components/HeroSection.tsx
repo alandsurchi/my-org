@@ -66,43 +66,43 @@ const HeroSection = () => {
       </div>
       
       <div className="relative z-10 text-center text-white max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Organization name with enhanced readability */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 md:mb-8 fade-in-on-scroll leading-tight">
-          <span 
-            className="block text-white drop-shadow-2xl" 
-            style={{ 
-              textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.8), 1px 1px 3px rgba(0,0,0,1)',
-              filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.8))'
-            }}
-          >
-            {t('orgName')}
-          </span>
-        </h1>
+        {/* Organization name with modern styling */}
+        <div className="mb-6 md:mb-8 fade-in-on-scroll">
+          <div className="relative inline-block">
+            <h1 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent"
+              style={{
+                WebkitTextStroke: '2px rgba(255,255,255,0.8)',
+                filter: 'drop-shadow(0 0 20px rgba(0,0,0,0.8)) drop-shadow(0 0 40px rgba(0,0,0,0.6))'
+              }}
+            >
+              {t('orgName')}
+            </h1>
+            {/* Glow effect behind text */}
+            <div 
+              className="absolute inset-0 text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight text-white opacity-20 blur-sm"
+              aria-hidden="true"
+            >
+              {t('orgName')}
+            </div>
+          </div>
+        </div>
         
-        {/* Hero content with enhanced readability */}
-        <div className="space-y-4 md:space-y-6 fade-in-on-scroll">
-          <h2 
-            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white leading-relaxed"
-            style={{ 
-              textShadow: '2px 2px 4px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7), 1px 1px 2px rgba(0,0,0,1)',
-              filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.8))'
-            }}
-          >
-            {t('heroTitle')}
-          </h2>
+        {/* Hero content with modern card design */}
+        <div className="space-y-6 md:space-y-8 fade-in-on-scroll">
+          <div className="relative">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-white leading-relaxed px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 border border-white/20 shadow-2xl">
+              {t('heroTitle')}
+            </h2>
+          </div>
           
-          <p 
-            className="text-lg sm:text-xl md:text-2xl font-medium glass px-6 py-3 rounded-xl inline-block"
-            style={{ 
-              background: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(15px)',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              color: 'white',
-              textShadow: '1px 1px 3px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.6)'
-            }}
-          >
-            {t('heroSubtitle')}
-          </p>
+          <div className="relative">
+            <p className="text-lg sm:text-xl md:text-2xl font-medium text-white px-8 py-4 rounded-2xl backdrop-blur-md bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 border border-white/30 shadow-2xl max-w-3xl mx-auto">
+              {t('heroSubtitle')}
+            </p>
+            {/* Subtle glow effect */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-blue-400/10 blur-xl"></div>
+          </div>
         </div>
       </div>
 
@@ -111,12 +111,7 @@ const HeroSection = () => {
         <div className="flex flex-col items-center">
           {/* Animated scroll text */}
           <div className="mb-3 md:mb-4 text-center">
-            <span 
-              className="text-white/90 text-xs sm:text-sm font-medium tracking-wider uppercase"
-              style={{ 
-                textShadow: '1px 1px 3px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.6)'
-              }}
-            >
+            <span className="text-white text-xs sm:text-sm font-medium tracking-wider uppercase px-4 py-2 rounded-full backdrop-blur-sm bg-black/20 border border-white/20">
               {t('discoverMore')}
             </span>
           </div>
