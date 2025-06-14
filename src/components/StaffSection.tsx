@@ -6,15 +6,18 @@ import { Users, Award } from 'lucide-react';
 import { useStaff } from '@/hooks/useStaff';
 
 const StaffSection = () => {
+  console.log('🔵 StaffSection component is rendering');
+  
   const { t } = useLanguage();
   const { data: staffMembers = [], isLoading, error } = useStaff();
 
-  console.log('StaffSection render - staffMembers:', staffMembers);
-  console.log('StaffSection render - isLoading:', isLoading);
-  console.log('StaffSection render - error:', error);
+  console.log('🔵 StaffSection render - staffMembers:', staffMembers);
+  console.log('🔵 StaffSection render - staffMembers length:', staffMembers?.length);
+  console.log('🔵 StaffSection render - isLoading:', isLoading);
+  console.log('🔵 StaffSection render - error:', error);
 
   if (isLoading) {
-    console.log('Staff section is loading...');
+    console.log('🟡 Staff section is loading...');
     return (
       <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
@@ -27,7 +30,7 @@ const StaffSection = () => {
   }
 
   if (error) {
-    console.error('Staff section error:', error);
+    console.error('🔴 Staff section error:', error);
     return (
       <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
@@ -40,19 +43,24 @@ const StaffSection = () => {
   }
 
   if (!staffMembers || staffMembers.length === 0) {
-    console.log('No staff members found');
+    console.log('🟠 No staff members found or empty array');
+    console.log('🟠 staffMembers is:', staffMembers);
+    console.log('🟠 typeof staffMembers:', typeof staffMembers);
+    console.log('🟠 Array.isArray(staffMembers):', Array.isArray(staffMembers));
     return (
       <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
             <div className="text-gray-600">No staff members found</div>
+            <div className="text-sm text-gray-400 mt-2">Debug: {JSON.stringify(staffMembers)}</div>
           </div>
         </div>
       </section>
     );
   }
 
-  console.log('Rendering staff members:', staffMembers.length);
+  console.log('🟢 Rendering staff members:', staffMembers.length);
+  console.log('🟢 Staff members data:', staffMembers);
 
   return (
     <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden">
@@ -81,7 +89,7 @@ const StaffSection = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {staffMembers.map((member, index) => {
-            console.log('Rendering staff member:', member);
+            console.log('🟢 Rendering individual staff member:', member);
             return (
               <Card key={member.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardContent className="p-0">

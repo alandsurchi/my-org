@@ -6,7 +6,7 @@ export const useStaff = () => {
   return useQuery({
     queryKey: ['staff'],
     queryFn: async () => {
-      console.log('Fetching staff data from Supabase...');
+      console.log('🔍 Fetching staff data from Supabase...');
       
       const { data, error } = await supabase
         .from('staff')
@@ -15,11 +15,13 @@ export const useStaff = () => {
         .order('display_order', { ascending: true });
       
       if (error) {
-        console.error('Error fetching staff:', error);
+        console.error('🔴 Error fetching staff:', error);
         throw error;
       }
       
-      console.log('Staff data fetched successfully:', data);
+      console.log('✅ Staff data fetched successfully:', data);
+      console.log('✅ Number of staff members:', data?.length);
+      console.log('✅ First staff member:', data?.[0]);
       return data;
     },
   });
