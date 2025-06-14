@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Users, ArrowRight } from 'lucide-react';
 import { useStaff } from '@/hooks/useStaff';
+import { StaffSkeleton } from '@/components/ui/staff-skeleton';
 
 const StaffSection = () => {
   const { t } = useLanguage();
@@ -18,15 +19,7 @@ const StaffSection = () => {
 
   if (isLoading) {
     console.log('🟡 Staff section is loading...');
-    return (
-      <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden min-h-screen">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center">
-            <div className="animate-pulse text-xl">Loading staff...</div>
-          </div>
-        </div>
-      </section>
-    );
+    return <StaffSkeleton />;
   }
 
   if (error) {
@@ -35,7 +28,17 @@ const StaffSection = () => {
       <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden min-h-screen">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="text-red-600">Error loading staff: {error.message}</div>
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-red-100 mb-8">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h3 className="text-2xl font-bold text-red-600 mb-4">Unable to Load Staff</h3>
+            <p className="text-red-500 mb-6">We're having trouble loading our team members. Please try again later.</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Try Again
+            </Button>
           </div>
         </div>
       </section>
@@ -48,7 +51,11 @@ const StaffSection = () => {
       <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden min-h-screen">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="text-gray-600">No staff members found</div>
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gray-100 mb-8">
+              <Users className="w-10 h-10 text-gray-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-600 mb-4">No Staff Members</h3>
+            <p className="text-gray-500">We're currently updating our team information.</p>
           </div>
         </div>
       </section>
@@ -97,6 +104,7 @@ const StaffSection = () => {
                           src={member.image_url || 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'}
                           alt={member.name_en}
                           className="w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
                         />
                       </div>
                     </div>
