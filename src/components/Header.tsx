@@ -12,6 +12,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isInHeroSection, setIsInHeroSection] = useState(true);
+  const [activeSection, setActiveSection] = useState('home');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +30,41 @@ const Header = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.id;
+            if (sectionId) {
+              setActiveSection(sectionId);
+            } else {
+              // If no id, assume it's the hero section (home)
+              setActiveSection('home');
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.3, // Section needs to be 30% visible to be considered active
+        rootMargin: '-100px 0px -100px 0px' // Offset to account for header height
+      }
+    );
+
+    // Observe all sections
+    const sections = document.querySelectorAll('section');
+    sections.forEach((section, index) => {
+      if (index === 0 && !section.id) {
+        // First section without ID is assumed to be hero/home
+        observer.observe(section);
+      } else if (section.id) {
+        observer.observe(section);
+      }
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   const scrollToSection = (sectionId: string) => {
@@ -50,7 +86,7 @@ const Header = () => {
 
   const handleNavigation = (item: any) => {
     if (item.id === 'home') {
-      navigate('/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       scrollToSection(item.id);
     }
@@ -66,11 +102,16 @@ const Header = () => {
     }
   };
 
-  const getTextStyling = () => {
+  const getTextStyling = (itemId: string) => {
+    const isActive = activeSection === itemId;
     if (isScrolled && !isInHeroSection) {
-      return 'text-gray-700 hover:text-blue-600';
+      return isActive 
+        ? 'text-blue-600 font-semibold' 
+        : 'text-gray-700 hover:text-blue-600';
     } else {
-      return 'text-white/90 hover:text-white';
+      return isActive 
+        ? 'text-white font-semibold' 
+        : 'text-white/90 hover:text-white';
     }
   };
 
@@ -120,18 +161,23 @@ const Header = () => {
           <nav className="hidden lg:flex items-center space-x-4 xl:space-x-8">
             {navigationItems.map((item) => {
               const IconComponent = item.icon;
+              const isActive = activeSection === item.id;
               return (
                 <button 
                   key={item.id}
                   onClick={() => handleNavigation(item)}
-                  className={`relative group flex items-center font-medium transition-all duration-300 hover:scale-105 touch-manipulation ${getTextStyling()}`}
+                  className={`relative group flex items-center font-medium transition-all duration-300 hover:scale-105 touch-manipulation ${getTextStyling(item.id)}`}
                 >
                   <IconComponent className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:scale-110" />
                   <span className="text-sm xl:text-base">{item.label}</span>
-                  <span className="absolute -bottom-2 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300 rounded-full"></span>
+                  <span className={`absolute -bottom-2 left-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 rounded-full ${
+                    isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`}></span>
                   
                   {/* Glow effect */}
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-600/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                  <div className={`absolute inset-0 rounded-lg bg-gradient-to-r from-blue-600/10 to-purple-600/10 transition-opacity duration-300 -z-10 ${
+                    isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}></div>
                 </button>
               );
             })}
@@ -178,6 +224,7 @@ const Header = () => {
                 <div className="flex flex-col space-y-4 mt-8">
                   {navigationItems.map((item) => {
                     const IconComponent = item.icon;
+                    const isActive = activeSection === item.id;
                     return (
                       <button 
                         key={item.id}
@@ -185,7 +232,11 @@ const Header = () => {
                           handleNavigation(item);
                           setIsMobileMenuOpen(false);
                         }}
-                        className="text-left text-gray-700 hover:text-blue-600 transition-all duration-300 font-medium py-3 flex items-center rounded-lg hover:bg-blue-50 px-3 group touch-manipulation"
+                        className={`text-left transition-all duration-300 font-medium py-3 flex items-center rounded-lg px-3 group touch-manipulation ${
+                          isActive 
+                            ? 'text-blue-600 bg-blue-50 font-semibold' 
+                            : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                        }`}
                       >
                         <IconComponent className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110" />
                         {item.label}
