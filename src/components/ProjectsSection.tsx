@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, Calendar, ArrowRight, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,8 @@ const ProjectsSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { data: projects = [], isLoading } = useProjects();
+
+  console.log('🚀 Projects data from backend:', projects);
 
   const filteredActivities = projects.filter(project => {
     const matchesSearch = project.title_en.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,62 +104,68 @@ const ProjectsSection = () => {
           </Select>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {filteredActivities.map((activity, index) => (
-            <Card key={activity.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className="relative overflow-hidden">
-                <img 
-                  src={activity.image_url || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop'} 
-                  alt={activity.title_en}
-                  className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                
-                <div className="absolute top-4 left-4 flex items-center gap-2">
-                  <span className="text-2xl">{getCategoryIcon(activity.category)}</span>
-                  <span className="text-sm text-white/90 font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                    {t(activity.category)}
-                  </span>
-                </div>
-                
-                <div className="absolute top-4 right-4">
-                  <span className={`${getBadgeColor(activity.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
-                    {activity.status}
-                  </span>
-                </div>
+        {filteredActivities.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-500 text-lg">No projects available matching your criteria.</div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            {filteredActivities.map((activity, index) => (
+              <Card key={activity.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={activity.image_url || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop'} 
+                    alt={activity.title_en}
+                    className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  
+                  <div className="absolute top-4 left-4 flex items-center gap-2">
+                    <span className="text-2xl">{getCategoryIcon(activity.category)}</span>
+                    <span className="text-sm text-white/90 font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                      {t(activity.category)}
+                    </span>
+                  </div>
+                  
+                  <div className="absolute top-4 right-4">
+                    <span className={`${getBadgeColor(activity.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
+                      {activity.status}
+                    </span>
+                  </div>
 
-                {activity.location && (
-                  <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {activity.location}
-                  </div>
-                )}
-              </div>
-              
-              <CardHeader className="pb-4">
-                <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                  {activity.title_en}
-                </CardTitle>
-                <CardDescription className="text-gray-600 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                  {activity.description_en}
-                </CardDescription>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-gray-500">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span className="text-sm font-medium">{new Date(activity.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-auto font-medium group/btn">
-                    {t('readMore')} 
-                    <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/btn:translate-x-1" />
-                  </Button>
+                  {activity.location && (
+                    <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {activity.location}
+                    </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+                    {activity.title_en}
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                    {activity.description_en}
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent className="pt-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-gray-500">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span className="text-sm font-medium">{new Date(activity.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-auto font-medium group/btn">
+                      {t('readMore')} 
+                      <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         <div className="text-center fade-in-on-scroll">
           <Button size="lg" className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">

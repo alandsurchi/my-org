@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, Calendar, ArrowRight, Award, Users, Building, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,8 @@ const NewsSection = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const { data: allNews = [], isLoading } = useNews();
+
+  console.log('📰 News data from backend:', allNews);
 
   // Group news by category
   const newsData = {
@@ -49,53 +52,65 @@ const NewsSection = () => {
     return iconMap[category as keyof typeof iconMap] || Building;
   };
 
-  const renderNewsGrid = (newsItems: any[], category: string) => (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {filterNews(newsItems).map((item, index) => {
-        const IconComponent = getIconComponent(category);
-        
-        return (
-          <Card key={item.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
-            <div className="relative overflow-hidden">
-              <img 
-                src={item.image_url || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop'} 
-                alt={item.title_en}
-                className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-              
-              <div className="absolute top-4 right-4">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <IconComponent className="w-6 h-6 text-white" />
+  const renderNewsGrid = (newsItems: any[], category: string) => {
+    const filteredNews = filterNews(newsItems);
+    
+    if (filteredNews.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <div className="text-gray-500 text-lg">No news available in this category yet.</div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredNews.map((item, index) => {
+          const IconComponent = getIconComponent(category);
+          
+          return (
+            <Card key={item.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div className="relative overflow-hidden">
+                <img 
+                  src={item.image_url || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop'} 
+                  alt={item.title_en}
+                  className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                
+                <div className="absolute top-4 right-4">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                    <IconComponent className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                
+                <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  {new Date(item.date).toLocaleDateString()}
                 </div>
               </div>
               
-              <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
-                <Calendar className="w-4 h-4 mr-2" />
-                {new Date(item.date).toLocaleDateString()}
-              </div>
-            </div>
-            
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                {item.title_en}
-              </CardTitle>
-              <CardDescription className="text-gray-600 leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                {item.description_en}
-              </CardDescription>
-            </CardHeader>
-            
-            <CardContent className="pt-0">
-              <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium group/btn justify-between">
-                {t('readMore')}
-                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-              </Button>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
-  );
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+                  {item.title_en}
+                </CardTitle>
+                <CardDescription className="text-gray-600 leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                  {item.description_en}
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium group/btn justify-between">
+                  {t('readMore')}
+                  <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  };
 
   if (isLoading) {
     return (

@@ -3,12 +3,15 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Camera, Eye, Heart, Users } from 'lucide-react';
+import { useGallery } from '@/hooks/useGallery';
 
 const GallerySection = () => {
   const { t } = useLanguage();
   const [hoveredImage, setHoveredImage] = useState<number | null>(null);
+  const { data: galleryImages = [], isLoading } = useGallery();
 
-  const galleryImages = [
+  // Fallback static images if no data from backend
+  const fallbackImages = [
     {
       id: 1,
       url: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
@@ -53,6 +56,29 @@ const GallerySection = () => {
     }
   ];
 
+  // Use backend data if available, otherwise fallback to static data
+  const displayImages = galleryImages.length > 0 
+    ? galleryImages.map((item, index) => ({
+        id: item.id,
+        url: item.image_url || fallbackImages[index % fallbackImages.length]?.url || '',
+        descriptionKey: item.title,
+        category: 'gallery',
+        icon: '📸'
+      }))
+    : fallbackImages;
+
+  if (isLoading) {
+    return (
+      <section id="gallery" className="py-24 bg-gradient-to-br from-purple-50/30 via-pink-50/20 to-gray-50 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center">
+            <div className="animate-pulse">Loading gallery...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="gallery" className="py-24 bg-gradient-to-br from-purple-50/30 via-pink-50/20 to-gray-50 relative overflow-hidden">
       {/* Background decorations */}
@@ -79,18 +105,18 @@ const GallerySection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {galleryImages.map((image, index) => (
+          {displayImages.slice(0, 6).map((image, index) => (
             <div 
               key={image.id} 
               className="group relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover-lift fade-in-on-scroll bg-white/80 backdrop-blur-sm"
               style={{ animationDelay: `${index * 0.1}s` }}
-              onMouseEnter={() => setHoveredImage(image.id)}
+              onMouseEnter={() => setHoveredImage(Number(image.id))}
               onMouseLeave={() => setHoveredImage(null)}
             >
               <div className="aspect-square overflow-hidden">
                 <img 
                   src={image.url} 
-                  alt={t(image.descriptionKey)}
+                  alt={typeof image.descriptionKey === 'string' ? image.descriptionKey : t(image.descriptionKey)}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
@@ -104,9 +130,9 @@ const GallerySection = () => {
               </div>
 
               {/* Hover overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${hoveredImage === image.id ? 'opacity-100' : 'opacity-0'}`}>
+              <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${hoveredImage === Number(image.id) ? 'opacity-100' : 'opacity-0'}`}>
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                  <h3 className="text-xl font-bold mb-2">{t(image.descriptionKey)}</h3>
+                  <h3 className="text-xl font-bold mb-2">{typeof image.descriptionKey === 'string' ? image.descriptionKey : t(image.descriptionKey)}</h3>
                   <div className="flex items-center gap-4 text-sm text-white/80">
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
