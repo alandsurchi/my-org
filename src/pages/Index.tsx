@@ -13,7 +13,7 @@ const Index = () => {
   console.log('Index component rendering');
   
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full">
       <Header />
       <HeroSection />
       <AboutSection />
