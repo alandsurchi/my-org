@@ -6,6 +6,8 @@ export const useStaff = () => {
   return useQuery({
     queryKey: ['staff'],
     queryFn: async () => {
+      console.log('Fetching staff data from Supabase...');
+      
       const { data, error } = await supabase
         .from('staff')
         .select('*')
@@ -17,6 +19,7 @@ export const useStaff = () => {
         throw error;
       }
       
+      console.log('Staff data fetched successfully:', data);
       return data;
     },
   });
