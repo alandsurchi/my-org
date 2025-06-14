@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { LanguageProvider } from '@/contexts/LanguageContext';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
@@ -12,18 +11,16 @@ import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
-    <LanguageProvider>
-      <div className="min-h-screen">
-        <Header />
-        <HeroSection />
-        <AboutSection />
-        <ProjectsSection />
-        <NewsSection />
-        <GallerySection />
-        <StaffSection />
-        <Footer />
-      </div>
-    </LanguageProvider>
+    <div className="min-h-screen">
+      <Header />
+      <HeroSection />
+      <AboutSection />
+      <ProjectsSection />
+      <NewsSection />
+      <GallerySection />
+      <StaffSection />
+      <Footer />
+    </div>
   );
 };
 
