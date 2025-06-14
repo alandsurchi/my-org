@@ -28,6 +28,30 @@ const NewsSection = () => {
         descriptionKey: 'dohukHealthcareDesc',
         image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=250&fit=crop',
         icon: Building
+      },
+      {
+        id: 3,
+        title: 'Community Center Visit in Sulaymaniyah',
+        date: '2024-05-28',
+        description: 'Our team visited the new community center in Sulaymaniyah to assess infrastructure needs and discuss potential collaboration opportunities.',
+        image: 'https://images.unsplash.com/photo-1527576539890-dfa815648363?w=400&h=250&fit=crop',
+        icon: Building
+      },
+      {
+        id: 4,
+        title: 'Rural Villages Assessment in Zakho',
+        date: '2024-05-20',
+        description: 'Comprehensive assessment of rural villages in Zakho district to identify priority areas for development projects.',
+        image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&h=250&fit=crop',
+        icon: Building
+      },
+      {
+        id: 5,
+        title: 'University Partnership Meeting in Baghdad',
+        date: '2024-05-15',
+        description: 'Met with university representatives in Baghdad to discuss educational partnerships and research collaboration opportunities.',
+        image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=250&fit=crop',
+        icon: Building
       }
     ],
     visitors: [
@@ -45,6 +69,30 @@ const NewsSection = () => {
         date: '2024-06-03', 
         descriptionKey: 'govMeetingDesc',
         image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop',
+        icon: Users
+      },
+      {
+        id: 3,
+        title: 'European Union Delegation Visit',
+        date: '2024-05-25',
+        description: 'High-level delegation from the European Union visited our headquarters to discuss ongoing humanitarian projects and future funding opportunities.',
+        image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=250&fit=crop',
+        icon: Users
+      },
+      {
+        id: 4,
+        title: 'International Red Cross Coordination Meeting',
+        date: '2024-05-18',
+        description: 'Collaborative meeting with International Red Cross representatives to coordinate emergency response efforts in the region.',
+        image: 'https://images.unsplash.com/photo-1488972685288-c3fd157d7c7a?w=400&h=250&fit=crop',
+        icon: Users
+      },
+      {
+        id: 5,
+        title: 'Local Community Leaders Forum',
+        date: '2024-05-12',
+        description: 'Monthly forum with local community leaders to discuss ongoing projects and gather feedback from grassroots organizations.',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop',
         icon: Users
       }
     ],
@@ -64,6 +112,30 @@ const NewsSection = () => {
         descriptionKey: 'healthcareInnovationDesc',
         image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop',
         icon: Award
+      },
+      {
+        id: 3,
+        title: 'UNESCO Recognition for Education Programs',
+        date: '2024-05-10',
+        description: 'Received official recognition from UNESCO for our innovative education programs serving displaced communities in Kurdistan Region.',
+        image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=400&h=250&fit=crop',
+        icon: Award
+      },
+      {
+        id: 4,
+        title: 'WHO Certificate for Health Initiative',
+        date: '2024-04-28',
+        description: 'World Health Organization certified our mobile health clinics program as a model for rural healthcare delivery in conflict-affected areas.',
+        image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=250&fit=crop',
+        icon: Award
+      },
+      {
+        id: 5,
+        title: 'UNICEF Partnership Certification',
+        date: '2024-04-15',
+        description: 'Achieved official partnership status with UNICEF for our child protection and education programs across Iraq.',
+        image: 'https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=400&h=250&fit=crop',
+        icon: Award
       }
     ],
     certificatesAwarded: [
@@ -82,14 +154,46 @@ const NewsSection = () => {
         descriptionKey: 'volunteerExcellenceDesc',
         image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=250&fit=crop',
         icon: Trophy
+      },
+      {
+        id: 3,
+        title: 'Outstanding Healthcare Worker Recognition',
+        date: '2024-05-22',
+        description: 'Awarded certificates to 15 local healthcare workers for their exceptional service during the COVID-19 pandemic response.',
+        image: 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=250&fit=crop',
+        icon: Trophy
+      },
+      {
+        id: 4,
+        title: 'Teacher Training Program Graduates',
+        date: '2024-05-14',
+        description: 'Celebrated 25 teachers who completed our specialized training program for teaching children in emergency situations.',
+        image: 'https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=400&h=250&fit=crop',
+        icon: Trophy
+      },
+      {
+        id: 5,
+        title: 'Youth Leadership Development Awards',
+        date: '2024-05-08',
+        description: 'Recognized 30 young leaders who completed our youth empowerment and leadership development program.',
+        image: 'https://images.unsplash.com/photo-1517022812141-23620dba5c23?w=400&h=250&fit=crop',
+        icon: Trophy
+      },
+      {
+        id: 6,
+        title: 'Women Entrepreneurs Certification',
+        date: '2024-04-30',
+        description: 'Awarded business certificates to 20 women who successfully completed our entrepreneurship training and micro-finance program.',
+        image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=250&fit=crop',
+        icon: Trophy
       }
     ]
   };
 
   const filterNews = (newsItems: any[]) => {
     return newsItems.filter(item => {
-      const title = t(item.titleKey);
-      const description = t(item.descriptionKey);
+      const title = item.titleKey ? t(item.titleKey) : item.title;
+      const description = item.descriptionKey ? t(item.descriptionKey) : item.description;
       return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
              description.toLowerCase().includes(searchTerm.toLowerCase());
     });
@@ -109,12 +213,15 @@ const NewsSection = () => {
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {filterNews(newsItems).map((item, index) => {
         const IconComponent = item.icon;
+        const title = item.titleKey ? t(item.titleKey) : item.title;
+        const description = item.descriptionKey ? t(item.descriptionKey) : item.description;
+        
         return (
           <Card key={item.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
             <div className="relative overflow-hidden">
               <img 
                 src={item.image} 
-                alt={t(item.titleKey)}
+                alt={title}
                 className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
@@ -133,10 +240,10 @@ const NewsSection = () => {
             
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                {t(item.titleKey)}
+                {title}
               </CardTitle>
               <CardDescription className="text-gray-600 leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                {t(item.descriptionKey)}
+                {description}
               </CardDescription>
             </CardHeader>
             
