@@ -1,16 +1,20 @@
 
 import React from 'react';
 import Dashboard from '@/components/Dashboard';
+import ProtectedStaffRoute from '@/components/ProtectedStaffRoute';
+import { useStaffAuth } from '@/contexts/StaffAuthContext';
 
 const DashboardPage = () => {
-  // This would normally come from your authentication context
-  const user = {
-    name: 'John Doe',
-    type: 'client' as const, // Change this to 'staff' to see staff dashboard
-    email: 'john@example.com'
-  };
+  const { staffUser } = useStaffAuth();
 
-  return <Dashboard userType={user.type} userName={user.name} />;
+  return (
+    <ProtectedStaffRoute>
+      <Dashboard 
+        userType="staff" 
+        userName={staffUser?.name || 'Staff Member'} 
+      />
+    </ProtectedStaffRoute>
+  );
 };
 
 export default DashboardPage;
