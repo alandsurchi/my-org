@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -12,7 +11,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <img 
-                src="/lovable-uploads/2ba81074-4283-4f16-a659-4f4a054275fa.png" 
+                src="/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png" 
                 alt="MROVDOSTAN Logo" 
                 className="w-10 h-10 rounded-lg object-cover"
               />
