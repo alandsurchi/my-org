@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Calendar, ArrowRight, Award, Users, Building, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,10 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNews } from '@/hooks/useNews';
+import NewsDetailDialog from './NewsDetailDialog';
 
 const NewsSection = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedNewsItem, setSelectedNewsItem] = useState<any>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: allNews = [], isLoading } = useNews();
 
   console.log('📰 News data from backend:', allNews);
@@ -50,6 +52,16 @@ const NewsSection = () => {
       'certificatesAwarded': Trophy
     };
     return iconMap[category as keyof typeof iconMap] || Building;
+  };
+
+  const handleReadMore = (newsItem: any) => {
+    setSelectedNewsItem(newsItem);
+    setIsDetailDialogOpen(true);
+  };
+
+  const closeDetailDialog = () => {
+    setIsDetailDialogOpen(false);
+    setSelectedNewsItem(null);
   };
 
   const renderNewsGrid = (newsItems: any[], category: string) => {
@@ -100,7 +112,11 @@ const NewsSection = () => {
               </CardHeader>
               
               <CardContent className="pt-0">
-                <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium group/btn justify-between">
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium group/btn justify-between"
+                  onClick={() => handleReadMore(item)}
+                >
                   {t('readMore')}
                   <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
                 </Button>
@@ -193,6 +209,12 @@ const NewsSection = () => {
           </Button>
         </div>
       </div>
+
+      <NewsDetailDialog 
+        newsItem={selectedNewsItem}
+        isOpen={isDetailDialogOpen}
+        onClose={closeDetailDialog}
+      />
     </section>
   );
 };
