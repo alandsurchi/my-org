@@ -7,11 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useProjects } from '@/hooks/useProjects';
+import ProjectDetailDialog from './ProjectDetailDialog';
 
 const ProjectsSection = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: projects = [], isLoading } = useProjects();
 
   console.log('🚀 Projects data from backend:', projects);
@@ -41,6 +44,16 @@ const ProjectsSection = () => {
       'healthcare': '🏥'
     };
     return icons[category as keyof typeof icons] || '🌟';
+  };
+
+  const handleReadMore = (project: any) => {
+    setSelectedProject(project);
+    setIsDetailDialogOpen(true);
+  };
+
+  const closeDetailDialog = () => {
+    setIsDetailDialogOpen(false);
+    setSelectedProject(null);
   };
 
   if (isLoading) {
@@ -146,7 +159,10 @@ const ProjectsSection = () => {
                     {activity.title_en}
                   </CardTitle>
                   <CardDescription className="text-gray-600 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                    {activity.description_en}
+                    {activity.description_en.length > 150 
+                      ? `${activity.description_en.substring(0, 150)}...` 
+                      : activity.description_en
+                    }
                   </CardDescription>
                 </CardHeader>
                 
@@ -156,7 +172,11 @@ const ProjectsSection = () => {
                       <Calendar className="w-4 h-4 mr-2" />
                       <span className="text-sm font-medium">{new Date(activity.created_at).toLocaleDateString()}</span>
                     </div>
-                    <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-auto font-medium group/btn">
+                    <Button 
+                      variant="ghost" 
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-auto font-medium group/btn"
+                      onClick={() => handleReadMore(activity)}
+                    >
                       {t('readMore')} 
                       <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/btn:translate-x-1" />
                     </Button>
@@ -173,6 +193,12 @@ const ProjectsSection = () => {
           </Button>
         </div>
       </div>
+
+      <ProjectDetailDialog 
+        project={selectedProject}
+        isOpen={isDetailDialogOpen}
+        onClose={closeDetailDialog}
+      />
     </section>
   );
 };
