@@ -8,64 +8,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, UserPlus, LogIn } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useUserAuth } from '@/components/UserAuthProvider';
-import { toast } from 'sonner';
 
 const SignUp = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { signUp, signIn } = useUserAuth();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const [signUpForm, setSignUpForm] = useState({
-    fullName: '',
-    email: '',
-    password: ''
-  });
-
-  const [loginForm, setLoginForm] = useState({
-    email: '',
-    password: ''
-  });
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const { data, error } = await signUp(signUpForm.email, signUpForm.password, signUpForm.fullName);
-      
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success('Account created successfully! Please check your email to verify your account.');
-        // Don't navigate immediately, wait for email verification
-      }
-    } catch (error) {
-      toast.error('Failed to create account. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSignUp = () => {
+    // Simulate customer sign up - in real app, this would call your auth service
+    navigate('/dashboard');
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const { data, error } = await signIn(loginForm.email, loginForm.password);
-      
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success('Welcome back!');
-        navigate('/');
-      }
-    } catch (error) {
-      toast.error('Failed to sign in. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleLogin = () => {
+    // Simulate customer login - in real app, this would call your auth service
+    navigate('/dashboard');
   };
 
   return (
@@ -108,92 +63,70 @@ const SignUp = () => {
               </TabsList>
               
               <TabsContent value="signup" className="space-y-4">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-gray-700 font-medium">{t('fullName')}</Label>
-                    <Input 
-                      id="fullName" 
-                      placeholder={t('fullNamePlaceholder')}
-                      value={signUpForm.fullName}
-                      onChange={(e) => setSignUpForm(prev => ({ ...prev, fullName: e.target.value }))}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-700 font-medium">{t('email')}</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder={t('emailPlaceholder')}
-                      value={signUpForm.email}
-                      onChange={(e) => setSignUpForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-gray-700 font-medium">{t('password')}</Label>
-                    <Input 
-                      id="password" 
-                      type="password" 
-                      placeholder={t('passwordPlaceholder')}
-                      value={signUpForm.password}
-                      onChange={(e) => setSignUpForm(prev => ({ ...prev, password: e.target.value }))}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
-                      required
-                      minLength={6}
-                    />
-                  </div>
-                  <Button 
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-                  >
-                    {isLoading ? 'Creating Account...' : t('joinAsMember')}
-                  </Button>
-                </form>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-gray-700 font-medium">{t('fullName')}</Label>
+                  <Input 
+                    id="fullName" 
+                    placeholder={t('fullNamePlaceholder')}
+                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-gray-700 font-medium">{t('email')}</Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder={t('emailPlaceholder')}
+                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-gray-700 font-medium">{t('password')}</Label>
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    placeholder={t('passwordPlaceholder')}
+                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                  />
+                </div>
+                <Button 
+                  onClick={handleSignUp}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  {t('joinAsMember')}
+                </Button>
               </TabsContent>
               
               <TabsContent value="login" className="space-y-4">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="loginEmail" className="text-gray-700 font-medium">{t('email')}</Label>
-                    <Input 
-                      id="loginEmail" 
-                      type="email" 
-                      placeholder={t('emailPlaceholder')}
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="loginPassword" className="text-gray-700 font-medium">{t('password')}</Label>
-                    <Input 
-                      id="loginPassword" 
-                      type="password" 
-                      placeholder={t('loginPasswordPlaceholder')}
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
-                      required
-                    />
-                  </div>
-                  <Button 
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-                  >
-                    {isLoading ? 'Signing In...' : t('loginButton')}
-                  </Button>
-                  <div className="text-center">
-                    <a href="#" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
-                      {t('forgotPassword')}
-                    </a>
-                  </div>
-                </form>
+                <div className="space-y-2">
+                  <Label htmlFor="loginEmail" className="text-gray-700 font-medium">{t('email')}</Label>
+                  <Input 
+                    id="loginEmail" 
+                    type="email" 
+                    placeholder={t('emailPlaceholder')}
+                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="loginPassword" className="text-gray-700 font-medium">{t('password')}</Label>
+                  <Input 
+                    id="loginPassword" 
+                    type="password" 
+                    placeholder={t('loginPasswordPlaceholder')}
+                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500/20"
+                  />
+                </div>
+                <Button 
+                  onClick={handleLogin}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  {t('loginButton')}
+                </Button>
+                <div className="text-center">
+                  <a href="#" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
+                    {t('forgotPassword')}
+                  </a>
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
