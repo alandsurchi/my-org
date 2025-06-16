@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Calendar, ArrowRight, Award, Users, Building, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNews } from '@/hooks/useNews';
 import NewsDetailDialog from './NewsDetailDialog';
+import { Link } from 'react-router-dom';
 
 const NewsSection = () => {
   const { t } = useLanguage();
@@ -228,9 +228,11 @@ const NewsSection = () => {
         </Tabs>
 
         <div className="text-center mt-16 fade-in-on-scroll">
-          <Button size="lg" className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
-            {t('viewAllNews')}
-          </Button>
+          <Link to="/news">
+            <Button size="lg" className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
+              {t('viewAllNews')}
+            </Button>
+          </Link>
         </div>
       </div>
 

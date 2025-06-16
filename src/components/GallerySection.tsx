@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Camera, Eye, Heart, Users } from 'lucide-react';
 import { useGallery } from '@/hooks/useGallery';
+import { Link } from 'react-router-dom';
 
 const GallerySection = () => {
   const { t } = useLanguage();
@@ -157,10 +157,12 @@ const GallerySection = () => {
         </div>
 
         <div className="text-center fade-in-on-scroll">
-          <Button size="lg" className="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-700 hover:via-purple-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
-            <Camera className="w-5 h-5 mr-2" />
-            {t('viewAllImages')}
-          </Button>
+          <Link to="/gallery">
+            <Button size="lg" className="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-700 hover:via-purple-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
+              <Camera className="w-5 h-5 mr-2" />
+              {t('viewAllImages')}
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

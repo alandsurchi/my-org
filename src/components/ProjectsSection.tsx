@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Calendar, ArrowRight, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useProjects } from '@/hooks/useProjects';
 import ProjectDetailDialog from './ProjectDetailDialog';
+import { Link } from 'react-router-dom';
 
 const ProjectsSection = () => {
   const { t } = useLanguage();
@@ -188,9 +188,11 @@ const ProjectsSection = () => {
         )}
 
         <div className="text-center fade-in-on-scroll">
-          <Button size="lg" className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
-            {t('viewAllProjects')}
-          </Button>
+          <Link to="/projects">
+            <Button size="lg" className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
+              {t('viewAllProjects')}
+            </Button>
+          </Link>
         </div>
       </div>
 

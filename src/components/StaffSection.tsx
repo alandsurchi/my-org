@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Users, ArrowRight } from 'lucide-react';
 import { useStaff } from '@/hooks/useStaff';
 import { StaffSkeleton } from '@/components/ui/staff-skeleton';
+import { Link } from 'react-router-dom';
 
 const StaffSection = () => {
   const { t } = useLanguage();
@@ -128,12 +128,14 @@ const StaffSection = () => {
 
         {/* See All Staff Button */}
         <div className="text-center fade-in-on-scroll">
-          <Button 
-            className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 hover:from-indigo-700 hover:via-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group"
-          >
-            See All Staff
-            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-          </Button>
+          <Link to="/staff">
+            <Button 
+              className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 hover:from-indigo-700 hover:via-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 group"
+            >
+              See All Staff
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
