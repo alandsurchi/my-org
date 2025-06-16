@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search, Calendar, ArrowRight, Award, Users, Building, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,22 +14,27 @@ const NewsSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNewsItem, setSelectedNewsItem] = useState<any>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-  const { data: allNews = [], isLoading } = useNews();
+  const { data: allNews = [], isLoading, error } = useNews();
 
   console.log('📰 News data from backend:', allNews);
+  console.log('📰 News loading state:', isLoading);
+  console.log('📰 News error state:', error);
 
-  // Group news by category
+  // Group news by category with fallback for empty data
   const newsData = {
-    placesVisited: allNews.filter(item => item.category === 'placesVisited'),
-    visitors: allNews.filter(item => item.category === 'visitors'),
-    certificatesReceived: allNews.filter(item => item.category === 'certificatesReceived'),
-    certificatesAwarded: allNews.filter(item => item.category === 'certificatesAwarded')
+    placesVisited: (allNews || []).filter(item => item?.category === 'placesVisited'),
+    visitors: (allNews || []).filter(item => item?.category === 'visitors'),
+    certificatesReceived: (allNews || []).filter(item => item?.category === 'certificatesReceived'),
+    certificatesAwarded: (allNews || []).filter(item => item?.category === 'certificatesAwarded')
   };
 
   const filterNews = (newsItems: any[]) => {
+    if (!newsItems || !Array.isArray(newsItems)) return [];
+    
     return newsItems.filter(item => {
-      const title = item.title_en;
-      const description = item.description_en;
+      if (!item) return false;
+      const title = item.title_en || '';
+      const description = item.description_en || '';
       return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
              description.toLowerCase().includes(searchTerm.toLowerCase());
     });
@@ -70,7 +76,9 @@ const NewsSection = () => {
     if (filteredNews.length === 0) {
       return (
         <div className="text-center py-12">
-          <div className="text-gray-500 text-lg">No news available in this category yet.</div>
+          <div className="text-gray-500 text-lg">
+            {isLoading ? 'Loading news...' : 'No news available in this category yet.'}
+          </div>
         </div>
       );
     }
@@ -78,14 +86,16 @@ const NewsSection = () => {
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredNews.map((item, index) => {
+          if (!item) return null;
+          
           const IconComponent = getIconComponent(category);
           
           return (
-            <Card key={item.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+            <Card key={item.id || index} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="relative overflow-hidden">
                 <img 
                   src={item.image_url || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop'} 
-                  alt={item.title_en}
+                  alt={item.title_en || 'News item'}
                   className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
@@ -98,16 +108,16 @@ const NewsSection = () => {
                 
                 <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
                   <Calendar className="w-4 h-4 mr-2" />
-                  {new Date(item.date).toLocaleDateString()}
+                  {item.date ? new Date(item.date).toLocaleDateString() : 'No date'}
                 </div>
               </div>
               
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                  {item.title_en}
+                  {item.title_en || 'Untitled News'}
                 </CardTitle>
                 <CardDescription className="text-gray-600 leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                  {item.description_en}
+                  {item.description_en || 'No description available'}
                 </CardDescription>
               </CardHeader>
               
@@ -128,12 +138,26 @@ const NewsSection = () => {
     );
   };
 
+  // Show error state if there's an error
+  if (error) {
+    console.error('News section error:', error);
+    return (
+      <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 via-blue-50/20 to-gray-50 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center">
+            <div className="text-red-500">Error loading news. Please try again later.</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (isLoading) {
     return (
       <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 via-blue-50/20 to-gray-50 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="animate-pulse">Loading news...</div>
+            <div className="animate-pulse text-lg">Loading news...</div>
           </div>
         </div>
       </section>
