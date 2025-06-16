@@ -6,6 +6,8 @@ export interface WebsiteImage {
   id: string;
   name: string;
   image_url: string;
+  category?: string;
+  section?: string;
   created_at: string;
   updated_at: string;
 }
@@ -36,12 +38,17 @@ export const useCreateWebsiteImage = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ name, image_url }: { name: string; image_url: string }) => {
+    mutationFn: async ({ name, image_url, category, section }: { 
+      name: string; 
+      image_url: string; 
+      category?: string;
+      section?: string;
+    }) => {
       console.log('📝 Creating website image...');
       
       const { data, error } = await supabase
         .from('website_images')
-        .insert([{ name, image_url }])
+        .insert([{ name, image_url, category, section }])
         .select()
         .single();
       
@@ -51,6 +58,39 @@ export const useCreateWebsiteImage = () => {
       }
       
       console.log('✅ Website image created successfully:', data);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['website-images'] });
+    },
+  });
+};
+
+export const useUpdateWebsiteImage = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...updateData }: { id: string } & Partial<{
+      name: string;
+      image_url: string;
+      category: string;
+      section: string;
+    }>) => {
+      console.log('📝 Updating website image:', id);
+      
+      const { data, error } = await supabase
+        .from('website_images')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('🔴 Error updating website image:', error);
+        throw error;
+      }
+      
+      console.log('✅ Website image updated successfully:', data);
       return data;
     },
     onSuccess: () => {

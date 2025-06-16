@@ -19,6 +19,7 @@ import { useWebsiteImages, useCreateWebsiteImage, useDeleteWebsiteImage } from '
 import { useStaffAccounts, useCreateStaffAccount, useDeleteStaffAccount } from '@/hooks/useStaffAccounts';
 import { useStaff, useCreateStaff, useUpdateStaff, useDeleteStaff } from '@/hooks/useStaff';
 import { useFileUpload } from '@/hooks/useFileUpload';
+import WebsiteImageManager from './WebsiteImageManager';
 
 interface DashboardProps {
   userType: 'client' | 'staff';
@@ -495,90 +496,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
           </TabsList>
 
           <TabsContent value="content" className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Website Images</CardTitle>
-                  <CardDescription>Manage all images across the website</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      {websiteImages.map((image) => (
-                        <div key={image.id} className="relative group">
-                          <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-                            <img 
-                              src={image.image_url || '/placeholder.svg'} 
-                              alt={image.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = '/placeholder.svg';
-                              }}
-                            />
-                          </div>
-                          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 rounded-b-lg">
-                            <span className="text-sm">{image.name}</span>
-                          </div>
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                            <div className="flex space-x-2">
-                              <Button size="sm" variant="secondary">
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="destructive" 
-                                onClick={() => handleDeleteImage(image.id)}
-                                disabled={deleteWebsiteImage.isPending}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="imageUpload">Select Images</Label>
-                        <Input 
-                          id="imageUpload" 
-                          type="file" 
-                          multiple 
-                          accept="image/*" 
-                          onChange={handleImageUpload}
-                          className="cursor-pointer"
-                          disabled={uploading || createWebsiteImage.isPending}
-                        />
-                        {(uploading || createWebsiteImage.isPending) && (
-                          <p className="text-sm text-gray-500 mt-2">Uploading...</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add New Content
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Homepage
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Site Settings
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            <WebsiteImageManager />
           </TabsContent>
 
           <TabsContent value="gallery" className="space-y-6">
