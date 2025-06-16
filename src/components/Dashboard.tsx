@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,11 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useStaffAuth } from '@/contexts/StaffAuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useNews } from '@/hooks/useNews';
-import { useProjects } from '@/hooks/useProjects';
+import { useNews, useCreateNews, useUpdateNews, useDeleteNews } from '@/hooks/useNews';
+import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks/useProjects';
 import { useGallery, useCreateGalleryItem, useDeleteGalleryItem } from '@/hooks/useGallery';
 import { useWebsiteImages, useCreateWebsiteImage, useDeleteWebsiteImage } from '@/hooks/useWebsiteImages';
 import { useStaffAccounts, useCreateStaffAccount, useDeleteStaffAccount } from '@/hooks/useStaffAccounts';
+import { useStaff, useCreateStaff, useUpdateStaff, useDeleteStaff } from '@/hooks/useStaff';
 import { useFileUpload } from '@/hooks/useFileUpload';
 
 interface DashboardProps {
@@ -37,6 +37,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const { data: galleryItems = [] } = useGallery();
   const { data: websiteImages = [] } = useWebsiteImages();
   const { data: staffAccounts = [] } = useStaffAccounts();
+  const { data: staffMembers = [] } = useStaff();
 
   // Mutations
   const createGalleryItem = useCreateGalleryItem();
@@ -45,6 +46,15 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const deleteWebsiteImage = useDeleteWebsiteImage();
   const createStaffAccount = useCreateStaffAccount();
   const deleteStaffAccount = useDeleteStaffAccount();
+  const createNews = useCreateNews();
+  const updateNews = useUpdateNews();
+  const deleteNews = useDeleteNews();
+  const createProject = useCreateProject();
+  const updateProject = useUpdateProject();
+  const deleteProject = useDeleteProject();
+  const createStaff = useCreateStaff();
+  const updateStaff = useUpdateStaff();
+  const deleteStaff = useDeleteStaff();
 
   // Form states
   const [newStaffForm, setNewStaffForm] = useState({
@@ -58,6 +68,33 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     title: '',
     description: ''
   });
+
+  const [newsForm, setNewsForm] = useState({
+    title_en: '',
+    description_en: '',
+    category: '',
+    date: new Date().toISOString().split('T')[0]
+  });
+
+  const [projectForm, setProjectForm] = useState({
+    title_en: '',
+    description_en: '',
+    category: '',
+    status: 'active',
+    location: ''
+  });
+
+  const [staffMemberForm, setStaffMemberForm] = useState({
+    name_en: '',
+    position_en: '',
+    bio_en: '',
+    email: ''
+  });
+
+  // Edit states
+  const [editingNews, setEditingNews] = useState<any>(null);
+  const [editingProject, setEditingProject] = useState<any>(null);
+  const [editingStaff, setEditingStaff] = useState<any>(null);
 
   // Notifications state
   const [notifications, setNotifications] = useState([
@@ -181,6 +218,121 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     toast({
       title: "Staff member removed",
       description: "The staff member has been removed successfully.",
+    });
+  };
+
+  const handleCreateNews = async () => {
+    if (newsForm.title_en && newsForm.description_en && newsForm.category) {
+      try {
+        await createNews.mutateAsync(newsForm);
+        setNewsForm({
+          title_en: '',
+          description_en: '',
+          category: '',
+          date: new Date().toISOString().split('T')[0]
+        });
+        toast({
+          title: "News article created",
+          description: "The news article has been created successfully.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error creating news",
+          description: "Failed to create the news article.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      toast({
+        title: "Please fill all required fields",
+        description: "Title, description, and category are required.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteNews = async (id: string) => {
+    await deleteNews.mutateAsync(id);
+    toast({
+      title: "News article deleted",
+      description: "The news article has been removed successfully.",
+    });
+  };
+
+  const handleCreateProject = async () => {
+    if (projectForm.title_en && projectForm.description_en && projectForm.category) {
+      try {
+        await createProject.mutateAsync(projectForm);
+        setProjectForm({
+          title_en: '',
+          description_en: '',
+          category: '',
+          status: 'active',
+          location: ''
+        });
+        toast({
+          title: "Project created",
+          description: "The project has been created successfully.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error creating project",
+          description: "Failed to create the project.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      toast({
+        title: "Please fill all required fields",
+        description: "Title, description, and category are required.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    await deleteProject.mutateAsync(id);
+    toast({
+      title: "Project deleted",
+      description: "The project has been removed successfully.",
+    });
+  };
+
+  const handleCreateStaffMember = async () => {
+    if (staffMemberForm.name_en && staffMemberForm.position_en) {
+      try {
+        await createStaff.mutateAsync(staffMemberForm);
+        setStaffMemberForm({
+          name_en: '',
+          position_en: '',
+          bio_en: '',
+          email: ''
+        });
+        toast({
+          title: "Team member added",
+          description: "The team member has been added successfully.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error adding team member",
+          description: "Failed to add the team member.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      toast({
+        title: "Please fill required fields",
+        description: "Name and position are required.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteStaffTeamMember = async (id: string) => {
+    await deleteStaff.mutateAsync(id);
+    toast({
+      title: "Team member removed",
+      description: "The team member has been removed successfully.",
     });
   };
 
@@ -333,11 +485,12 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
         </div>
 
         <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
             <TabsTrigger value="news">News</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="team">Team</TabsTrigger>
             <TabsTrigger value="staff">Staff Management</TabsTrigger>
           </TabsList>
 
@@ -530,10 +683,72 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
             <Card>
               <CardHeader>
                 <CardTitle>News Management</CardTitle>
-                <CardDescription>View and manage news articles from the database</CardDescription>
+                <CardDescription>Create, edit, and manage news articles</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Create New Article</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="newsTitle">Title</Label>
+                          <Input 
+                            id="newsTitle" 
+                            placeholder="Enter article title"
+                            value={newsForm.title_en}
+                            onChange={(e) => setNewsForm({...newsForm, title_en: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="newsCategory">Category</Label>
+                          <Select value={newsForm.category} onValueChange={(value) => setNewsForm({...newsForm, category: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="general">General</SelectItem>
+                              <SelectItem value="community">Community</SelectItem>
+                              <SelectItem value="education">Education</SelectItem>
+                              <SelectItem value="healthcare">Healthcare</SelectItem>
+                              <SelectItem value="environment">Environment</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="col-span-2">
+                          <Label htmlFor="newsDescription">Description</Label>
+                          <Textarea 
+                            id="newsDescription" 
+                            placeholder="Enter article description"
+                            value={newsForm.description_en}
+                            onChange={(e) => setNewsForm({...newsForm, description_en: e.target.value})}
+                            rows={4}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="newsDate">Date</Label>
+                          <Input 
+                            id="newsDate" 
+                            type="date"
+                            value={newsForm.date}
+                            onChange={(e) => setNewsForm({...newsForm, date: e.target.value})}
+                          />
+                        </div>
+                        <div className="flex items-end">
+                          <Button 
+                            onClick={handleCreateNews}
+                            disabled={createNews.isPending}
+                            className="w-full"
+                          >
+                            {createNews.isPending ? 'Creating...' : 'Create Article'}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Published Articles ({news.length})</h3>
                     {news.length === 0 ? (
@@ -550,7 +765,12 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                             <Button size="sm" variant="outline">
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="destructive">
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => handleDeleteNews(article.id)}
+                              disabled={deleteNews.isPending}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -567,10 +787,86 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
             <Card>
               <CardHeader>
                 <CardTitle>Project Management</CardTitle>
-                <CardDescription>View and manage project activities from the database</CardDescription>
+                <CardDescription>Create, edit, and manage project activities</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Create New Project</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="projectTitle">Title</Label>
+                          <Input 
+                            id="projectTitle" 
+                            placeholder="Enter project title"
+                            value={projectForm.title_en}
+                            onChange={(e) => setProjectForm({...projectForm, title_en: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="projectCategory">Category</Label>
+                          <Select value={projectForm.category} onValueChange={(value) => setProjectForm({...projectForm, category: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="education">Education</SelectItem>
+                              <SelectItem value="healthcare">Healthcare</SelectItem>
+                              <SelectItem value="community">Community</SelectItem>
+                              <SelectItem value="environment">Environment</SelectItem>
+                              <SelectItem value="infrastructure">Infrastructure</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="col-span-2">
+                          <Label htmlFor="projectDescription">Description</Label>
+                          <Textarea 
+                            id="projectDescription" 
+                            placeholder="Enter project description"
+                            value={projectForm.description_en}
+                            onChange={(e) => setProjectForm({...projectForm, description_en: e.target.value})}
+                            rows={4}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="projectLocation">Location</Label>
+                          <Input 
+                            id="projectLocation" 
+                            placeholder="Enter location"
+                            value={projectForm.location}
+                            onChange={(e) => setProjectForm({...projectForm, location: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="projectStatus">Status</Label>
+                          <Select value={projectForm.status} onValueChange={(value) => setProjectForm({...projectForm, status: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                              <SelectItem value="planned">Planned</SelectItem>
+                              <SelectItem value="paused">Paused</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="col-span-2">
+                          <Button 
+                            onClick={handleCreateProject}
+                            disabled={createProject.isPending}
+                            className="w-full"
+                          >
+                            {createProject.isPending ? 'Creating...' : 'Create Project'}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Current Projects ({projects.length})</h3>
                     {projects.length === 0 ? (
@@ -595,7 +891,129 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                             <Button size="sm" variant="outline">
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="destructive">
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => handleDeleteProject(project.id)}
+                              disabled={deleteProject.isPending}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="team" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Team Management</CardTitle>
+                <CardDescription>Manage website team members (public facing)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Add New Team Member</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="staffName">Full Name</Label>
+                          <Input 
+                            id="staffName" 
+                            placeholder="Enter full name"
+                            value={staffMemberForm.name_en}
+                            onChange={(e) => setStaffMemberForm({...staffMemberForm, name_en: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="staffPosition">Position</Label>
+                          <Input 
+                            id="staffPosition" 
+                            placeholder="Enter position/title"
+                            value={staffMemberForm.position_en}
+                            onChange={(e) => setStaffMemberForm({...staffMemberForm, position_en: e.target.value})}
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <Label htmlFor="staffBio">Bio</Label>
+                          <Textarea 
+                            id="staffBio" 
+                            placeholder="Enter bio/description"
+                            value={staffMemberForm.bio_en}
+                            onChange={(e) => setStaffMemberForm({...staffMemberForm, bio_en: e.target.value})}
+                            rows={3}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="staffEmail">Email (Optional)</Label>
+                          <Input 
+                            id="staffEmail" 
+                            type="email"
+                            placeholder="Enter email"
+                            value={staffMemberForm.email}
+                            onChange={(e) => setStaffMemberForm({...staffMemberForm, email: e.target.value})}
+                          />
+                        </div>
+                        <div className="flex items-end">
+                          <Button 
+                            onClick={handleCreateStaffMember}
+                            disabled={createStaff.isPending}
+                            className="w-full"
+                          >
+                            {createStaff.isPending ? 'Adding...' : 'Add Team Member'}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Team Members ({staffMembers.length})</h3>
+                    {staffMembers.length === 0 ? (
+                      <p className="text-gray-500">No team members found.</p>
+                    ) : (
+                      staffMembers.map((member) => (
+                        <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
+                              <img 
+                                src={member.image_url || '/placeholder.svg'} 
+                                alt={member.name_en}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = '/placeholder.svg';
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <h4 className="font-medium">{member.name_en}</h4>
+                              <p className="text-sm text-gray-500">{member.position_en}</p>
+                              {member.email && (
+                                <p className="text-xs text-gray-400">{member.email}</p>
+                              )}
+                              {member.bio_en && (
+                                <p className="text-sm text-gray-600 mt-1 max-w-md truncate">{member.bio_en}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => handleDeleteStaffTeamMember(member.id)}
+                              disabled={deleteStaff.isPending}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
