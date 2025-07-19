@@ -120,10 +120,18 @@ const StaffLogin = () => {
                 {isLoading ? 'Signing In...' : 'Access Staff Dashboard'}
               </Button>
             </form>
-            <div className="text-center mt-4">
+            <div className="text-center mt-4 space-y-2">
               <a href="#" className="text-sm text-orange-400 hover:text-orange-300 transition-colors">
                 Contact IT for password reset
               </a>
+              <div>
+                <Link 
+                  to="/signup" 
+                  className="text-xs text-gray-500 hover:text-gray-400 transition-colors opacity-30 hover:opacity-100"
+                >
+                  staff.reg
+                </Link>
+              </div>
             </div>
           </CardContent>
         </Card>
