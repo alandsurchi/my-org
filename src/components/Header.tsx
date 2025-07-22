@@ -1,5 +1,7 @@
 
 import React from 'react';
+import { LogIn } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useHeaderState } from '@/hooks/useHeaderState';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -97,6 +99,17 @@ const Header = () => {
           <div className="flex items-center space-x-2 sm:space-x-4">
             <LanguageSelector getSelectStyling={getSelectStyling} />
 
+            {/* Sign Up Button - hidden on small mobile */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="hidden sm:flex bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover-lift touch-manipulation text-sm"
+              onClick={() => navigate('/signup')}
+            >
+              <LogIn className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden md:inline">{t('signUp')}</span>
+              <span className="md:hidden">{t('join')}</span>
+            </Button>
 
             <MobileMenu 
               isMobileMenuOpen={isMobileMenuOpen}
