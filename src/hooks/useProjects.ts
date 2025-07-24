@@ -1,22 +1,17 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { apiClient } from '@/lib/apiClient';
 
 export const useProjects = () => {
   return useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      console.log('🔍 Fetching projects data from Supabase...');
+      console.log('🔍 Fetching projects data from MongoDB API...');
       
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
+      const { data, error } = await apiClient.getProjects();
       
       if (error) {
         console.error('❌ Error fetching projects:', error);
-        throw error;
+        throw new Error(error);
       }
       
       console.log('✅ Projects data fetched successfully:', data);
@@ -43,15 +38,11 @@ export const useCreateProject = () => {
     }) => {
       console.log('📝 Creating project...');
       
-      const { data, error } = await supabase
-        .from('projects')
-        .insert([projectData])
-        .select()
-        .single();
+      const { data, error } = await apiClient.createProject(projectData);
       
       if (error) {
-        console.error('🔴 Error creating project:', error);
-        throw error;
+        console.error('❌ Error creating project:', error);
+        throw new Error(error);
       }
       
       console.log('✅ Project created successfully:', data);
@@ -77,16 +68,11 @@ export const useUpdateProject = () => {
     }>) => {
       console.log('📝 Updating project:', id);
       
-      const { data, error } = await supabase
-        .from('projects')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
+      const { data, error } = await apiClient.updateProject(id, updateData);
       
       if (error) {
-        console.error('🔴 Error updating project:', error);
-        throw error;
+        console.error('❌ Error updating project:', error);
+        throw new Error(error);
       }
       
       console.log('✅ Project updated successfully:', data);
@@ -105,17 +91,15 @@ export const useDeleteProject = () => {
     mutationFn: async (id: string) => {
       console.log('🗑️ Deleting project:', id);
       
-      const { error } = await supabase
-        .from('projects')
-        .delete()
-        .eq('id', id);
+      const { data, error } = await apiClient.deleteProject(id);
       
       if (error) {
-        console.error('🔴 Error deleting project:', error);
-        throw error;
+        console.error('❌ Error deleting project:', error);
+        throw new Error(error);
       }
       
       console.log('✅ Project deleted successfully');
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });

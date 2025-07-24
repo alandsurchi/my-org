@@ -1,0 +1,62 @@
+[
+  {
+    "id": "72561c7d-b5d1-467e-b1d4-3154f3e65e4f",
+    "title_en": "Clean Water Initiative",
+    "title_ar": "مبادرة المياه النظيفة",
+    "title_ku": "دەستپێشخەری ئاوی پاک",
+    "description_en": "Bringing clean water to rural communities through sustainable well construction and maintenance programs.",
+    "description_ar": "جلب المياه النظيفة للمجتمعات الريفية من خلال برامج بناء وصيانة الآبار المستدامة.",
+    "description_ku": "هێنانی ئاوی پاک بۆ کۆمەڵگا لادێیەکان لە ڕێگەی بیرەکانی بەردەوام و پڕۆگرامەکانی چاککردنەوە.",
+    "category": "water",
+    "image_url": "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&h=250&fit=crop",
+    "location": "Dohuk Province",
+    "status": "active",
+    "created_at": "2025-06-14T16:09:30.009906+00:00",
+    "updated_at": "2025-06-14T16:09:30.009906+00:00"
+  },
+  {
+    "id": "2274f63a-d7e0-4796-a54a-c3ee81a54d2b",
+    "title_en": "Education Support Program",
+    "title_ar": "برنامج دعم التعليم",
+    "title_ku": "پڕۆگرامی پشتگیری پەروەردە",
+    "description_en": "Providing school supplies, scholarships, and educational infrastructure to underprivileged children.",
+    "description_ar": "توفير المستلزمات المدرسية والمنح الدراسية والبنية التحتية التعليمية للأطفال المحرومين.",
+    "description_ku": "دابینکردنی کەرەستەی قوتابخانە، بورس و بنکەی تەکنەلۆژیای پەروەردە بۆ منداڵانی بێبەش.",
+    "category": "education",
+    "image_url": "https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=400&h=250&fit=crop",
+    "location": "Erbil Province",
+    "status": "active",
+    "created_at": "2025-06-14T16:09:30.009906+00:00",
+    "updated_at": "2025-06-14T16:09:30.009906+00:00"
+  },
+  {
+    "id": "b017d1dd-e076-4096-a458-23091e61afcb",
+    "title_en": "Healthcare Mobile Clinic",
+    "title_ar": "العيادة المتنقلة للرعاية الصحية",
+    "title_ku": "نەخۆشخانەی گواستراوەی چاودێری تەندروستی",
+    "description_en": "Mobile medical units providing primary healthcare services to remote rural communities.",
+    "description_ar": "وحدات طبية متنقلة تقدم خدمات الرعاية الصحية الأولية للمجتمعات الريفية النائية.",
+    "description_ku": "یەکە پزیشکیە گواستراوەکان کە خزمەتگوزاری چاودێری تەندروستی سەرەتایی دەگەیەنن بۆ کۆمەڵگا لادێیە دوورەکان.",
+    "category": "healthcare",
+    "image_url": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=250&fit=crop",
+    "location": "Sulaymaniyah Province",
+    "status": "active",
+    "created_at": "2025-06-14T16:09:30.009906+00:00",
+    "updated_at": "2025-06-14T16:09:30.009906+00:00"
+  },
+  {
+    "id": "dc79dfe7-e74d-4557-87b4-d68deecc02ca",
+    "title_en": "Emergency Relief Effort",
+    "title_ar": "جهد الإغاثة الطارئة",
+    "title_ku": "هەوڵی فریاکەوتنی لەناکاو",
+    "description_en": "Disaster response providing food, shelter, medical aid, and psychological support to affected families.",
+    "description_ar": "الاستجابة للكوارث بتوفير الطعام والمأوى والمساعدة الطبية والدعم النفسي للعائلات المتضررة.",
+    "description_ku": "وەڵامدانەوەی کارەسات بە دابینکردنی خۆراک، پەناگا، یارمەتی پزیشکی و پشتگیری دەروونی بۆ خێزانە زیانمەندەکان.",
+    "category": "emergency",
+    "image_url": "https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=400&h=250&fit=crop",
+    "location": "Kurdistan Region",
+    "status": "completed",
+    "created_at": "2025-06-14T16:09:30.009906+00:00",
+    "updated_at": "2025-06-14T16:09:30.009906+00:00"
+  }
+]

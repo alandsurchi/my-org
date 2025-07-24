@@ -32,7 +32,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const navigate = useNavigate();
   const { uploadFile, uploading } = useFileUpload();
 
-  // Real data from Supabase
+  // Real data from API
   const { data: news = [] } = useNews();
   const { data: projects = [] } = useProjects();
   const { data: galleryItems = [] } = useGallery();

@@ -1,0 +1,145 @@
+
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Calendar, X, Award, Users, Building, Trophy } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+interface NewsItem {
+  id: string;
+  title_en: string;
+  description_en: string;
+  category: string;
+  image_url?: string;
+  date: string;
+}
+
+interface NewsDetailDialogProps {
+  newsItem: NewsItem | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) => {
+  const { t } = useLanguage();
+
+  if (!newsItem) return null;
+
+  const getBadgeColor = (category: string) => {
+    const colors = {
+      'placesVisited': 'bg-gradient-to-r from-blue-500 to-blue-600',
+      'visitors': 'bg-gradient-to-r from-green-500 to-emerald-600',
+      'certificatesReceived': 'bg-gradient-to-r from-purple-500 to-purple-600',
+      'certificatesAwarded': 'bg-gradient-to-r from-indigo-500 to-indigo-600'
+    };
+    return colors[category as keyof typeof colors] || 'bg-gradient-to-r from-blue-500 to-blue-600';
+  };
+
+  const getCategoryIcon = (category: string) => {
+    const icons = {
+      'placesVisited': '📍',
+      'visitors': '👥',
+      'certificatesReceived': '🏆',
+      'certificatesAwarded': '🎖️'
+    };
+    return icons[category as keyof typeof icons] || '📰';
+  };
+
+  const getIconComponent = (category: string) => {
+    const iconMap = {
+      'placesVisited': Building,
+      'visitors': Users,
+      'certificatesReceived': Award,
+      'certificatesAwarded': Trophy
+    };
+    return iconMap[category as keyof typeof iconMap] || Building;
+  };
+
+  const IconComponent = getIconComponent(newsItem.category);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-gray-900 mb-4">
+            {newsItem.title_en}
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* News Image */}
+          <div className="relative">
+            <img 
+              src={newsItem.image_url || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&h=400&fit=crop'} 
+              alt={newsItem.title_en}
+              className="w-full h-64 md:h-80 object-cover rounded-lg"
+            />
+            <div className="absolute top-4 left-4 flex items-center gap-2">
+              <span className="text-2xl">{getCategoryIcon(newsItem.category)}</span>
+              <span className="text-sm text-white font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                {t(newsItem.category)}
+              </span>
+            </div>
+            <div className="absolute top-4 right-4">
+              <span className={`${getBadgeColor(newsItem.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
+                News
+              </span>
+            </div>
+          </div>
+
+          {/* News Info */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">News Details</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center text-gray-600">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <span className="text-sm">Published: {new Date(newsItem.date).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Category</h3>
+                <div className="flex items-center gap-2">
+                  <IconComponent className="w-6 h-6 text-gray-600" />
+                  <span className="font-medium">{t(newsItem.category)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* News Description */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Full Story</h3>
+            <div className="prose max-w-none">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                {newsItem.description_en}
+              </p>
+            </div>
+          </div>
+
+          {/* Additional section */}
+          <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">About This News</h3>
+            <p className="text-gray-700">
+              This news item showcases our ongoing commitment to transparency and community engagement. 
+              Stay updated with our latest developments and achievements as we continue our mission.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-end mt-6">
+          <Button onClick={onClose} className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default NewsDetailDialog;

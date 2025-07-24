@@ -1,6 +1,5 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { apiClient } from '@/lib/apiClient';
 
 export interface StaffAccount {
   id: string;
@@ -16,20 +15,17 @@ export const useStaffAccounts = () => {
   return useQuery({
     queryKey: ['staff-accounts'],
     queryFn: async () => {
-      console.log('🔍 Fetching staff accounts from Supabase...');
+      console.log('🔍 Fetching staff accounts from MongoDB API...');
       
-      const { data, error } = await supabase
-        .from('staff_accounts')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data, error } = await apiClient.getStaffAccounts();
       
       if (error) {
-        console.error('🔴 Error fetching staff accounts:', error);
-        throw error;
+        console.error('❌ Error fetching staff accounts:', error);
+        throw new Error(error);
       }
       
       console.log('✅ Staff accounts fetched successfully:', data);
-      return data as StaffAccount[];
+      return data || [];
     },
   });
 };
@@ -41,19 +37,11 @@ export const useCreateStaffAccount = () => {
     mutationFn: async ({ name, email, role, password }: { name: string; email: string; role: string; password: string }) => {
       console.log('📝 Creating staff account...');
       
-      // For simplicity, we'll hash the password on the client side
-      // In a real application, this should be done on the server
-      const password_hash = btoa(password); // Simple base64 encoding (not secure for production)
-      
-      const { data, error } = await supabase
-        .from('staff_accounts')
-        .insert([{ name, email, role, password_hash }])
-        .select()
-        .single();
+      const { data, error } = await apiClient.createStaffAccount({ name, email, role, password });
       
       if (error) {
-        console.error('🔴 Error creating staff account:', error);
-        throw error;
+        console.error('❌ Error creating staff account:', error);
+        throw new Error(error);
       }
       
       console.log('✅ Staff account created successfully:', data);
@@ -72,17 +60,15 @@ export const useDeleteStaffAccount = () => {
     mutationFn: async (id: string) => {
       console.log('🗑️ Deleting staff account:', id);
       
-      const { error } = await supabase
-        .from('staff_accounts')
-        .delete()
-        .eq('id', id);
+      const { data, error } = await apiClient.deleteStaffAccount(id);
       
       if (error) {
-        console.error('🔴 Error deleting staff account:', error);
-        throw error;
+        console.error('❌ Error deleting staff account:', error);
+        throw new Error(error);
       }
       
       console.log('✅ Staff account deleted successfully');
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['staff-accounts'] });

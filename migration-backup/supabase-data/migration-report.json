@@ -1,0 +1,17 @@
+{
+  "exportDate": "2025-07-24T15:18:59.486Z",
+  "totalTables": 10,
+  "tablesExported": 9,
+  "recordCounts": {
+    "email_subscriptions": 0,
+    "gallery": 0,
+    "news": 4,
+    "profiles": 0,
+    "projects": 4,
+    "staff": 3,
+    "staff_accounts": 0,
+    "user_profiles": 0,
+    "website_images": 0
+  },
+  "totalRecords": 11
+}

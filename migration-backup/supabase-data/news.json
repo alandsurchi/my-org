@@ -1,0 +1,58 @@
+[
+  {
+    "id": "1a98c866-51a8-46ec-bb41-92cb300c42a5",
+    "title_en": "Visit to Erbil Schools",
+    "title_ar": "زيارة مدارس أربيل",
+    "title_ku": "سەردانی قوتابخانەکانی هەولێر",
+    "description_en": "Successful visit to 5 schools in Erbil province to assess educational needs and infrastructure.",
+    "description_ar": "زيارة ناجحة لـ 5 مدارس في محافظة أربيل لتقييم الاحتياجات التعليمية والبنية التحتية.",
+    "description_ku": "سەردانێکی سەرکەوتوو بۆ 5 قوتابخانە لە پارێزگای هەولێر بۆ هەڵسەنگاندنی پێداویستیە پەروەردەیەکان.",
+    "category": "placesVisited",
+    "image_url": "https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=400&h=250&fit=crop",
+    "date": "2024-06-10",
+    "created_at": "2025-06-14T16:09:30.009906+00:00",
+    "updated_at": "2025-06-14T16:09:30.009906+00:00"
+  },
+  {
+    "id": "bbeb5266-348b-4756-9779-d62c6be9ac12",
+    "title_en": "UN Representative Visit",
+    "title_ar": "زيارة ممثل الأمم المتحدة",
+    "title_ku": "سەردانی نوێنەری نەتەوە یەکگرتووەکان",
+    "description_en": "Meeting with UN officials to discuss collaboration opportunities and humanitarian projects.",
+    "description_ar": "اجتماع مع مسؤولي الأمم المتحدة لمناقشة فرص التعاون والمشاريع الإنسانية.",
+    "description_ku": "چاوپێکەوتن لەگەڵ کارمەندانی نەتەوە یەکگرتووەکان بۆ گفتوگۆ لەسەر دەرفەتەکانی هاوکاری.",
+    "category": "visitors",
+    "image_url": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop",
+    "date": "2024-06-08",
+    "created_at": "2025-06-14T16:09:30.009906+00:00",
+    "updated_at": "2025-06-14T16:09:30.009906+00:00"
+  },
+  {
+    "id": "973b461a-67f6-473f-8f0a-eb1202bd0a0c",
+    "title_en": "Excellence in Education Award",
+    "title_ar": "جائزة التميز في التعليم",
+    "title_ku": "خەڵاتی باشی لە پەروەردە",
+    "description_en": "Received recognition for outstanding educational initiatives serving displaced communities.",
+    "description_ar": "تلقينا اعترافًا بالمبادرات التعليمية المتميزة التي تخدم المجتمعات النازحة.",
+    "description_ku": "ناسینەوەمان وەرگرت بۆ دەستپێشخەری پەروەردەیی نایاب کە خزمەت بە کۆمەڵگا کۆچبەرەکان دەکات.",
+    "category": "certificatesReceived",
+    "image_url": "https://images.unsplash.com/photo-1569025743873-ea3a9ade89f9?w=400&h=250&fit=crop",
+    "date": "2024-05-30",
+    "created_at": "2025-06-14T16:09:30.009906+00:00",
+    "updated_at": "2025-06-14T16:09:30.009906+00:00"
+  },
+  {
+    "id": "bb147840-eb22-4015-9536-13d18273209a",
+    "title_en": "Community Leader Certification",
+    "title_ar": "شهادة قائد المجتمع",
+    "title_ku": "بڕوانامەی ڕابەری کۆمەڵگا",
+    "description_en": "Awarded certificates to outstanding community leaders for their dedication to social development.",
+    "description_ar": "منحنا شهادات لقادة المجتمع المتميزين لتفانيهم في التنمية الاجتماعية.",
+    "description_ku": "بڕوانامەمان دا بە ڕابەرانی نایابی کۆمەڵگا بۆ تەرخانکردنیان بۆ گەشەسەندنی کۆمەڵایەتی.",
+    "category": "certificatesAwarded",
+    "image_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop",
+    "date": "2024-06-01",
+    "created_at": "2025-06-14T16:09:30.009906+00:00",
+    "updated_at": "2025-06-14T16:09:30.009906+00:00"
+  }
+]
