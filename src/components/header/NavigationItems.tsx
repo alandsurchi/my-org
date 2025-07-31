@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, Info, Briefcase, Newspaper, Image, Users } from 'lucide-react';
+import { Home, Info, Briefcase, Newspaper, Image } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NavigationItemsProps {
@@ -21,8 +21,7 @@ const NavigationItems: React.FC<NavigationItemsProps> = ({
     { id: 'about', labelKey: 'about', icon: Info },
     { id: 'projects', labelKey: 'projects', icon: Briefcase },
     { id: 'news', labelKey: 'news', icon: Newspaper },
-    { id: 'gallery', labelKey: 'gallery', icon: Image },
-    { id: 'staff', labelKey: 'staff', icon: Users }
+    { id: 'gallery', labelKey: 'gallery', icon: Image }
   ];
 
   return (

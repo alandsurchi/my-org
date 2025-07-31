@@ -102,7 +102,7 @@ const StaffSection = () => {
                       <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 rounded-full p-1">
                         <img
                           src={member.image_url || 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'}
-                          alt={member.name_en}
+                          alt={member.name}
                           className="w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"
                         />
@@ -112,12 +112,12 @@ const StaffSection = () => {
                   
                   <div className="space-y-3">
                     <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                      {member.name_en}
+                      {member.name}
                     </h3>
-                    <p className="text-blue-600 font-semibold text-sm uppercase tracking-wider">{member.position_en}</p>
+                    <p className="text-blue-600 font-semibold text-sm uppercase tracking-wider">{member.position}</p>
                     
                     <p className="text-gray-600 text-sm leading-relaxed" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                      {member.bio_en}
+                      {member.bio}
                     </p>
                   </div>
                 </CardContent>

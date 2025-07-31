@@ -13,10 +13,21 @@ import StaffLogin from "./pages/StaffLogin";
 import AllProjects from "./pages/AllProjects";
 import AllNews from "./pages/AllNews";
 import AllGallery from "./pages/AllGallery";
-import AllStaff from "./pages/AllStaff";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      staleTime: 0, // Always consider data stale to force fresh requests
+      gcTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      refetchOnMount: 'always', // Always refetch when component mounts
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -34,7 +45,6 @@ const App = () => (
               <Route path="/projects" element={<AllProjects />} />
               <Route path="/news" element={<AllNews />} />
               <Route path="/gallery" element={<AllGallery />} />
-              <Route path="/staff" element={<AllStaff />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

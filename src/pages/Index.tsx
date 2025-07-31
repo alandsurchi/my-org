@@ -1,13 +1,15 @@
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
 import ProjectsSection from '@/components/ProjectsSection';
 import NewsSection from '@/components/NewsSection';
 import GallerySection from '@/components/GallerySection';
-import StaffSection from '@/components/StaffSection';
 import Footer from '@/components/Footer';
+import { useProjects } from '@/hooks/useProjects';
+import { useNews } from '@/hooks/useNews';
 
 const LoadingSection = ({ name }: { name: string }) => (
   <div className="py-24 flex items-center justify-center">
@@ -17,6 +19,23 @@ const LoadingSection = ({ name }: { name: string }) => (
 
 const Index = () => {
   console.log('🏠 Index component rendering');
+  
+  // Prefetch all data immediately when the component mounts
+  const queryClient = useQueryClient();
+  const projectsQuery = useProjects();
+  const newsQuery = useNews();
+  
+  useEffect(() => {
+    // Force refetch all queries on component mount
+    console.log('🔄 Index component mounted, ensuring fresh data...');
+    
+    queryClient.refetchQueries({ queryKey: ['projects'] });
+    queryClient.refetchQueries({ queryKey: ['news'] });
+    queryClient.refetchQueries({ queryKey: ['gallery'] });
+  }, [queryClient]);
+  
+  console.log('📊 Index - Projects loaded:', !!projectsQuery.data?.length, projectsQuery.data?.length);
+  console.log('📊 Index - News loaded:', !!newsQuery.data?.length, newsQuery.data?.length);
   
   return (
     <div className="min-h-screen w-full">
@@ -35,9 +54,6 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<LoadingSection name="Gallery" />}>
         <GallerySection />
-      </Suspense>
-      <Suspense fallback={<LoadingSection name="Staff" />}>
-        <StaffSection />
       </Suspense>
       <Footer />
     </div>

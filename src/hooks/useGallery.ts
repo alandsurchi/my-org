@@ -11,7 +11,7 @@ export interface GalleryItem {
 }
 
 export const useGallery = () => {
-  return useQuery({
+  return useQuery<GalleryItem[]>({
     queryKey: ['gallery'],
     queryFn: async () => {
       console.log('🔍 Fetching gallery data from MongoDB API...');
@@ -24,7 +24,7 @@ export const useGallery = () => {
       }
       
       console.log('✅ Gallery data fetched successfully:', data);
-      return data || [];
+      return (data as GalleryItem[]) || [];
     },
   });
 };

@@ -15,13 +15,15 @@ const ProjectsSection = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-  const { data: projects = [], isLoading } = useProjects();
+  const { data: projects = [], isLoading, error } = useProjects();
 
   console.log('🚀 Projects data from backend:', projects);
+  console.log('🚀 Projects loading state:', isLoading);
+  console.log('🚀 Projects error state:', error);
 
   const filteredActivities = projects.filter(project => {
-    const matchesSearch = project.title_en.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description_en.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -61,7 +63,22 @@ const ProjectsSection = () => {
       <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="animate-pulse">Loading projects...</div>
+            <div className="animate-pulse text-lg text-gray-600">Loading projects...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center">
+            <div className="text-red-600 mb-4">Failed to load projects: {error.message}</div>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Retry
+            </Button>
           </div>
         </div>
       </section>
@@ -128,7 +145,7 @@ const ProjectsSection = () => {
                 <div className="relative overflow-hidden">
                   <img 
                     src={activity.image_url || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop'} 
-                    alt={activity.title_en}
+                    alt={activity.title}
                     className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
@@ -156,12 +173,12 @@ const ProjectsSection = () => {
                 
                 <CardHeader className="pb-4">
                   <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                    {activity.title_en}
+                    {activity.title}
                   </CardTitle>
                   <CardDescription className="text-gray-600 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                    {activity.description_en.length > 150 
-                      ? `${activity.description_en.substring(0, 150)}...` 
-                      : activity.description_en
+                    {activity.description.length > 150 
+                      ? `${activity.description.substring(0, 150)}...` 
+                      : activity.description
                     }
                   </CardDescription>
                 </CardHeader>

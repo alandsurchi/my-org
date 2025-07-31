@@ -1,8 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/apiClient';
 
+export interface NewsItem {
+  id: string;
+  title: string;
+  content: string;
+  excerpt?: string;
+  category: string;
+  image_url?: string;
+  status: string;
+  author_id?: string;
+  date: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export const useNews = () => {
-  return useQuery({
+  return useQuery<NewsItem[]>({
     queryKey: ['news'],
     queryFn: async () => {
       console.log('🔍 Fetching news data from MongoDB API...');
@@ -15,12 +29,14 @@ export const useNews = () => {
       }
       
       console.log('✅ News data fetched successfully:', data);
-      return data?.news || [];
+      return (data as any)?.news || (data as NewsItem[]) || [];
     },
+    staleTime: 0, // Always fetch fresh data
     retry: 3,
-    retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 };
 
@@ -29,11 +45,12 @@ export const useCreateNews = () => {
   
   return useMutation({
     mutationFn: async (newsData: {
-      title_en: string;
-      description_en: string;
+      title: string;
+      content: string;
+      excerpt?: string;
       category: string;
       image_url?: string;
-      date: string;
+      status?: string;
     }) => {
       console.log('📝 Creating news article...');
       

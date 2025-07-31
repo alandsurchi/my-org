@@ -33,8 +33,8 @@ const NewsSection = () => {
     
     return newsItems.filter(item => {
       if (!item) return false;
-      const title = item.title_en || '';
-      const description = item.description_en || '';
+      const title = item.title || '';
+      const description = item.content || '';
       return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
              description.toLowerCase().includes(searchTerm.toLowerCase());
     });
@@ -95,7 +95,7 @@ const NewsSection = () => {
               <div className="relative overflow-hidden">
                 <img 
                   src={item.image_url || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop'} 
-                  alt={item.title_en || 'News item'}
+                  alt={item.title || 'News item'}
                   className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
@@ -114,10 +114,10 @@ const NewsSection = () => {
               
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                  {item.title_en || 'Untitled News'}
+                  {item.title || 'Untitled News'}
                 </CardTitle>
                 <CardDescription className="text-gray-600 leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                  {item.description_en || 'No description available'}
+                  {item.content || 'No description available'}
                 </CardDescription>
               </CardHeader>
               

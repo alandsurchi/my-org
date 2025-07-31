@@ -37,7 +37,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const { data: projects = [] } = useProjects();
   const { data: galleryItems = [] } = useGallery();
   const { data: websiteImages = [] } = useWebsiteImages();
-  const { data: staffAccounts = [] } = useStaffAccounts();
+  const staffAccountsQuery = useStaffAccounts();
+  const staffAccounts = (staffAccountsQuery.data || []) as any[];
   const { data: staffMembers = [] } = useStaff();
 
   // Mutations
@@ -71,24 +72,24 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   });
 
   const [newsForm, setNewsForm] = useState({
-    title_en: '',
-    description_en: '',
+    title: '',
+    content: '',
     category: '',
     date: new Date().toISOString().split('T')[0]
   });
 
   const [projectForm, setProjectForm] = useState({
-    title_en: '',
-    description_en: '',
+    title: '',
+    description: '',
     category: '',
     status: 'active',
     location: ''
   });
 
   const [staffMemberForm, setStaffMemberForm] = useState({
-    name_en: '',
-    position_en: '',
-    bio_en: '',
+    name: '',
+    position: '',
+    bio: '',
     email: ''
   });
 
@@ -223,12 +224,12 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   };
 
   const handleCreateNews = async () => {
-    if (newsForm.title_en && newsForm.description_en && newsForm.category) {
+    if (newsForm.title && newsForm.content && newsForm.category) {
       try {
         await createNews.mutateAsync(newsForm);
         setNewsForm({
-          title_en: '',
-          description_en: '',
+          title: '',
+          content: '',
           category: '',
           date: new Date().toISOString().split('T')[0]
         });
@@ -261,12 +262,12 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   };
 
   const handleCreateProject = async () => {
-    if (projectForm.title_en && projectForm.description_en && projectForm.category) {
+    if (projectForm.title && projectForm.description && projectForm.category) {
       try {
         await createProject.mutateAsync(projectForm);
         setProjectForm({
-          title_en: '',
-          description_en: '',
+          title: '',
+          description: '',
           category: '',
           status: 'active',
           location: ''
@@ -300,13 +301,13 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   };
 
   const handleCreateStaffMember = async () => {
-    if (staffMemberForm.name_en && staffMemberForm.position_en) {
+    if (staffMemberForm.name && staffMemberForm.position) {
       try {
         await createStaff.mutateAsync(staffMemberForm);
         setStaffMemberForm({
-          name_en: '',
-          position_en: '',
-          bio_en: '',
+          name: '',
+          position: '',
+          bio: '',
           email: ''
         });
         toast({
@@ -404,7 +405,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
               <CardContent>
                 <div className="space-y-2">
                   {projects.slice(0, 3).map((project) => (
-                    <div key={project.id} className="text-sm">• {project.title_en}</div>
+                    <div key={project.id} className="text-sm">• {project.title}</div>
                   ))}
                 </div>
               </CardContent>
@@ -616,8 +617,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                           <Input 
                             id="newsTitle" 
                             placeholder="Enter article title"
-                            value={newsForm.title_en}
-                            onChange={(e) => setNewsForm({...newsForm, title_en: e.target.value})}
+                            value={newsForm.title}
+                            onChange={(e) => setNewsForm({...newsForm, title: e.target.value})}
                           />
                         </div>
                         <div>
@@ -640,8 +641,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                           <Textarea 
                             id="newsDescription" 
                             placeholder="Enter article description"
-                            value={newsForm.description_en}
-                            onChange={(e) => setNewsForm({...newsForm, description_en: e.target.value})}
+                            value={newsForm.content}
+                            onChange={(e) => setNewsForm({...newsForm, content: e.target.value})}
                             rows={4}
                           />
                         </div>
@@ -675,9 +676,9 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                       news.map((article) => (
                         <div key={article.id} className="flex items-center justify-between p-4 border rounded-lg">
                           <div>
-                            <h4 className="font-medium">{article.title_en}</h4>
+                            <h4 className="font-medium">{article.title}</h4>
                             <p className="text-sm text-gray-500">Category: {article.category} | Date: {article.date}</p>
-                            <p className="text-sm text-gray-600 mt-1">{article.description_en}</p>
+                            <p className="text-sm text-gray-600 mt-1">{article.content}</p>
                           </div>
                           <div className="flex space-x-2">
                             <Button size="sm" variant="outline">
@@ -720,8 +721,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                           <Input 
                             id="projectTitle" 
                             placeholder="Enter project title"
-                            value={projectForm.title_en}
-                            onChange={(e) => setProjectForm({...projectForm, title_en: e.target.value})}
+                            value={projectForm.title}
+                            onChange={(e) => setProjectForm({...projectForm, title: e.target.value})}
                           />
                         </div>
                         <div>
@@ -744,8 +745,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                           <Textarea 
                             id="projectDescription" 
                             placeholder="Enter project description"
-                            value={projectForm.description_en}
-                            onChange={(e) => setProjectForm({...projectForm, description_en: e.target.value})}
+                            value={projectForm.description}
+                            onChange={(e) => setProjectForm({...projectForm, description: e.target.value})}
                             rows={4}
                           />
                         </div>
@@ -793,8 +794,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                       projects.map((project) => (
                         <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
                           <div>
-                            <h4 className="font-medium">{project.title_en}</h4>
-                            <p className="text-sm text-gray-600 mt-1">{project.description_en}</p>
+                            <h4 className="font-medium">{project.title}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{project.description}</p>
                             <div className="flex items-center gap-2 mt-2">
                               <Badge variant="outline">{project.category}</Badge>
                               <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
@@ -846,8 +847,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                           <Input 
                             id="staffName" 
                             placeholder="Enter full name"
-                            value={staffMemberForm.name_en}
-                            onChange={(e) => setStaffMemberForm({...staffMemberForm, name_en: e.target.value})}
+                            value={staffMemberForm.name}
+                            onChange={(e) => setStaffMemberForm({...staffMemberForm, name: e.target.value})}
                           />
                         </div>
                         <div>
@@ -855,8 +856,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                           <Input 
                             id="staffPosition" 
                             placeholder="Enter position/title"
-                            value={staffMemberForm.position_en}
-                            onChange={(e) => setStaffMemberForm({...staffMemberForm, position_en: e.target.value})}
+                            value={staffMemberForm.position}
+                            onChange={(e) => setStaffMemberForm({...staffMemberForm, position: e.target.value})}
                           />
                         </div>
                         <div className="col-span-2">
@@ -864,8 +865,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                           <Textarea 
                             id="staffBio" 
                             placeholder="Enter bio/description"
-                            value={staffMemberForm.bio_en}
-                            onChange={(e) => setStaffMemberForm({...staffMemberForm, bio_en: e.target.value})}
+                            value={staffMemberForm.bio}
+                            onChange={(e) => setStaffMemberForm({...staffMemberForm, bio: e.target.value})}
                             rows={3}
                           />
                         </div>
@@ -903,7 +904,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                             <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
                               <img 
                                 src={member.image_url || '/placeholder.svg'} 
-                                alt={member.name_en}
+                                alt={member.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
@@ -912,13 +913,13 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
                               />
                             </div>
                             <div>
-                              <h4 className="font-medium">{member.name_en}</h4>
-                              <p className="text-sm text-gray-500">{member.position_en}</p>
+                              <h4 className="font-medium">{member.name}</h4>
+                              <p className="text-sm text-gray-500">{member.position}</p>
                               {member.email && (
                                 <p className="text-xs text-gray-400">{member.email}</p>
                               )}
-                              {member.bio_en && (
-                                <p className="text-sm text-gray-600 mt-1 max-w-md truncate">{member.bio_en}</p>
+                              {member.bio && (
+                                <p className="text-sm text-gray-600 mt-1 max-w-md truncate">{member.bio}</p>
                               )}
                             </div>
                           </div>

@@ -17,7 +17,7 @@ export const useWebsiteImages = (category?: string, section?: string) => {
     queryFn: async () => {
       console.log('🔍 Fetching website images from MongoDB API...');
       
-      const { data, error } = await apiClient.getWebsiteImages({ category, section });
+      const { data, error } = await apiClient.getWebsiteImages();
       
       if (error) {
         console.error('❌ Error fetching website images:', error);

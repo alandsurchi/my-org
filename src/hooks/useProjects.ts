@@ -1,8 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/apiClient';
 
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  image_url?: string;
+  project_url?: string;
+  technologies: string[];
+  status: string;
+  location?: string;
+  category?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export const useProjects = () => {
-  return useQuery({
+  return useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: async () => {
       console.log('🔍 Fetching projects data from MongoDB API...');
@@ -15,12 +29,14 @@ export const useProjects = () => {
       }
       
       console.log('✅ Projects data fetched successfully:', data);
-      return data || [];
+      return (data as Project[]) || [];
     },
+    staleTime: 0, // Always fetch fresh data
     retry: 3,
-    retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 };
 
@@ -29,12 +45,12 @@ export const useCreateProject = () => {
   
   return useMutation({
     mutationFn: async (projectData: {
-      title_en: string;
-      description_en: string;
-      category: string;
-      status: string;
-      location?: string;
+      title: string;
+      description: string;
       image_url?: string;
+      project_url?: string;
+      technologies?: string[];
+      status?: string;
     }) => {
       console.log('📝 Creating project...');
       
@@ -59,12 +75,12 @@ export const useUpdateProject = () => {
   
   return useMutation({
     mutationFn: async ({ id, ...updateData }: { id: string } & Partial<{
-      title_en: string;
-      description_en: string;
-      category: string;
-      status: string;
-      location: string;
+      title: string;
+      description: string;
       image_url: string;
+      project_url: string;
+      technologies: string[];
+      status: string;
     }>) => {
       console.log('📝 Updating project:', id);
       

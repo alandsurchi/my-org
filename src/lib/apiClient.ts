@@ -3,7 +3,7 @@ class APIClient {
   private baseURL: string;
   private token: string | null = null;
 
-  constructor(baseURL: string = 'http://localhost:5000/api') {
+  constructor(baseURL: string = 'http://localhost:8080/api') {
     this.baseURL = baseURL;
     this.token = localStorage.getItem('auth_token');
   }
@@ -23,10 +23,16 @@ class APIClient {
         headers['Authorization'] = `Bearer ${this.token}`;
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch(url, {
         ...options,
         headers,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -37,9 +43,19 @@ class APIClient {
       return { data, error: null };
     } catch (error) {
       console.error(`API request failed for ${endpoint}:`, error);
+      
+      let errorMessage = 'Unknown error';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Request timeout - please check your connection';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       return { 
         data: null, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+        error: errorMessage
       };
     }
   }
@@ -187,8 +203,40 @@ class APIClient {
     });
   }
 
+  async updateWebsiteImage(id: string, updateData: any) {
+    return this.request(`/website-images/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    });
+  }
+
   async deleteWebsiteImage(id: string) {
     return this.request(`/website-images/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Staff Accounts API methods
+  async getStaffAccounts() {
+    return this.request('/staff-accounts');
+  }
+
+  async createStaffAccount(accountData: any) {
+    return this.request('/staff-accounts', {
+      method: 'POST',
+      body: JSON.stringify(accountData),
+    });
+  }
+
+  async updateStaffAccount(id: string, updateData: any) {
+    return this.request(`/staff-accounts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    });
+  }
+
+  async deleteStaffAccount(id: string) {
+    return this.request(`/staff-accounts/${id}`, {
       method: 'DELETE',
     });
   }
