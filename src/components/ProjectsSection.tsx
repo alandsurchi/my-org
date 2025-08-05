@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useProjects } from '@/hooks/useProjects';
+import { useProjects } from '@/hooks/useProjectsAPI';
 import ProjectDetailDialog from './ProjectDetailDialog';
 import { Link } from 'react-router-dom';
 
@@ -20,8 +20,8 @@ const ProjectsSection = () => {
   console.log('🚀 Projects data from backend:', projects);
 
   const filteredActivities = projects.filter(project => {
-    const matchesSearch = project.title_en.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description_en.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });

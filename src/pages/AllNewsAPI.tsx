@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,22 +9,31 @@ import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+interface NewsItem {
+  _id: string;
+  title: string;
+  content: string;
+  imageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const AllNews = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedNewsItem, setSelectedNewsItem] = useState<any>(null);
+  const [selectedNewsItem, setSelectedNewsItem] = useState<NewsItem | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-  const { data: allNews = [], isLoading } = useNews();
+  const { data: allNews = [], isLoading, error } = useNews();
 
-  const filteredNews = allNews.filter(item => {
+  const filteredNews = allNews.filter((item: NewsItem) => {
     if (!item) return false;
     const title = item.title || '';
-    const description = item.description || '';
+    const content = item.content || '';
     return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           description.toLowerCase().includes(searchTerm.toLowerCase());
+           content.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  const handleReadMore = (newsItem: any) => {
+  const handleReadMore = (newsItem: NewsItem) => {
     setSelectedNewsItem(newsItem);
     setIsDetailDialogOpen(true);
   };
@@ -35,12 +43,33 @@ const AllNews = () => {
     setSelectedNewsItem(null);
   };
 
+  const getImageUrl = (imageUrl?: string) => {
+    if (!imageUrl) return 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop';
+    // If it's a relative path, prepend the API base URL
+    if (imageUrl.startsWith('/uploads/')) {
+      return `http://localhost:5000${imageUrl}`;
+    }
+    return imageUrl;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen">
         <Header />
         <div className="py-24 flex items-center justify-center">
           <div className="animate-pulse text-lg">Loading news...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <div className="py-24 flex items-center justify-center">
+          <div className="text-red-500 text-lg">Error loading news: {error.message}</div>
         </div>
         <Footer />
       </div>
@@ -86,28 +115,38 @@ const AllNews = () => {
 
           {filteredNews.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-gray-500 text-lg">No news found matching your search.</div>
+              <div className="text-gray-500 text-lg">
+                {allNews.length === 0 ? 'No news articles available yet.' : 'No news found matching your search.'}
+              </div>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredNews.map((newsItem, index) => (
-                <div key={newsItem.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+              {filteredNews.map((newsItem: NewsItem) => (
+                <div key={newsItem._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                   <img 
-                    src={newsItem.imageUrl || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop'} 
+                    src={getImageUrl(newsItem.imageUrl)} 
                     alt={newsItem.title}
                     className="h-48 w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop';
+                    }}
                   />
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-medium">
-                        {newsItem.category}
+                        News
                       </span>
                       <span className="text-sm text-gray-500">
-                        {newsItem.date ? new Date(newsItem.date).toLocaleDateString() : 'No date'}
+                        {new Date(newsItem.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-3">{newsItem.title}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3">{newsItem.description}</p>
+                    <p className="text-gray-600 mb-4 line-clamp-3">
+                      {newsItem.content.length > 100 
+                        ? `${newsItem.content.substring(0, 100)}...` 
+                        : newsItem.content
+                      }
+                    </p>
                     <Button 
                       onClick={() => handleReadMore(newsItem)}
                       className="w-full"

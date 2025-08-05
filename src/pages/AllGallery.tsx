@@ -4,7 +4,7 @@ import { Search, ArrowLeft, Camera, Eye, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useGallery } from '@/hooks/useGallery';
+import { useGallery } from '@/hooks/useGalleryAPI';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
