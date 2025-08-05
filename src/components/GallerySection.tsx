@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Camera, Eye, Heart, Users } from 'lucide-react';
-import { useGallery } from '@/hooks/useGallery';
+import { useGallery } from '@/hooks/useGalleryAPI';
 import { Link } from 'react-router-dom';
 
 const GallerySection = () => {

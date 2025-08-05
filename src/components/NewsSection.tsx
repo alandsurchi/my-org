@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useNews } from '@/hooks/useNews';
+import { useNews } from '@/hooks/useNewsAPI';
 import NewsDetailDialog from './NewsDetailDialog';
 import { Link } from 'react-router-dom';
 
@@ -33,8 +33,8 @@ const NewsSection = () => {
     
     return newsItems.filter(item => {
       if (!item) return false;
-      const title = item.title_en || '';
-      const description = item.description_en || '';
+      const title = item.title || '';
+      const description = item.description || '';
       return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
              description.toLowerCase().includes(searchTerm.toLowerCase());
     });

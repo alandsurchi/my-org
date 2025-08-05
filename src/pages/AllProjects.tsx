@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useProjects } from '@/hooks/useProjects';
+import { useProjects } from '@/hooks/useProjectsAPI';
 import ProjectDetailDialog from '@/components/ProjectDetailDialog';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -20,8 +20,8 @@ const AllProjects = () => {
   const { data: projects = [], isLoading } = useProjects();
 
   const filteredProjects = projects.filter(project => {
-    const matchesSearch = project.title_en.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description_en.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -106,8 +106,8 @@ const AllProjects = () => {
               {filteredProjects.map((project, index) => (
                 <div key={project.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                   <img 
-                    src={project.image_url || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop'} 
-                    alt={project.title_en}
+                    src={project.imageUrl || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop'} 
+                    alt={project.title}
                     className="h-48 w-full object-cover"
                   />
                   <div className="p-6">
@@ -119,8 +119,8 @@ const AllProjects = () => {
                         {project.status}
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">{project.title_en}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3">{project.description_en}</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{project.title}</h3>
+                    <p className="text-gray-600 mb-4 line-clamp-3">{project.description}</p>
                     <Button 
                       onClick={() => handleReadMore(project)}
                       className="w-full"
