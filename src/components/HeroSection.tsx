@@ -1,11 +1,13 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useHeroImage } from '@/hooks/useHeroAPI';
 import { ArrowDown } from 'lucide-react';
 
 const HeroSection = () => {
   console.log('HeroSection rendering');
   const { t } = useLanguage();
+  const { data: heroImage } = useHeroImage();
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,6 +37,19 @@ const HeroSection = () => {
   };
 
   console.log('Organization name from translation:', t('orgName'));
+  console.log('Hero image data:', heroImage);
+
+  // Determine the background image URL
+  const getBackgroundImageUrl = () => {
+    if (heroImage && heroImage.url) {
+      // If the URL is relative, prepend the API base URL
+      return heroImage.url.startsWith('http') 
+        ? heroImage.url 
+        : `http://localhost:5000${heroImage.url}`;
+    }
+    // Fallback to default image if no hero image is set
+    return 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80';
+  };
 
   return (
     <section 
@@ -45,7 +60,7 @@ const HeroSection = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+          backgroundImage: `url('${getBackgroundImageUrl()}')`
         }}
       >
         {/* Animated gradient overlay */}

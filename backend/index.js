@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const User = require('./models/User');
 
 const app = express();
 
@@ -14,9 +15,36 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Create default admin user
+const createDefaultAdmin = async () => {
+  try {
+    const adminExists = await User.findOne({ email: 'admin@charity.com' });
+    if (!adminExists) {
+      const defaultAdmin = new User({
+        email: 'admin@charity.com',
+        password: 'admin123',
+        role: 'admin'
+      });
+      await defaultAdmin.save();
+      console.log('🔑 Default admin user created:');
+      console.log('   Email: admin@charity.com');
+      console.log('   Password: admin123');
+      console.log('   Role: admin');
+    } else {
+      console.log('✅ Admin user already exists: admin@charity.com');
+    }
+  } catch (error) {
+    console.error('❌ Error creating default admin:', error);
+  }
+};
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected successfully'))
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+    // Create default admin after DB connection
+    createDefaultAdmin();
+  })
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Routes

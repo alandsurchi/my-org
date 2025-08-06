@@ -31,7 +31,7 @@ const upload = multer({
 // GET current hero image
 router.get('/', async (req, res) => {
   try {
-    const heroImage = await HeroImage.findOne().sort({ updatedAt: -1 });
+    const heroImage = await HeroImage.findOne({ isActive: true }).sort({ updatedAt: -1 });
     if (!heroImage) {
       return res.status(404).json({ message: 'No hero image found' });
     }
@@ -48,13 +48,29 @@ router.post('/', upload.single('heroImage'), async (req, res) => {
       return res.status(400).json({ message: 'No image uploaded' });
     }
     
+    // Get image dimensions (basic implementation)
+    const sizeOf = require('image-size');
+    let dimensions = { width: 0, height: 0 };
+    try {
+      dimensions = sizeOf(req.file.path);
+    } catch (err) {
+      console.warn('Could not get image dimensions:', err.message);
+    }
+    
     const heroImageData = {
       url: `/uploads/hero/${req.file.filename}`,
+      originalName: req.file.originalname,
+      fileName: req.file.filename,
+      fileSize: req.file.size,
+      mimeType: req.file.mimetype,
+      dimensions: dimensions,
+      uploadedBy: req.user?.email || 'admin',
+      isActive: true,
       updatedAt: Date.now()
     };
     
     // Delete old hero images (keep only the latest)
-    await HeroImage.deleteMany({});
+    await HeroImage.updateMany({}, { isActive: false });
     
     const heroImage = new HeroImage(heroImageData);
     await heroImage.save();
@@ -71,11 +87,27 @@ router.put('/', upload.single('heroImage'), async (req, res) => {
       return res.status(400).json({ message: 'No image uploaded' });
     }
     
-    // Delete old hero images
-    await HeroImage.deleteMany({});
+    // Get image dimensions
+    const sizeOf = require('image-size');
+    let dimensions = { width: 0, height: 0 };
+    try {
+      dimensions = sizeOf(req.file.path);
+    } catch (err) {
+      console.warn('Could not get image dimensions:', err.message);
+    }
+    
+    // Deactivate old hero images
+    await HeroImage.updateMany({}, { isActive: false });
     
     const heroImageData = {
       url: `/uploads/hero/${req.file.filename}`,
+      originalName: req.file.originalname,
+      fileName: req.file.filename,
+      fileSize: req.file.size,
+      mimeType: req.file.mimetype,
+      dimensions: dimensions,
+      uploadedBy: req.user?.email || 'admin',
+      isActive: true,
       updatedAt: Date.now()
     };
     

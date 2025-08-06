@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const StaffDashboard = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('news');
+  const [activeTab, setActiveTab] = useState('home');
   
   // News state
   const { data: news = [], isLoading: newsLoading } = useNews();
@@ -109,17 +109,22 @@ const StaffDashboard = () => {
         
         {/* Tab Navigation */}
         <div className="flex space-x-1 bg-white rounded-lg p-1 mb-6">
-          {['news', 'projects', 'gallery', 'hero'].map((tab) => (
+          {[
+            { key: 'home', label: 'Home' },
+            { key: 'news', label: 'News' },
+            { key: 'projects', label: 'Projects' },
+            { key: 'gallery', label: 'Gallery' }
+          ].map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-md font-medium capitalize transition-colors ${
-                activeTab === tab
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                activeTab === tab.key
                   ? 'bg-blue-500 text-white'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -366,42 +371,139 @@ const StaffDashboard = () => {
           </div>
         )}
 
-        {/* Hero Image Tab */}
-        {activeTab === 'hero' && (
+        {/* Home Tab - Hero Section Management */}
+        {activeTab === 'home' && (
           <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Image className="w-5 h-5" />
-                  Hero Image
+                  Website Hero Section
                 </CardTitle>
+                <p className="text-sm text-gray-600">
+                  Manage the main hero image that appears on your website's homepage
+                </p>
               </CardHeader>
-              <CardContent>
-                {heroImage && (
-                  <div className="mb-4">
-                    <img
-                      src={getImageUrl(heroImage.url)}
-                      alt="Current hero image"
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                    <p className="text-sm text-gray-600 mt-2">
-                      Last updated: {new Date(heroImage.updatedAt).toLocaleDateString()}
-                    </p>
+              <CardContent className="space-y-6">
+                {/* Current Hero Image Display */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Current Hero Image</h3>
+                  {heroImage && heroImage.url ? (
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <img
+                          src={getImageUrl(heroImage.url)}
+                          alt="Current hero image"
+                          className="w-full h-64 object-cover rounded-lg border-2 border-gray-200 shadow-md"
+                        />
+                        <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs">
+                          Active
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 p-3 rounded-lg">
+                        <p className="text-sm text-gray-600">
+                          <strong>Image URL:</strong> {heroImage.url}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <strong>Last updated:</strong> {new Date(heroImage.updatedAt).toLocaleDateString()} at {new Date(heroImage.updatedAt).toLocaleTimeString()}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <strong>File size:</strong> {heroImage.fileSize ? `${(heroImage.fileSize / 1024 / 1024).toFixed(2)} MB` : 'Unknown'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg h-64 flex items-center justify-center">
+                      <div className="text-center">
+                        <Image className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-500">No hero image set</p>
+                        <p className="text-sm text-gray-400">Upload an image below to get started</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload New Hero Image */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Upload New Hero Image</h3>
+                  <div className="space-y-4">
+                    {/* File Preview */}
+                    {heroFile && (
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <img
+                            src={URL.createObjectURL(heroFile)}
+                            alt="Preview of new hero image"
+                            className="w-full h-48 object-cover rounded-lg border-2 border-blue-200 shadow-md"
+                          />
+                          <div className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">
+                            Preview
+                          </div>
+                        </div>
+                        <div className="bg-blue-50 p-3 rounded-lg">
+                          <p className="text-sm text-blue-700">
+                            <strong>File name:</strong> {heroFile.name}
+                          </p>
+                          <p className="text-sm text-blue-700">
+                            <strong>File size:</strong> {(heroFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                          <p className="text-sm text-blue-700">
+                            <strong>File type:</strong> {heroFile.type}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* File Input */}
+                    <div className="space-y-2">
+                      <label htmlFor="hero-upload" className="block text-sm font-medium text-gray-700">
+                        Choose Hero Image
+                      </label>
+                      <Input
+                        id="hero-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setHeroFile(e.target.files[0])}
+                        className="cursor-pointer"
+                      />
+                      <p className="text-xs text-gray-500">
+                        Recommended: High-resolution images (1920x1080 or larger) in JPG, PNG, or WebP format
+                      </p>
+                    </div>
+
+                    {/* Upload Button */}
+                    <div className="flex gap-3">
+                      <Button 
+                        onClick={handleUploadHero} 
+                        disabled={!heroFile || uploadHeroImage.isPending}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        {uploadHeroImage.isPending ? 'Uploading...' : 'Update Hero Image'}
+                      </Button>
+                      
+                      {heroFile && (
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setHeroFile(null)}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                )}
-                
-                <div className="space-y-4">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setHeroFile(e.target.files[0])}
-                  />
-                  <Button 
-                    onClick={handleUploadHero} 
-                    disabled={!heroFile || uploadHeroImage.isPending}
-                  >
-                    {uploadHeroImage.isPending ? 'Uploading...' : 'Update Hero Image'}
-                  </Button>
+                </div>
+
+                {/* Help Section */}
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-amber-800 mb-2">💡 Tips for great hero images:</h4>
+                  <ul className="text-sm text-amber-700 space-y-1">
+                    <li>• Use high-quality images with good lighting</li>
+                    <li>• Ensure the image represents your charity's mission</li>
+                    <li>• Avoid images with too much text overlay</li>
+                    <li>• Test how the image looks on different screen sizes</li>
+                    <li>• Consider the emotional impact of your image choice</li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>

@@ -13,8 +13,9 @@ export const useHeroImage = () => {
     },
     retry: 3,
     retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 1000, // Reduced to 1 second for testing
+    refetchOnWindowFocus: true, // Enable refetch on focus
+    refetchInterval: 5000, // Refetch every 5 seconds for testing
   });
 };
 
