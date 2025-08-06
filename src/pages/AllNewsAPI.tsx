@@ -18,10 +18,19 @@ interface NewsItem {
   updatedAt: string;
 }
 
+interface DialogNewsItem {
+  id: string;
+  title_en: string;
+  description_en: string;
+  category: string;
+  image_url?: string;
+  date: string;
+}
+
 const AllNews = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedNewsItem, setSelectedNewsItem] = useState<NewsItem | null>(null);
+  const [selectedNewsItem, setSelectedNewsItem] = useState<DialogNewsItem | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: allNews = [], isLoading, error } = useNews();
 
@@ -34,7 +43,15 @@ const AllNews = () => {
   });
 
   const handleReadMore = (newsItem: NewsItem) => {
-    setSelectedNewsItem(newsItem);
+    const dialogNewsItem: DialogNewsItem = {
+      id: newsItem._id,
+      title_en: newsItem.title,
+      description_en: newsItem.content,
+      category: 'News',
+      image_url: newsItem.imageUrl,
+      date: newsItem.createdAt
+    };
+    setSelectedNewsItem(dialogNewsItem);
     setIsDetailDialogOpen(true);
   };
 

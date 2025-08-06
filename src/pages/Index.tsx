@@ -6,7 +6,6 @@ import AboutSection from '@/components/AboutSection';
 import ProjectsSection from '@/components/ProjectsSection';
 import NewsSection from '@/components/NewsSection';
 import GallerySection from '@/components/GallerySection';
-import StaffSection from '@/components/StaffSection';
 import Footer from '@/components/Footer';
 
 const LoadingSection = ({ name }: { name: string }) => (
@@ -35,9 +34,6 @@ const Index = () => {
       </Suspense>
       <Suspense fallback={<LoadingSection name="Gallery" />}>
         <GallerySection />
-      </Suspense>
-      <Suspense fallback={<LoadingSection name="Staff" />}>
-        <StaffSection />
       </Suspense>
       <Footer />
     </div>

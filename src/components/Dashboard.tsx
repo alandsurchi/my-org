@@ -18,6 +18,7 @@ import { useGallery, useCreateGalleryItem, useDeleteGalleryItem } from '@/hooks/
 import { useWebsiteImages, useCreateWebsiteImage, useDeleteWebsiteImage } from '@/hooks/useWebsiteImages';
 import { useStaffAccounts, useCreateStaffAccount, useDeleteStaffAccount } from '@/hooks/useStaffAccounts';
 import { useStaff, useCreateStaff, useUpdateStaff, useDeleteStaff } from '@/hooks/useStaff';
+import { useHeroImage, useUploadHeroImage } from '@/hooks/useHeroAPI';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import WebsiteImageManager from './WebsiteImageManager';
 
@@ -39,6 +40,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const { data: websiteImages = [] } = useWebsiteImages();
   const { data: staffAccounts = [] } = useStaffAccounts();
   const { data: staffMembers = [] } = useStaff();
+  const { data: heroImage } = useHeroImage();
 
   // Mutations
   const createGalleryItem = useCreateGalleryItem();
@@ -56,6 +58,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const createStaff = useCreateStaff();
   const updateStaff = useUpdateStaff();
   const deleteStaff = useDeleteStaff();
+  const uploadHeroImage = useUploadHeroImage();
 
   // Form states
   const [newStaffForm, setNewStaffForm] = useState({
@@ -92,6 +95,9 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     email: ''
   });
 
+  // Hero image state
+  const [heroFile, setHeroFile] = useState<File | null>(null);
+
   // Edit states
   const [editingNews, setEditingNews] = useState<any>(null);
   const [editingProject, setEditingProject] = useState<any>(null);
@@ -116,6 +122,28 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
 
   const handleGoHome = () => {
     navigate('/');
+  };
+
+  const handleHeroImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        await uploadHeroImage.mutateAsync(file);
+        setHeroFile(null);
+        toast({
+          title: "Hero image updated",
+          description: "The hero section image has been updated successfully.",
+        });
+        // Reset the file input
+        event.target.value = '';
+      } catch (error) {
+        toast({
+          title: "Upload failed",
+          description: "Failed to update hero image. Please try again.",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -485,9 +513,9 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
           </div>
         </div>
 
-        <Tabs defaultValue="content" className="w-full">
+        <Tabs defaultValue="home" className="w-full">
           <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="home">Home</TabsTrigger>
             <TabsTrigger value="gallery">Gallery</TabsTrigger>
             <TabsTrigger value="news">News</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
@@ -495,8 +523,77 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
             <TabsTrigger value="staff">Staff Management</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="content" className="space-y-6">
-            <WebsiteImageManager />
+          <TabsContent value="home" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Home className="w-5 h-5" />
+                  Hero Section Management
+                </CardTitle>
+                <CardDescription>
+                  Upload and manage the main hero image for your website homepage
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Current Hero Image Display */}
+                {heroImage && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Current Hero Image</h3>
+                    <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+                      <img 
+                        src={heroImage.url?.startsWith('http') ? heroImage.url : `http://localhost:5000${heroImage.url}`}
+                        alt="Current hero image"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder.svg';
+                        }}
+                      />
+                    </div>
+                    {heroImage.originalName && (
+                      <div className="text-sm text-gray-600">
+                        <p><strong>File:</strong> {heroImage.originalName}</p>
+                        {heroImage.fileSize && (
+                          <p><strong>Size:</strong> {(heroImage.fileSize / 1024 / 1024).toFixed(2)} MB</p>
+                        )}
+                        {heroImage.dimensions && (
+                          <p><strong>Dimensions:</strong> {heroImage.dimensions.width} × {heroImage.dimensions.height} pixels</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Upload New Hero Image */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    {heroImage ? 'Replace Hero Image' : 'Upload Hero Image'}
+                  </h3>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                    <div className="space-y-2">
+                      <p className="text-lg font-medium">Upload Hero Image</p>
+                      <p className="text-gray-500">Choose a high-quality image for your website's hero section</p>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleHeroImageUpload}
+                        className="max-w-xs mx-auto cursor-pointer"
+                        disabled={uploadHeroImage.isPending}
+                      />
+                      {uploadHeroImage.isPending && (
+                        <p className="text-sm text-blue-600">Uploading...</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    <p><strong>Recommended:</strong> High-resolution images (1920×1080 or larger)</p>
+                    <p><strong>Formats:</strong> JPG, PNG, WebP</p>
+                    <p><strong>Max size:</strong> 10MB</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="gallery" className="space-y-6">
