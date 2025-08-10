@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useStaffAuth } from '@/contexts/StaffAuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useNews, useCreateNews, useUpdateNews, useDeleteNews } from '@/hooks/useNews';
+import { useNews, useCreateNews, useDeleteNews } from '@/hooks/useNewsAPI';
 import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks/useProjects';
 import { useGallery, useCreateGalleryItem, useDeleteGalleryItem } from '@/hooks/useGallery';
 import { useWebsiteImages, useCreateWebsiteImage, useDeleteWebsiteImage } from '@/hooks/useWebsiteImages';
@@ -50,7 +50,6 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const createStaffAccount = useCreateStaffAccount();
   const deleteStaffAccount = useDeleteStaffAccount();
   const createNews = useCreateNews();
-  const updateNews = useUpdateNews();
   const deleteNews = useDeleteNews();
   const createProject = useCreateProject();
   const updateProject = useUpdateProject();
@@ -304,9 +303,15 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
 
   const handleCreateNews = async (customNews?: any) => {
     const newsData = customNews || newsForm;
-    if (newsData.title_en && newsData.description_en && newsData.category) {
+    const backendData = {
+      title: newsData.title_en || newsData.title,
+      content: newsData.description_en || newsData.content || newsData.description,
+      category: newsData.category
+    };
+    
+    if (backendData.title && backendData.content && backendData.category) {
       try {
-        await createNews.mutateAsync(newsData);
+        await createNews.mutateAsync(backendData);
         if (!customNews) {
           setNewsForm({
             title_en: '',
@@ -329,7 +334,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     } else {
       toast({
         title: "Please fill all required fields",
-        description: "Title, description, and category are required.",
+        description: "Title, content, and category are required.",
         variant: "destructive"
       });
     }
@@ -829,208 +834,297 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
           <TabsContent value="news" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Announcement & Certificate Generator</CardTitle>
-                <CardDescription>Generate official announcements and certificates with predefined templates</CardDescription>
+                <CardTitle>News & Announcement Management</CardTitle>
+                <CardDescription>Create announcements with templates or add regular news articles</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  {/* Category Selection */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Select Category</CardTitle>
-                      <CardDescription>Choose the type of announcement or certificate you want to create</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4">
-                        <Button 
-                          variant={announcementCategory === 'places-visited' ? 'default' : 'outline'}
-                          onClick={() => {
-                            setAnnouncementCategory('places-visited');
-                            setAnnouncementForm(placesVisitedForm);
-                            setGeneratedAnnouncement('');
-                          }}
-                          className="h-20 flex flex-col items-center justify-center space-y-2"
-                        >
-                          <span className="text-lg">🏛️</span>
-                          <span className="text-sm font-medium">Places Visited</span>
-                        </Button>
-                        <Button 
-                          variant={announcementCategory === 'visitors' ? 'default' : 'outline'}
-                          onClick={() => {
-                            setAnnouncementCategory('visitors');
-                            setAnnouncementForm(visitorsForm);
-                            setGeneratedAnnouncement('');
-                          }}
-                          className="h-20 flex flex-col items-center justify-center space-y-2"
-                        >
-                          <span className="text-lg">👥</span>
-                          <span className="text-sm font-medium">Visitors</span>
-                        </Button>
-                        <Button 
-                          variant={announcementCategory === 'certificates-awarded' ? 'default' : 'outline'}
-                          onClick={() => {
-                            setAnnouncementCategory('certificates-awarded');
-                            setAnnouncementForm(certificatesAwardedForm);
-                            setGeneratedAnnouncement('');
-                          }}
-                          className="h-20 flex flex-col items-center justify-center space-y-2"
-                        >
-                          <span className="text-lg">🏆</span>
-                          <span className="text-sm font-medium">Certificates Awarded</span>
-                        </Button>
-                        <Button 
-                          variant={announcementCategory === 'certificates-received' ? 'default' : 'outline'}
-                          onClick={() => {
-                            setAnnouncementCategory('certificates-received');
-                            setAnnouncementForm(certificatesReceivedForm);
-                            setGeneratedAnnouncement('');
-                          }}
-                          className="h-20 flex flex-col items-center justify-center space-y-2"
-                        >
-                          <span className="text-lg">🎖️</span>
-                          <span className="text-sm font-medium">Certificates Received</span>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                <Tabs defaultValue="announcements" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="announcements">Announcement Generator</TabsTrigger>
+                    <TabsTrigger value="regular">Regular News</TabsTrigger>
+                  </TabsList>
 
-                  {/* Form Fields for Selected Category */}
-                  {announcementCategory && (
+                  {/* Announcement Generator Tab */}
+                  <TabsContent value="announcements" className="space-y-6">
+                    {/* Category Selection */}
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Fill Template Fields</CardTitle>
-                        <CardDescription>
-                          {announcementCategory === 'places-visited' && 'Generate appreciation letter for places you have visited'}
-                          {announcementCategory === 'visitors' && 'Generate appreciation letter for visitors to your organization'}
-                          {announcementCategory === 'certificates-awarded' && 'Generate certificate for someone you are recognizing'}
-                          {announcementCategory === 'certificates-received' && 'Generate gratitude letter for certificates you have received'}
-                        </CardDescription>
+                        <CardTitle className="text-lg">Select Announcement Category</CardTitle>
+                        <CardDescription>Choose the type of announcement or certificate you want to create</CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {Object.entries(announcementForm).map(([key, value]) => (
-                            <div key={key} className={key === 'purpose' || key === 'topic' || key === 'reason' || key === 'mission' ? 'md:col-span-2' : ''}>
-                              <Label htmlFor={key} className="capitalize">
-                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                              </Label>
-                              {key === 'purpose' || key === 'topic' || key === 'reason' || key === 'mission' ? (
-                                <Textarea
-                                  id={key}
-                                  placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
-                                  value={value as string || ''}
-                                  onChange={(e) => setAnnouncementForm({...announcementForm, [key]: e.target.value})}
-                                  rows={3}
-                                />
-                              ) : (
-                                <Input
-                                  id={key}
-                                  placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
-                                  value={value as string || ''}
-                                  onChange={(e) => setAnnouncementForm({...announcementForm, [key]: e.target.value})}
-                                />
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                        <div className="mt-6 flex space-x-2">
-                          <Button onClick={generateAnnouncement} className="flex-1">
-                            Generate {announcementCategory === 'places-visited' || announcementCategory === 'visitors' || announcementCategory === 'certificates-received' ? 'Letter' : 'Certificate'}
+                        <div className="grid grid-cols-2 gap-4">
+                          <Button 
+                            variant={announcementCategory === 'places-visited' ? 'default' : 'outline'}
+                            onClick={() => {
+                              setAnnouncementCategory('places-visited');
+                              setAnnouncementForm(placesVisitedForm);
+                              setGeneratedAnnouncement('');
+                            }}
+                            className="h-20 flex flex-col items-center justify-center space-y-2"
+                          >
+                            <span className="text-lg">🏛️</span>
+                            <span className="text-sm font-medium">Places Visited</span>
                           </Button>
-                          <Button variant="outline" onClick={() => {
-                            setAnnouncementForm(getEmptyForm(announcementCategory));
-                            setGeneratedAnnouncement('');
-                          }}>
-                            Clear
+                          <Button 
+                            variant={announcementCategory === 'visitors' ? 'default' : 'outline'}
+                            onClick={() => {
+                              setAnnouncementCategory('visitors');
+                              setAnnouncementForm(visitorsForm);
+                              setGeneratedAnnouncement('');
+                            }}
+                            className="h-20 flex flex-col items-center justify-center space-y-2"
+                          >
+                            <span className="text-lg">👥</span>
+                            <span className="text-sm font-medium">Visitors</span>
+                          </Button>
+                          <Button 
+                            variant={announcementCategory === 'certificates-awarded' ? 'default' : 'outline'}
+                            onClick={() => {
+                              setAnnouncementCategory('certificates-awarded');
+                              setAnnouncementForm(certificatesAwardedForm);
+                              setGeneratedAnnouncement('');
+                            }}
+                            className="h-20 flex flex-col items-center justify-center space-y-2"
+                          >
+                            <span className="text-lg">🏆</span>
+                            <span className="text-sm font-medium">Certificates Awarded</span>
+                          </Button>
+                          <Button 
+                            variant={announcementCategory === 'certificates-received' ? 'default' : 'outline'}
+                            onClick={() => {
+                              setAnnouncementCategory('certificates-received');
+                              setAnnouncementForm(certificatesReceivedForm);
+                              setGeneratedAnnouncement('');
+                            }}
+                            className="h-20 flex flex-col items-center justify-center space-y-2"
+                          >
+                            <span className="text-lg">🎖️</span>
+                            <span className="text-sm font-medium">Certificates Received</span>
                           </Button>
                         </div>
                       </CardContent>
                     </Card>
-                  )}
 
-                  {/* Generated Announcement Preview */}
-                  {generatedAnnouncement && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg">Generated Document</CardTitle>
-                        <CardDescription>Preview and copy your generated announcement or certificate</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="bg-gray-50 p-6 rounded-lg border">
-                          <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed">
-                            {generatedAnnouncement}
-                          </pre>
-                        </div>
-                        <div className="mt-4 flex space-x-2">
-                          <Button onClick={() => {
-                            navigator.clipboard.writeText(generatedAnnouncement);
-                            toast({
-                              title: "Copied to clipboard",
-                              description: "The announcement has been copied to your clipboard.",
-                            });
-                          }}>
-                            Copy to Clipboard
-                          </Button>
-                          <Button variant="outline" onClick={() => {
-                            const newArticle = {
-                              title_en: `${announcementCategory.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} - ${new Date().toLocaleDateString()}`,
-                              description_en: generatedAnnouncement.substring(0, 200) + '...',
-                              category: announcementCategory,
-                              date: new Date().toISOString().split('T')[0],
-                              content: generatedAnnouncement
-                            };
-                            handleCreateNews(newArticle);
-                          }}>
-                            Save as News Article
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Published Announcements */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Published Announcements ({news.length})</h3>
-                    {news.length === 0 ? (
-                      <p className="text-gray-500">No announcements found in the database.</p>
-                    ) : (
-                      news.map((article) => (
-                        <div key={article.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex-1">
-                            <h4 className="font-medium">{article.title_en}</h4>
-                            <p className="text-sm text-gray-500">Category: {article.category} | Date: {article.date}</p>
-                            <p className="text-sm text-gray-600 mt-1">{article.description_en}</p>
+                    {/* Form Fields for Selected Category */}
+                    {announcementCategory && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Fill Template Fields</CardTitle>
+                          <CardDescription>
+                            {announcementCategory === 'places-visited' && 'Generate appreciation letter for places you have visited'}
+                            {announcementCategory === 'visitors' && 'Generate appreciation letter for visitors to your organization'}
+                            {announcementCategory === 'certificates-awarded' && 'Generate certificate for someone you are recognizing'}
+                            {announcementCategory === 'certificates-received' && 'Generate gratitude letter for certificates you have received'}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Object.entries(announcementForm).map(([key, value]) => (
+                              <div key={key} className={key === 'purpose' || key === 'topic' || key === 'reason' || key === 'mission' ? 'md:col-span-2' : ''}>
+                                <Label htmlFor={key} className="capitalize">
+                                  {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                </Label>
+                                {key === 'purpose' || key === 'topic' || key === 'reason' || key === 'mission' ? (
+                                  <Textarea
+                                    id={key}
+                                    placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
+                                    value={value as string || ''}
+                                    onChange={(e) => setAnnouncementForm({...announcementForm, [key]: e.target.value})}
+                                    rows={3}
+                                  />
+                                ) : (
+                                  <Input
+                                    id={key}
+                                    placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
+                                    value={value as string || ''}
+                                    onChange={(e) => setAnnouncementForm({...announcementForm, [key]: e.target.value})}
+                                  />
+                                )}
+                              </div>
+                            ))}
                           </div>
-                          <div className="flex space-x-2">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button size="sm" variant="outline">
-                                  View Full
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                                <DialogHeader>
-                                  <DialogTitle>{article.title_en}</DialogTitle>
-                                </DialogHeader>
-                                <div className="bg-gray-50 p-6 rounded-lg border">
-                                  <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed">
-                                    {article.description_en}
-                                  </pre>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
+                          <div className="mt-6 flex space-x-2">
+                            <Button onClick={generateAnnouncement} className="flex-1">
+                              Generate {announcementCategory === 'places-visited' || announcementCategory === 'visitors' || announcementCategory === 'certificates-received' ? 'Letter' : 'Certificate'}
+                            </Button>
+                            <Button variant="outline" onClick={() => {
+                              setAnnouncementForm(getEmptyForm(announcementCategory));
+                              setGeneratedAnnouncement('');
+                            }}>
+                              Clear
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Generated Announcement Preview */}
+                    {generatedAnnouncement && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Generated Document</CardTitle>
+                          <CardDescription>Preview and copy your generated announcement or certificate</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="bg-gray-50 p-6 rounded-lg border">
+                            <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed">
+                              {generatedAnnouncement}
+                            </pre>
+                          </div>
+                          <div className="mt-4 flex space-x-2">
+                            <Button onClick={() => {
+                              navigator.clipboard.writeText(generatedAnnouncement);
+                              toast({
+                                title: "Copied to clipboard",
+                                description: "The announcement has been copied to your clipboard.",
+                              });
+                            }}>
+                              Copy to Clipboard
+                            </Button>
+                            <Button variant="outline" onClick={() => {
+                              const categoryMap = {
+                                'places-visited': 'placesVisited',
+                                'visitors': 'visitors',
+                                'certificates-awarded': 'certificatesAwarded',
+                                'certificates-received': 'certificatesReceived'
+                              };
+                              
+                              const webCategory = categoryMap[announcementCategory as keyof typeof categoryMap];
+                              const summary = generatedAnnouncement.split('\n').slice(0, 3).join(' ').substring(0, 150) + '...';
+                              
+                              const newArticle = {
+                                title: `${announcementCategory.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} - ${new Date().toLocaleDateString()}`,
+                                content: generatedAnnouncement,
+                                category: webCategory
+                              };
+                              handleCreateNews(newArticle);
+                            }}>
+                              Save as News Article
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </TabsContent>
+
+                  {/* Regular News Tab */}
+                  <TabsContent value="regular" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Create Regular News Article</CardTitle>
+                        <CardDescription>Add a standard news article that will appear on the main website</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="newsTitle">Title</Label>
+                            <Input 
+                              id="newsTitle" 
+                              placeholder="Enter article title"
+                              value={newsForm.title_en}
+                              onChange={(e) => setNewsForm({...newsForm, title_en: e.target.value})}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="newsCategory">Category</Label>
+                            <Select value={newsForm.category} onValueChange={(value) => setNewsForm({...newsForm, category: value})}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="placesVisited">Places Visited</SelectItem>
+                                <SelectItem value="visitors">Visitors</SelectItem>
+                                <SelectItem value="certificatesReceived">Certificates Received</SelectItem>
+                                <SelectItem value="certificatesAwarded">Certificates Awarded</SelectItem>
+                                <SelectItem value="general">General News</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="col-span-2">
+                            <Label htmlFor="newsDescription">Description</Label>
+                            <Textarea 
+                              id="newsDescription" 
+                              placeholder="Enter article description"
+                              value={newsForm.description_en}
+                              onChange={(e) => setNewsForm({...newsForm, description_en: e.target.value})}
+                              rows={4}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="newsDate">Date</Label>
+                            <Input 
+                              id="newsDate" 
+                              type="date"
+                              value={newsForm.date}
+                              onChange={(e) => setNewsForm({...newsForm, date: e.target.value})}
+                            />
+                          </div>
+                          <div className="flex items-end">
                             <Button 
-                              size="sm" 
-                              variant="destructive"
-                              onClick={() => handleDeleteNews(article.id)}
-                              disabled={deleteNews.isPending}
+                              onClick={() => {
+                                const articleData = {
+                                  title: newsForm.title_en,
+                                  content: newsForm.description_en,
+                                  category: newsForm.category
+                                };
+                                handleCreateNews(articleData);
+                              }}
+                              disabled={createNews.isPending}
+                              className="w-full"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              {createNews.isPending ? 'Creating...' : 'Create Article'}
                             </Button>
                           </div>
                         </div>
-                      ))
-                    )}
-                  </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+
+                {/* Published News Articles */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Published Articles ({news.length})</h3>
+                  {news.length === 0 ? (
+                    <p className="text-gray-500">No news articles found in the database.</p>
+                  ) : (
+                    news.map((article) => (
+                      <div key={article.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <h4 className="font-medium">{article.title}</h4>
+                          <p className="text-sm text-gray-500">Category: {article.category} | Date: {new Date(article.createdAt).toLocaleDateString()}</p>
+                          <p className="text-sm text-gray-600 mt-1">{article.content.substring(0, 100)}...</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button size="sm" variant="outline">
+                                View Full
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>{article.title}</DialogTitle>
+                              </DialogHeader>
+                              <div className="bg-gray-50 p-6 rounded-lg border">
+                                <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed">
+                                  {article.content}
+                                </pre>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => handleDeleteNews(article.id)}
+                            disabled={deleteNews.isPending}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
