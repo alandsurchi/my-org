@@ -98,6 +98,58 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   // Hero image state
   const [heroFile, setHeroFile] = useState<File | null>(null);
 
+  // Announcement system state
+  const [announcementCategory, setAnnouncementCategory] = useState<string>('');
+  const [announcementForm, setAnnouncementForm] = useState<any>({});
+  const [generatedAnnouncement, setGeneratedAnnouncement] = useState<string>('');
+
+  // Template forms for each category
+  const placesVisitedForm = {
+    day: '',
+    date: '',
+    placeName: '',
+    hostName: '',
+    yourOrgName: '',
+    attendees: '',
+    purpose: '',
+    hostOrganization: '',
+    representativeName: '',
+    position: ''
+  };
+
+  const visitorsForm = {
+    day: '',
+    date: '',
+    visitorName: '',
+    yourOrgName: '',
+    yourPlace: '',
+    topic: '',
+    representativeName: '',
+    position: ''
+  };
+
+  const certificatesAwardedForm = {
+    day: '',
+    date: '',
+    recipientName: '',
+    reason: '',
+    organizationName: '',
+    yourOrgName: '',
+    representativeName: '',
+    position: ''
+  };
+
+  const certificatesReceivedForm = {
+    day: '',
+    date: '',
+    yourOrgName: '',
+    awardingOrganization: '',
+    certificateName: '',
+    mission: '',
+    representativeName: '',
+    position: ''
+  };
+
   // Edit states
   const [editingNews, setEditingNews] = useState<any>(null);
   const [editingProject, setEditingProject] = useState<any>(null);
@@ -250,16 +302,19 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
     });
   };
 
-  const handleCreateNews = async () => {
-    if (newsForm.title_en && newsForm.description_en && newsForm.category) {
+  const handleCreateNews = async (customNews?: any) => {
+    const newsData = customNews || newsForm;
+    if (newsData.title_en && newsData.description_en && newsData.category) {
       try {
-        await createNews.mutateAsync(newsForm);
-        setNewsForm({
-          title_en: '',
-          description_en: '',
-          category: '',
-          date: new Date().toISOString().split('T')[0]
-        });
+        await createNews.mutateAsync(newsData);
+        if (!customNews) {
+          setNewsForm({
+            title_en: '',
+            description_en: '',
+            category: '',
+            date: new Date().toISOString().split('T')[0]
+          });
+        }
         toast({
           title: "News article created",
           description: "The news article has been created successfully.",
@@ -286,6 +341,83 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
       title: "News article deleted",
       description: "The news article has been removed successfully.",
     });
+  };
+
+  // Announcement system helper functions
+  const getEmptyForm = (category: string) => {
+    switch (category) {
+      case 'places-visited':
+        return placesVisitedForm;
+      case 'visitors':
+        return visitorsForm;
+      case 'certificates-awarded':
+        return certificatesAwardedForm;
+      case 'certificates-received':
+        return certificatesReceivedForm;
+      default:
+        return {};
+    }
+  };
+
+  const generateAnnouncement = () => {
+    let template = '';
+    
+    switch (announcementCategory) {
+      case 'places-visited':
+        template = `Certificate / Letter of Appreciation
+📅 ${announcementForm.day} – ${announcementForm.date}
+To: ${announcementForm.placeName}
+
+==============================
+On behalf of ${announcementForm.yourOrgName}, we express our heartfelt appreciation to ${announcementForm.hostName} for their warm welcome and valuable time during our visit to ${announcementForm.placeName}.
+Our team, including ${announcementForm.attendees}, had the honor of learning more about ${announcementForm.purpose}, and we deeply value the shared insights and hospitality extended to us.
+This visit marks a step forward in fostering mutual respect, understanding, and cooperation between ${announcementForm.yourOrgName} and ${announcementForm.hostOrganization}.
+${announcementForm.yourOrgName}
+${announcementForm.representativeName} & ${announcementForm.position}`;
+        break;
+        
+      case 'visitors':
+        template = `Certificate / Letter of Appreciation
+📅 ${announcementForm.day} – ${announcementForm.date}
+To: ${announcementForm.visitorName}
+
+==============================
+On behalf of ${announcementForm.yourOrgName}, we warmly thank ${announcementForm.visitorName} for visiting us at ${announcementForm.yourPlace}.
+We truly appreciate the effort and time you dedicated to meeting with us and discussing ${announcementForm.topic}. Your visit has strengthened the bond of friendship and collaboration we hope to nurture in the future.
+Your presence was an honor and an inspiration to all our members.
+${announcementForm.yourOrgName}
+${announcementForm.representativeName} & ${announcementForm.position}`;
+        break;
+        
+      case 'certificates-awarded':
+        template = `Certificate of Appreciation
+📅 ${announcementForm.day} – ${announcementForm.date}
+
+==============================
+This certificate is proudly presented to ${announcementForm.recipientName} in recognition of ${announcementForm.reason}.
+We commend your commitment, hard work, and the positive impact you have brought to ${announcementForm.organizationName}.
+Your dedication sets an inspiring example for others and plays an important role in achieving our shared mission.
+${announcementForm.yourOrgName}
+${announcementForm.representativeName} & ${announcementForm.position}`;
+        break;
+        
+      case 'certificates-received':
+        template = `Certificate / Letter of Gratitude
+📅 ${announcementForm.day} – ${announcementForm.date}
+
+==============================
+On behalf of ${announcementForm.yourOrgName}, we express our sincere gratitude to ${announcementForm.awardingOrganization} for honoring us with this ${announcementForm.certificateName}.
+This recognition motivates us to continue working with passion, dedication, and commitment towards ${announcementForm.mission}.
+We deeply appreciate your acknowledgment of our efforts and look forward to strengthening our cooperation in the future.
+${announcementForm.yourOrgName}
+${announcementForm.representativeName} & ${announcementForm.position}`;
+        break;
+        
+      default:
+        template = 'Please select a category first.';
+    }
+    
+    setGeneratedAnnouncement(template);
   };
 
   const handleCreateProject = async () => {
@@ -697,89 +829,195 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
           <TabsContent value="news" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>News Management</CardTitle>
-                <CardDescription>Create, edit, and manage news articles</CardDescription>
+                <CardTitle>Announcement & Certificate Generator</CardTitle>
+                <CardDescription>Generate official announcements and certificates with predefined templates</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
+                  {/* Category Selection */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-lg">Create New Article</CardTitle>
+                      <CardTitle className="text-lg">Select Category</CardTitle>
+                      <CardDescription>Choose the type of announcement or certificate you want to create</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="newsTitle">Title</Label>
-                          <Input 
-                            id="newsTitle" 
-                            placeholder="Enter article title"
-                            value={newsForm.title_en}
-                            onChange={(e) => setNewsForm({...newsForm, title_en: e.target.value})}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="newsCategory">Category</Label>
-                          <Select value={newsForm.category} onValueChange={(value) => setNewsForm({...newsForm, category: value})}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="general">General</SelectItem>
-                              <SelectItem value="community">Community</SelectItem>
-                              <SelectItem value="education">Education</SelectItem>
-                              <SelectItem value="healthcare">Healthcare</SelectItem>
-                              <SelectItem value="environment">Environment</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="col-span-2">
-                          <Label htmlFor="newsDescription">Description</Label>
-                          <Textarea 
-                            id="newsDescription" 
-                            placeholder="Enter article description"
-                            value={newsForm.description_en}
-                            onChange={(e) => setNewsForm({...newsForm, description_en: e.target.value})}
-                            rows={4}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="newsDate">Date</Label>
-                          <Input 
-                            id="newsDate" 
-                            type="date"
-                            value={newsForm.date}
-                            onChange={(e) => setNewsForm({...newsForm, date: e.target.value})}
-                          />
-                        </div>
-                        <div className="flex items-end">
-                          <Button 
-                            onClick={handleCreateNews}
-                            disabled={createNews.isPending}
-                            className="w-full"
-                          >
-                            {createNews.isPending ? 'Creating...' : 'Create Article'}
-                          </Button>
-                        </div>
+                        <Button 
+                          variant={announcementCategory === 'places-visited' ? 'default' : 'outline'}
+                          onClick={() => {
+                            setAnnouncementCategory('places-visited');
+                            setAnnouncementForm(placesVisitedForm);
+                            setGeneratedAnnouncement('');
+                          }}
+                          className="h-20 flex flex-col items-center justify-center space-y-2"
+                        >
+                          <span className="text-lg">🏛️</span>
+                          <span className="text-sm font-medium">Places Visited</span>
+                        </Button>
+                        <Button 
+                          variant={announcementCategory === 'visitors' ? 'default' : 'outline'}
+                          onClick={() => {
+                            setAnnouncementCategory('visitors');
+                            setAnnouncementForm(visitorsForm);
+                            setGeneratedAnnouncement('');
+                          }}
+                          className="h-20 flex flex-col items-center justify-center space-y-2"
+                        >
+                          <span className="text-lg">👥</span>
+                          <span className="text-sm font-medium">Visitors</span>
+                        </Button>
+                        <Button 
+                          variant={announcementCategory === 'certificates-awarded' ? 'default' : 'outline'}
+                          onClick={() => {
+                            setAnnouncementCategory('certificates-awarded');
+                            setAnnouncementForm(certificatesAwardedForm);
+                            setGeneratedAnnouncement('');
+                          }}
+                          className="h-20 flex flex-col items-center justify-center space-y-2"
+                        >
+                          <span className="text-lg">🏆</span>
+                          <span className="text-sm font-medium">Certificates Awarded</span>
+                        </Button>
+                        <Button 
+                          variant={announcementCategory === 'certificates-received' ? 'default' : 'outline'}
+                          onClick={() => {
+                            setAnnouncementCategory('certificates-received');
+                            setAnnouncementForm(certificatesReceivedForm);
+                            setGeneratedAnnouncement('');
+                          }}
+                          className="h-20 flex flex-col items-center justify-center space-y-2"
+                        >
+                          <span className="text-lg">🎖️</span>
+                          <span className="text-sm font-medium">Certificates Received</span>
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
 
+                  {/* Form Fields for Selected Category */}
+                  {announcementCategory && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Fill Template Fields</CardTitle>
+                        <CardDescription>
+                          {announcementCategory === 'places-visited' && 'Generate appreciation letter for places you have visited'}
+                          {announcementCategory === 'visitors' && 'Generate appreciation letter for visitors to your organization'}
+                          {announcementCategory === 'certificates-awarded' && 'Generate certificate for someone you are recognizing'}
+                          {announcementCategory === 'certificates-received' && 'Generate gratitude letter for certificates you have received'}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {Object.entries(announcementForm).map(([key, value]) => (
+                            <div key={key} className={key === 'purpose' || key === 'topic' || key === 'reason' || key === 'mission' ? 'md:col-span-2' : ''}>
+                              <Label htmlFor={key} className="capitalize">
+                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                              </Label>
+                              {key === 'purpose' || key === 'topic' || key === 'reason' || key === 'mission' ? (
+                                <Textarea
+                                  id={key}
+                                  placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
+                                  value={value as string || ''}
+                                  onChange={(e) => setAnnouncementForm({...announcementForm, [key]: e.target.value})}
+                                  rows={3}
+                                />
+                              ) : (
+                                <Input
+                                  id={key}
+                                  placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
+                                  value={value as string || ''}
+                                  onChange={(e) => setAnnouncementForm({...announcementForm, [key]: e.target.value})}
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-6 flex space-x-2">
+                          <Button onClick={generateAnnouncement} className="flex-1">
+                            Generate {announcementCategory === 'places-visited' || announcementCategory === 'visitors' || announcementCategory === 'certificates-received' ? 'Letter' : 'Certificate'}
+                          </Button>
+                          <Button variant="outline" onClick={() => {
+                            setAnnouncementForm(getEmptyForm(announcementCategory));
+                            setGeneratedAnnouncement('');
+                          }}>
+                            Clear
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Generated Announcement Preview */}
+                  {generatedAnnouncement && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Generated Document</CardTitle>
+                        <CardDescription>Preview and copy your generated announcement or certificate</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="bg-gray-50 p-6 rounded-lg border">
+                          <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed">
+                            {generatedAnnouncement}
+                          </pre>
+                        </div>
+                        <div className="mt-4 flex space-x-2">
+                          <Button onClick={() => {
+                            navigator.clipboard.writeText(generatedAnnouncement);
+                            toast({
+                              title: "Copied to clipboard",
+                              description: "The announcement has been copied to your clipboard.",
+                            });
+                          }}>
+                            Copy to Clipboard
+                          </Button>
+                          <Button variant="outline" onClick={() => {
+                            const newArticle = {
+                              title_en: `${announcementCategory.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} - ${new Date().toLocaleDateString()}`,
+                              description_en: generatedAnnouncement.substring(0, 200) + '...',
+                              category: announcementCategory,
+                              date: new Date().toISOString().split('T')[0],
+                              content: generatedAnnouncement
+                            };
+                            handleCreateNews(newArticle);
+                          }}>
+                            Save as News Article
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Published Announcements */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Published Articles ({news.length})</h3>
+                    <h3 className="text-lg font-semibold">Published Announcements ({news.length})</h3>
                     {news.length === 0 ? (
-                      <p className="text-gray-500">No news articles found in the database.</p>
+                      <p className="text-gray-500">No announcements found in the database.</p>
                     ) : (
                       news.map((article) => (
                         <div key={article.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div>
+                          <div className="flex-1">
                             <h4 className="font-medium">{article.title_en}</h4>
                             <p className="text-sm text-gray-500">Category: {article.category} | Date: {article.date}</p>
                             <p className="text-sm text-gray-600 mt-1">{article.description_en}</p>
                           </div>
                           <div className="flex space-x-2">
-                            <Button size="sm" variant="outline">
-                              <Edit className="w-4 h-4" />
-                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button size="sm" variant="outline">
+                                  View Full
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle>{article.title_en}</DialogTitle>
+                                </DialogHeader>
+                                <div className="bg-gray-50 p-6 rounded-lg border">
+                                  <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed">
+                                    {article.description_en}
+                                  </pre>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                             <Button 
                               size="sm" 
                               variant="destructive"
