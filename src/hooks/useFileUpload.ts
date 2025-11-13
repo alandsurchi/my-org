@@ -1,53 +1,31 @@
-
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+// File upload hook for Node.js backend
+import { useMutation } from '@tanstack/react-query';
 
 export const useFileUpload = () => {
-  const [uploading, setUploading] = useState(false);
-  const { toast } = useToast();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      console.log('Uploading file to backend:', file.name);
+      
+      const formData = new FormData();
+      formData.append('image', file);
 
-  const uploadFile = async (file: File, bucket: string = 'dashboard-images'): Promise<string | null> => {
-    try {
-      setUploading(true);
-      console.log('📤 Uploading file:', file.name);
+      const response = await fetch('http://localhost:5000/api/gallery/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${bucket}/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file);
-
-      if (uploadError) {
-        console.error('🔴 Upload error:', uploadError);
-        toast({
-          title: "Upload failed",
-          description: uploadError.message,
-          variant: "destructive"
-        });
-        return null;
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Upload failed:', errorText);
+        throw new Error(`Upload failed: ${response.statusText}`);
       }
 
-      const { data } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(filePath);
-
-      console.log('✅ File uploaded successfully:', data.publicUrl);
-      return data.publicUrl;
-    } catch (error) {
-      console.error('🔴 Unexpected upload error:', error);
-      toast({
-        title: "Upload failed",
-        description: "An unexpected error occurred during upload",
-        variant: "destructive"
-      });
-      return null;
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return { uploadFile, uploading };
+      const data = await response.json();
+      console.log('Upload successful:', data);
+      
+      return { 
+        url: data.imageUrl || data.url || data.filePath 
+      };
+    },
+  });
 };

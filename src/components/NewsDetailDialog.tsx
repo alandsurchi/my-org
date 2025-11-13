@@ -25,6 +25,14 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
 
   if (!newsItem) return null;
 
+  const getImageSrc = (url?: string) => {
+    if (!url) return null;
+    if (url.startsWith('/uploads/')) {
+      return `http://localhost:5000${url}`;
+    }
+    return url;
+  };
+
   const getBadgeColor = (category: string) => {
     const colors = {
       'placesVisited': 'bg-gradient-to-r from-blue-500 to-blue-600',
@@ -68,24 +76,26 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
         
         <div className="space-y-6">
           {/* News Image */}
-          <div className="relative">
-            <img 
-              src={newsItem.image_url || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&h=400&fit=crop'} 
-              alt={newsItem.title_en}
-              className="w-full h-64 md:h-80 object-cover rounded-lg"
-            />
-            <div className="absolute top-4 left-4 flex items-center gap-2">
-              <span className="text-2xl">{getCategoryIcon(newsItem.category)}</span>
-              <span className="text-sm text-white font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                {t(newsItem.category)}
-              </span>
+          {getImageSrc(newsItem.image_url) && (
+            <div className="relative">
+              <img 
+                src={getImageSrc(newsItem.image_url)!} 
+                alt={newsItem.title_en}
+                className="w-full h-64 md:h-80 object-cover rounded-lg"
+              />
+              <div className="absolute top-4 left-4 flex items-center gap-2">
+                <span className="text-2xl">{getCategoryIcon(newsItem.category)}</span>
+                <span className="text-sm text-white font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                  {t(newsItem.category)}
+                </span>
+              </div>
+              <div className="absolute top-4 right-4">
+                <span className={`${getBadgeColor(newsItem.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
+                  News
+                </span>
+              </div>
             </div>
-            <div className="absolute top-4 right-4">
-              <span className={`${getBadgeColor(newsItem.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
-                News
-              </span>
-            </div>
-          </div>
+          )}
 
           {/* News Info */}
           <div className="grid md:grid-cols-2 gap-6">

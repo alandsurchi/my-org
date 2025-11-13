@@ -1,0 +1,10 @@
+{
+  "name": "browser-mcp-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "puppeteer": "^23.0.0"
+  }
+}

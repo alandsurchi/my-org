@@ -19,6 +19,14 @@ const AllProjects = () => {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: projects = [], isLoading } = useProjects();
 
+  const getImageSrc = (url?: string) => {
+    if (!url) return null;
+    if (url.startsWith('/uploads/')) {
+      return `http://localhost:5000${url}`;
+    }
+    return url;
+  };
+
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -27,7 +35,18 @@ const AllProjects = () => {
   });
 
   const handleReadMore = (project: any) => {
-    setSelectedProject(project);
+    // Transform project data to match dialog interface
+    const transformedProject = {
+      id: project._id || project.id,
+      title_en: project.title || project.title_en,
+      description_en: project.description || project.description_en,
+      category: project.category,
+      image_url: project.imageUrl || project.image_url,
+      location: project.location,
+      status: project.status,
+      created_at: project.createdAt || project.created_at
+    };
+    setSelectedProject(transformedProject);
     setIsDetailDialogOpen(true);
   };
 
@@ -89,6 +108,7 @@ const AllProjects = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="news">📰 News Updates</SelectItem>
                 <SelectItem value="water">Water</SelectItem>
                 <SelectItem value="education">Education</SelectItem>
                 <SelectItem value="emergency">Emergency</SelectItem>
@@ -103,33 +123,51 @@ const AllProjects = () => {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project, index) => (
-                <div key={project.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <img 
-                    src={project.imageUrl || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop'} 
-                    alt={project.title}
-                    className="h-48 w-full object-cover"
-                  />
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
-                        {project.category}
-                      </span>
-                      <span className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
-                        {project.status}
-                      </span>
+              {filteredProjects.map((project, index) => {
+                const imageUrl = getImageSrc(project.image_url || project.imageUrl);
+
+                const getCategoryLabel = (category?: string) => {
+                  if (!category) return 'دابینکردن';
+                  const labels: Record<string, string> = {
+                    provision: 'دابینکردن',
+                    distribution: 'دابەشکردن',
+                    renovation: 'نۆژەنکردنەوە',
+                    building: 'دروستکردن',
+                    news: 'News Update'
+                  };
+                  return labels[category] || category;
+                };
+
+                return (
+                  <div key={project._id || project.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    {imageUrl && (
+                      <img 
+                        src={imageUrl} 
+                        alt={project.title || project.title_en}
+                        className="h-48 w-full object-cover"
+                      />
+                    )}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
+                          {getCategoryLabel(project.category)}
+                        </span>
+                        <span className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
+                          {project.isNewsProject ? 'News' : (project.status || 'active')}
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-3">{project.title || project.title_en}</h3>
+                      <p className="text-gray-600 mb-4 line-clamp-3">{project.description || project.description_en}</p>
+                      <Button 
+                        onClick={() => handleReadMore(project)}
+                        className="w-full"
+                      >
+                        Read More
+                      </Button>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">{project.title}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3">{project.description}</p>
-                    <Button 
-                      onClick={() => handleReadMore(project)}
-                      className="w-full"
-                    >
-                      Read More
-                    </Button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

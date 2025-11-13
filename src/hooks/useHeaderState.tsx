@@ -45,18 +45,37 @@ export const useHeaderState = () => {
       }
     );
 
-    // Observe all sections
-    const sections = document.querySelectorAll('section');
-    sections.forEach((section, index) => {
-      if (index === 0 && !section.id) {
-        // First section without ID is assumed to be hero/home
-        observer.observe(section);
-      } else if (section.id) {
-        observer.observe(section);
-      }
+    // Function to observe all sections
+    const observeSections = () => {
+      const sections = document.querySelectorAll('section');
+      sections.forEach((section, index) => {
+        if (index === 0 && !section.id) {
+          // First section without ID is assumed to be hero/home
+          observer.observe(section);
+        } else if (section.id) {
+          observer.observe(section);
+        }
+      });
+    };
+
+    // Initial observation
+    observeSections();
+
+    // Re-observe when DOM changes (for lazy-loaded sections)
+    const mutationObserver = new MutationObserver(() => {
+      observer.disconnect();
+      observeSections();
     });
 
-    return () => observer.disconnect();
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+    };
   }, []);
 
   return {

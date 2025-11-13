@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "browser-controller": {
+      "command": "node",
+      "args": ["c:\\Users\\aland\\Desktop\\test-2\\my-org\\mcp-server\\index.js"],
+      "env": {}
+    }
+  }
+}

@@ -1,7 +1,7 @@
 // API Service for Charity Dashboard Backend
 // This file provides integration between React frontend and Node.js backend
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 class CharityDashboardAPI {
   constructor() {
@@ -101,13 +101,73 @@ class CharityDashboardAPI {
     throw new Error(error.message || 'Hero image upload failed');
   }
 
-  // News methods
-  async getAllNews() {
-    const response = await fetch(`${this.baseURL}/news`);
+  // About Image methods
+  async getAboutImage() {
+    const response = await fetch(`${this.baseURL}/about`);
     if (response.ok) {
       return await response.json();
     }
-    throw new Error('Failed to fetch news');
+    if (response.status === 404) {
+      return null; // No about image set
+    }
+    throw new Error('Failed to fetch about image');
+  }
+
+  async uploadAboutImage(imageFile) {
+    const formData = new FormData();
+    formData.append('aboutImage', imageFile);
+    
+    const response = await fetch(`${this.baseURL}/about`, {
+      method: 'POST',
+      headers: this.getAuthHeadersForFormData(),
+      body: formData
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    }
+    const error = await response.json();
+    throw new Error(error.message || 'About image upload failed');
+  }
+
+  async deleteAboutImage() {
+    const response = await fetch(`${this.baseURL}/about`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    }
+    const error = await response.json();
+    throw new Error(error.message || 'About image deletion failed');
+  }
+
+  // News methods
+  async getAllNews() {
+    try {
+      console.log('🔍 API: Fetching news from', `${this.baseURL}/news`);
+      const response = await fetch(`${this.baseURL}/news`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
+      
+      console.log('🔍 API: News response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ API: News data received:', data?.length || 0, 'items');
+        return data;
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    } catch (error) {
+      console.error('❌ API: Failed to fetch news:', error);
+      if (error.name === 'TimeoutError') {
+        throw new Error('Request timeout - server may be busy');
+      }
+      throw new Error(error.message || 'Failed to fetch news');
+    }
   }
 
   async getNewsById(id) {
@@ -121,10 +181,13 @@ class CharityDashboardAPI {
     throw new Error('Failed to fetch news');
   }
 
-  async createNews(title, content, imageFile = null) {
+  async createNews(title, content, category = null, imageFile = null) {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', content);
+    if (category) {
+      formData.append('category', category);
+    }
     if (imageFile) {
       formData.append('image', imageFile);
     }
@@ -164,26 +227,57 @@ class CharityDashboardAPI {
   }
 
   async deleteNews(id) {
-    const response = await fetch(`${this.baseURL}/news/${id}`, {
-      method: 'DELETE',
-      headers: this.getAuthHeaders()
-    });
-    
-    if (response.ok) {
-      return await response.json();
+    try {
+      console.log('🗑️ API: Deleting news with ID:', id);
+      const response = await fetch(`${this.baseURL}/news/${id}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders()
+      });
+      
+      console.log('🗑️ API: Delete response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ API: News deleted successfully');
+        return data;
+      }
+      
+      const error = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+      console.error('❌ API: Delete failed:', error);
+      throw new Error(error.message || 'News deletion failed');
+    } catch (error) {
+      console.error('❌ API: Delete request error:', error);
+      throw error;
     }
-    const error = await response.json();
-    throw new Error(error.message || 'News deletion failed');
   }
 
   // Projects methods
   async getAllProjects(status = null) {
-    const url = status ? `${this.baseURL}/projects?status=${status}` : `${this.baseURL}/projects`;
-    const response = await fetch(url);
-    if (response.ok) {
-      return await response.json();
+    try {
+      const url = status ? `${this.baseURL}/projects?status=${status}` : `${this.baseURL}/projects`;
+      console.log('🔍 API: Fetching projects from', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
+      
+      console.log('🔍 API: Projects response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ API: Projects data received:', data?.length || 0, 'items');
+        return data;
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    } catch (error) {
+      console.error('❌ API: Failed to fetch projects:', error);
+      if (error.name === 'TimeoutError') {
+        throw new Error('Request timeout - server may be busy');
+      }
+      throw new Error(error.message || 'Failed to fetch projects');
     }
-    throw new Error('Failed to fetch projects');
   }
 
   async getProjectById(id) {
@@ -197,13 +291,19 @@ class CharityDashboardAPI {
     throw new Error('Failed to fetch project');
   }
 
-  async createProject(title, description, status = 'active', imageFile = null) {
+  async createProject(projectData) {
+    const { title_en, description_en, status, image, ...rest } = projectData;
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('status', status);
-    if (imageFile) {
-      formData.append('image', imageFile);
+    formData.append('title', title_en || projectData.title);
+    formData.append('description', description_en || projectData.description);
+    formData.append('status', status || 'active');
+    
+    // Append any additional fields
+    if (rest.category) formData.append('category', rest.category);
+    if (rest.location) formData.append('location', rest.location);
+    
+    if (image) {
+      formData.append('image', image);
     }
     
     const response = await fetch(`${this.baseURL}/projects`, {

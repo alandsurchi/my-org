@@ -5,6 +5,15 @@ const GalleryPhotoSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  title: {
+    type: String,
+    trim: true,
+    default: 'Untitled'
+  },
+  description: {
+    type: String,
+    trim: true
+  },
   caption: {
     type: String,
     trim: true

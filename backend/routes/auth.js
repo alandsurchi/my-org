@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { staffLoginLimiter, securityHeaders, auditLog } = require('../middleware/staffSecurity');
+
+// Super admin emails (hardcoded)
+const SUPER_ADMINS = [
+  'aland.surchi456@gmail.com',
+  'aland.raed.othman@gmail.com'
+];
+
+// Apply security headers to all auth routes
+router.use(securityHeaders);
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
@@ -57,41 +67,70 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST login
-router.post('/login', async (req, res) => {
+// POST login with enhanced security
+router.post('/login', staffLoginLimiter, auditLog('LOGIN_ATTEMPT'), async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    // Input validation
+    if (!email || !password) {
+      return res.status(400).json({ 
+        message: 'Email and password are required',
+        code: 'MISSING_CREDENTIALS'
+      });
+    }
     
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      // Don't reveal whether user exists or not
+      return res.status(401).json({ 
+        message: 'Invalid credentials',
+        code: 'INVALID_CREDENTIALS'
+      });
     }
     
     // Check password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ 
+        message: 'Invalid credentials',
+        code: 'INVALID_CREDENTIALS'
+      });
     }
     
-    // Generate JWT token
+    // Generate JWT token with shorter expiry for security
+    const sessionTimeout = process.env.STAFF_SESSION_TIMEOUT || '1h';
     const token = jwt.sign(
       { 
         userId: user._id, 
         email: user.email, 
-        role: user.role 
+        role: user.role,
+        iat: Math.floor(Date.now() / 1000)
       },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: sessionTimeout }
     );
+    
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+    
+    // Log successful login
+    console.log(`🔒 SUCCESSFUL LOGIN: ${email} from IP: ${req.ip}`);
+    
+    const isSuperAdmin = SUPER_ADMINS.includes(user.email);
     
     res.json({
       message: 'Login successful',
       token,
+      expiresIn: sessionTimeout,
       user: {
         id: user._id,
+        name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        isSuperAdmin: isSuperAdmin
       }
     });
   } catch (error) {

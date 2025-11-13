@@ -31,9 +31,21 @@ const upload = multer({
 // GET all news
 router.get('/', async (req, res) => {
   try {
+    console.log('📰 API: Fetching all news from database...');
     const allNews = await News.find().sort({ createdAt: -1 });
+    console.log(`📰 API: Found ${allNews.length} news items`);
+    console.log('📰 API: First item:', allNews[0] ? allNews[0].title : 'No items');
+    
+    // Log all categories to help debug
+    if (allNews.length > 0) {
+      const categories = allNews.map(n => n.category).filter(Boolean);
+      const uniqueCategories = [...new Set(categories)];
+      console.log('📰 API: Categories found:', uniqueCategories);
+    }
+    
     res.json(allNews);
   } catch (error) {
+    console.error('❌ API: Error fetching news:', error);
     res.status(500).json({ message: 'Error fetching news', error: error.message });
   }
 });
@@ -57,6 +69,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     const newsData = {
       title: req.body.title,
       content: req.body.content,
+      category: req.body.category || null,
       imageUrl: req.file ? `/uploads/news/${req.file.filename}` : null
     };
     
@@ -74,6 +87,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     const updateData = {
       title: req.body.title,
       content: req.body.content,
+      category: req.body.category || null,
       updatedAt: Date.now()
     };
     

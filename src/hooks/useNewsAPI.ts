@@ -7,14 +7,30 @@ export const useNews = () => {
     queryKey: ['news'],
     queryFn: async () => {
       console.log('🔍 Fetching news data from Node.js API...');
-      const data = await api.getAllNews();
-      console.log('✅ News data fetched successfully:', data);
-      return data;
+      try {
+        const data = await api.getAllNews();
+        console.log('✅ News data fetched successfully:', data);
+        console.log('✅ News data type:', typeof data, 'Array:', Array.isArray(data));
+        console.log('✅ News data length:', data?.length || 0);
+        if (data && data.length > 0) {
+          console.log('✅ First news item:', JSON.stringify(data[0], null, 2));
+        }
+        return data || [];
+      } catch (error) {
+        console.error('❌ Error fetching news:', error);
+        console.error('❌ Error details:', error.message);
+        throw error;
+      }
     },
-    retry: 3,
-    retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: (failureCount, error) => {
+      console.log(`🔄 Retry attempt ${failureCount} for news fetch`);
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
     refetchOnWindowFocus: false,
+    refetchOnMount: false, // Use cached data if available
   });
 };
 
@@ -35,13 +51,14 @@ export const useCreateNews = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ title, content, image }: {
+    mutationFn: async ({ title, content, category, image }: {
       title: string;
       content: string;
+      category?: string;
       image?: File;
     }) => {
       console.log('📝 Creating news article...');
-      return await api.createNews(title, content, image);
+      return await api.createNews(title, content, category, image);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] });

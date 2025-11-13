@@ -27,6 +27,14 @@ const ProjectDetailDialog = ({ project, isOpen, onClose }: ProjectDetailDialogPr
 
   if (!project) return null;
 
+  const getImageSrc = (url?: string) => {
+    if (!url) return null;
+    if (url.startsWith('/uploads/')) {
+      return `http://localhost:5000${url}`;
+    }
+    return url;
+  };
+
   const getBadgeColor = (category: string) => {
     const colors = {
       'water': 'bg-gradient-to-r from-blue-500 to-blue-600',
@@ -58,24 +66,26 @@ const ProjectDetailDialog = ({ project, isOpen, onClose }: ProjectDetailDialogPr
         
         <div className="space-y-6">
           {/* Project Image */}
-          <div className="relative">
-            <img 
-              src={project.image_url || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=400&fit=crop'} 
-              alt={project.title_en}
-              className="w-full h-64 md:h-80 object-cover rounded-lg"
-            />
-            <div className="absolute top-4 left-4 flex items-center gap-2">
-              <span className="text-2xl">{getCategoryIcon(project.category)}</span>
-              <span className="text-sm text-white font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                {t(project.category)}
-              </span>
+          {getImageSrc(project.image_url) && (
+            <div className="relative">
+              <img 
+                src={getImageSrc(project.image_url)!} 
+                alt={project.title_en}
+                className="w-full h-64 md:h-80 object-cover rounded-lg"
+              />
+              <div className="absolute top-4 left-4 flex items-center gap-2">
+                <span className="text-2xl">{getCategoryIcon(project.category)}</span>
+                <span className="text-sm text-white font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                  {t(project.category)}
+                </span>
+              </div>
+              <div className="absolute top-4 right-4">
+                <span className={`${getBadgeColor(project.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
+                  {project.status}
+                </span>
+              </div>
             </div>
-            <div className="absolute top-4 right-4">
-              <span className={`${getBadgeColor(project.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
-                {project.status}
-              </span>
-            </div>
-          </div>
+          )}
 
           {/* Project Info */}
           <div className="grid md:grid-cols-2 gap-6">

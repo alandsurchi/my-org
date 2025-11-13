@@ -34,7 +34,7 @@ const translations = {
     
     // About section
     aboutTitle: 'About MROVDOSTAN',
-    aboutDescription: 'For over a decade, MROVDOSTAN has been dedicated to transforming lives and communities across the Kurdistan region through sustainable development and humanitarian aid. Founded in 2010, we emerged from a simple belief: every person deserves access to basic necessities like clean water, education, healthcare, and opportunity. What started as a small group of volunteers has grown into a regional movement reaching over 50 communities across Kurdistan. Through our comprehensive programs in education, healthcare, economic development, and human rights advocacy, we continue to build hope for tomorrow while addressing today\'s most urgent needs.',
+    aboutDescription: 'Our organization is a humanitarian, non-profit institution deeply committed to improving the lives of people in difficult circumstances. Our main mission is to provide emergency aid, educational support, and long-term development for affected and vulnerable communities. We provide humanitarian assistance regardless of religion, race, nationality, or political views. By delivering our aid justly and quickly, we strive to restore hope and dignity to those affected, and we work on sustainable projects to rebuild communities and ensure a better future for all.',
     mission: 'Our Mission',
     missionText: 'To empower communities through sustainable development, education, and healthcare initiatives that create lasting positive change.',
     vision: 'Our Vision',
@@ -134,7 +134,7 @@ const translations = {
     quickLinks: 'Quick Links',
     contactInfo: 'Contact Info',
     followUs: 'Follow Us',
-    footerCopyright: '© 2024 MROVDOSTAN. All rights reserved. | Built with ❤️ for making a difference.',
+    footerCopyright: '© 2024 MROVDOSTAN. All rights reserved.',
     
     // Login
     staffLogin: 'Staff Login',
@@ -184,7 +184,7 @@ const translations = {
     
     // About section
     aboutTitle: 'حول مروڤدوستان',
-    aboutDescription: 'لأكثر من عقد من الزمان، كرست مروڤدوستان نفسها لتحويل الحياة والمجتمعات عبر منطقة كردستان من خلال التنمية المستدامة والمساعدات الإنسانية. تأسست في عام 2010، نشأنا من إيمان بسيط: كل شخص يستحق الوصول إلى الضروريات الأساسية مثل المياه النظيفة والتعليم والرعاية الصحية والفرص. ما بدأ كمجموعة صغيرة من المتطوعين نما ليصبح حركة إقليمية تصل إلى أكثر من 50 مجتمعاً عبر كردستان. من خلال برامجنا الشاملة في التعليم والرعاية الصحية والتنمية الاقتصادية ودعوة حقوق الإنسان، نواصل بناء الأمل للغد بينما نعالج احتياجات اليوم الأكثر إلحاحاً.',
+    aboutDescription: 'منظمتنا هي مؤسسة إنسانية غير ربحية ملتزمة بشدة بتحسين حياة الأشخاص الذين يمرون بظروف صعبة. تتمثل مهمتنا الرئيسية في توفير المساعدات الطارئة، والدعم التعليمي، والتنمية طويلة الأمد للمجتمعات المتضررة والضعيفة. نحن نقدم المساعدة الإنسانية بغض النظر عن الدين أو العرق أو القومية أو الآراء السياسية. من خلال إيصال مساعداتنا بإنصاف وسرعة، نسعى جاهدين لإعادة الأمل والحياة الكريمة للمتضررين، ونعمل على مشاريع مستدامة لإعادة بناء المجتمعات وضمان مستقبل أفضل للجميع.',
     mission: 'مهمتنا',
     missionText: 'تمكين المجتمعات من خلال التنمية المستدامة ومبادرات التعليم والرعاية الصحية التي تخلق تغييراً إيجابياً دائماً.',
     vision: 'رؤيتنا',
@@ -284,7 +284,7 @@ const translations = {
     quickLinks: 'روابط سريعة',
     contactInfo: 'معلومات الاتصال',
     followUs: 'تابعنا',
-    footerCopyright: '© 2024 مروڤدوستان. جميع الحقوق محفوظة. | مبني بـ ❤️ لإحداث فرق.',
+    footerCopyright: '© 2024 مروڤدوستان. جميع الحقوق محفوظة.',
     
     // Login
     staffLogin: 'دخول الموظفين',
@@ -334,7 +334,7 @@ const translations = {
     
     // About section
     aboutTitle: 'دەربارەی مرۆڤدۆستان',
-    aboutDescription: 'بۆ زیاتر لە یەک دەیە، مرۆڤدۆستان خۆی تەرخان کردووە بۆ گۆڕینی ژیان و کۆمەڵگاکان لە هەرێمی کوردستاندا لە ڕێگەی گەشەسەندنی بەردەوام و یارمەتی مرۆیی. لە ساڵی 2010 دامەزرا، لە باوەڕێکی سادەوە دەرچووین: هەر کەسێک شایستەی دەستڕاگەیشتنە بە پێداویستیە بنەڕەتیەکان وەک ئاوی پاک، پەروەردە، چاودێری تەندروستی و دەرفەت. ئەوەی وەک کۆمەڵێک بچووک لە خۆبەخشان دەستیپێکرد گەشەی کردووە بۆ بزووتنەوەیەکی هەرێمی کە دەگاتە زیاتر لە 50 کۆمەڵگا لە کوردستان. لە ڕێگەی پڕۆگرامە فراوانەکانمان لە پەروەردە، چاودێری تەندروستی، گەشەسەندنی ئابووری و بەرگریکردن لە مافەکانی مرۆڤ، بەردەوامین لە دروستکردنی ئومێد بۆ سبەینێ لە کاتێکدا پەرەپێدان بە پێداویستیە ئاکامەکانی ئەمڕۆ.',
+    aboutDescription: 'ڕێکخراوەکەمان دەزگایەکی مرۆڤدۆستی و قازانج نەویستە کە بەپابەندبوونێکی قووڵەوە کار دەکات بۆ باشترکردنی ژیانی ئەو کەسانەی لە بارودۆخێکی سەختدان. ئەرکی سەرەکی ئێمە دابینکردنی یارمەتی فریاگوزاری، پاڵپشتی پەروەردەیی، و گەشەپێدانی درێژخایەنە بۆ کۆمەڵگا گەورە و لێقەوماوەکان. بەبێ ڕەچاوکردنی ئایین و ڕەگەز و نەتەوە و بیروبۆچوونی سیاسی، هاوکاری مرۆیی پێشکەش دەکات. بە گەیاندنی یارمەتییەکانمان بە شێوەیەکی دادپەروەرانە و خێرا، هەوڵ دەدەین هیوا و ژیانێکی شایستە بۆ زیانلێکەوتووان بگەڕێنینەوە و کار لەسەر پڕۆژەی جێگیر دەکەین بۆ بنیاتنانەوەی کۆمەڵگاکان و دابینکردنی داهاتوویەکی باشتر بۆ هەمووان.',
     mission: 'ئەرکەکەمان',
     missionText: 'بەهێزکردنی کۆمەڵگاکان لە ڕێگەی گەشەسەندنی بەردەوام، پەروەردە و دەستپێشخەریەکانی چاودێری تەندروستی کە گۆڕانکاری ئەرێنی بەردەوام دروست دەکەن.',
     vision: 'بینینەکەمان',
@@ -434,7 +434,7 @@ const translations = {
     quickLinks: 'بەستەرە خێراکان',
     contactInfo: 'زانیاری پەیوەندی',
     followUs: 'شوێنمان بکەوە',
-    footerCopyright: '© 2024 مرۆڤدۆستان. هەموو مافەکان پارێزراون. | بە ❤️ دروستکراوە بۆ جیاوازی دروستکردن.',
+    footerCopyright: '© 2024 مرۆڤدۆستان. هەموو مافەکان پارێزراون.',
     
     // Login
     staffLogin: 'چوونەژوورەوەی کارمەندان',
@@ -466,7 +466,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   console.log('LanguageProvider rendering');
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('ku');
 
   const t = (key: string): string => {
     const translation = translations[language][key as keyof typeof translations['en']];

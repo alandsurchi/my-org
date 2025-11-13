@@ -19,19 +19,43 @@ const ProjectsSection = () => {
 
   console.log('🚀 Projects data from backend:', projects);
 
+  const getImageSrc = (url?: string) => {
+    if (!url) return null;
+    if (url.startsWith('/uploads/')) return `http://localhost:5000${url}`;
+    return url;
+  };
+
   const filteredActivities = projects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory;
+    const title = project.title_en || project.title || '';
+    const description = project.description_en || project.description || '';
+    const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || 
+                           project.category === selectedCategory ||
+                           !project.category; // Include projects without category
     return matchesSearch && matchesCategory;
   });
+
+  // Sort by creation date (newest first) and limit to 3 items for display
+  const recentActivities = filteredActivities
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at || a.createdAt || 0);
+      const dateB = new Date(b.created_at || b.createdAt || 0);
+      return dateB.getTime() - dateA.getTime();
+    })
+    .slice(0, 3);
 
   const getBadgeColor = (category: string) => {
     const colors = {
       'water': 'bg-gradient-to-r from-blue-500 to-blue-600',
       'education': 'bg-gradient-to-r from-green-500 to-emerald-600',
       'emergency': 'bg-gradient-to-r from-purple-500 to-purple-600',
-      'healthcare': 'bg-gradient-to-r from-indigo-500 to-indigo-600'
+      'healthcare': 'bg-gradient-to-r from-indigo-500 to-indigo-600',
+      'news': 'bg-gradient-to-r from-yellow-500 to-orange-600', // News projects get special styling
+      'provision': 'bg-gradient-to-r from-teal-500 to-emerald-600',
+      'distribution': 'bg-gradient-to-r from-rose-500 to-pink-600',
+      'renovation': 'bg-gradient-to-r from-amber-500 to-orange-600',
+      'building': 'bg-gradient-to-r from-sky-500 to-blue-600'
     };
     return colors[category as keyof typeof colors] || 'bg-gradient-to-r from-blue-500 to-blue-600';
   };
@@ -41,9 +65,30 @@ const ProjectsSection = () => {
       'water': '💧',
       'education': '📚',
       'emergency': '🚨',
-      'healthcare': '🏥'
+      'healthcare': '🏥',
+      'news': '📰', // News projects get news icon
+      'provision': '🛒',
+      'distribution': '📦',
+      'renovation': '🧱',
+      'building': '🏗️'
     };
     return icons[category as keyof typeof icons] || '🌟';
+  };
+
+  const getCategoryLabel = (category?: string) => {
+    if (!category) return 'دابینکردن';
+    const labels: Record<string, string> = {
+      provision: 'دابینکردن',
+      distribution: 'دابەشکردن',
+      renovation: 'نۆژەنکردنەوە',
+      building: 'دروستکردن',
+      news: 'News Update',
+      water: t('water'),
+      education: t('education'),
+      emergency: t('emergency'),
+      healthcare: t('healthcare')
+    };
+    return labels[category] || category.charAt(0).toUpperCase() + category.slice(1);
   };
 
   const handleReadMore = (project: any) => {
@@ -90,6 +135,7 @@ const ProjectsSection = () => {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
             {t('projectsDescription')}
           </p>
+          <p className="text-lg text-gray-600 mt-2">Showing latest 3 activities</p>
           <div className="w-32 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mx-auto rounded-full mt-6"></div>
         </div>
 
@@ -109,6 +155,7 @@ const ProjectsSection = () => {
             </SelectTrigger>
             <SelectContent className="rounded-2xl border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
               <SelectItem value="all" className="rounded-xl">{t('allCategories')}</SelectItem>
+              <SelectItem value="news" className="rounded-xl">📰 News Updates</SelectItem>
               <SelectItem value="water" className="rounded-xl">{t('water')}</SelectItem>
               <SelectItem value="education" className="rounded-xl">{t('education')}</SelectItem>
               <SelectItem value="emergency" className="rounded-xl">{t('emergency')}</SelectItem>
@@ -117,52 +164,57 @@ const ProjectsSection = () => {
           </Select>
         </div>
 
-        {filteredActivities.length === 0 ? (
+        {recentActivities.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-500 text-lg">No projects available matching your criteria.</div>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-8 mb-16">
-            {filteredActivities.map((activity, index) => (
-              <Card key={activity.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="relative overflow-hidden">
-                  <img 
-                    src={activity.image_url || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop'} 
-                    alt={activity.title_en}
-                    className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                  
-                  <div className="absolute top-4 left-4 flex items-center gap-2">
-                    <span className="text-2xl">{getCategoryIcon(activity.category)}</span>
-                    <span className="text-sm text-white/90 font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                      {t(activity.category)}
-                    </span>
-                  </div>
-                  
-                  <div className="absolute top-4 right-4">
-                    <span className={`${getBadgeColor(activity.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
-                      {activity.status}
-                    </span>
-                  </div>
-
-                  {activity.location && (
-                    <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {activity.location}
+            {recentActivities.map((activity, index) => {
+              const imageUrl = getImageSrc(activity.image_url || activity.imageUrl);
+              
+              return (
+              <Card key={activity._id || activity.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+                {imageUrl && (
+                  <div className="relative overflow-hidden">
+                    <img 
+                      src={imageUrl} 
+                      alt={activity.title_en || activity.title || 'Project'}
+                      className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    
+                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                      <span className="text-2xl">{getCategoryIcon(activity.category || 'water')}</span>
+                      <span className="text-sm text-white/90 font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                        {getCategoryLabel(activity.category)}
+                      </span>
                     </div>
-                  )}
-                </div>
+                    
+                    <div className="absolute top-4 right-4">
+                      <span className={`${getBadgeColor(activity.category || 'water')} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
+                        {activity.isNewsProject ? 'News' : (activity.status || 'completed')}
+                      </span>
+                    </div>
+
+                    {activity.location && (
+                      <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        {activity.location}
+                      </div>
+                    )}
+                  </div>
+                )}
                 
                 <CardHeader className="pb-4">
                   <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                    {activity.title_en}
+                    {activity.title_en || activity.title}
                   </CardTitle>
                   <CardDescription className="text-gray-600 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                    {activity.description_en.length > 150 
-                      ? `${activity.description_en.substring(0, 150)}...` 
-                      : activity.description_en
-                    }
+                    {(() => {
+                      const desc = activity.description_en || activity.description || '';
+                      return desc.length > 150 ? `${desc.substring(0, 150)}...` : desc;
+                    })()}
                   </CardDescription>
                 </CardHeader>
                 
@@ -170,7 +222,9 @@ const ProjectsSection = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center text-gray-500">
                       <Calendar className="w-4 h-4 mr-2" />
-                      <span className="text-sm font-medium">{new Date(activity.created_at).toLocaleDateString()}</span>
+                      <span className="text-sm font-medium">
+                        {new Date(activity.created_at || activity.createdAt || Date.now()).toLocaleDateString()}
+                      </span>
                     </div>
                     <Button 
                       variant="ghost" 
@@ -183,7 +237,7 @@ const ProjectsSection = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )})}
           </div>
         )}
 

@@ -10,7 +10,7 @@ const HeaderLogo: React.FC<HeaderLogoProps> = ({ getLogoStyling }) => {
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center space-x-2 md:space-x-3 group">
+    <div className="flex items-center space-x-2 md:space-x-3 group logo-trigger cursor-pointer">
       <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
         <img 
           src="/lovable-uploads/eb6198ca-261c-4e22-ba5c-9af9f83d0c52.png" 

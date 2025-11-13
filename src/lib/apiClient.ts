@@ -1,11 +1,9 @@
 // API Client to replace Supabase integration
 class APIClient {
   private baseURL: string;
-  private token: string | null = null;
 
   constructor(baseURL: string = 'http://localhost:5000/api') {
     this.baseURL = baseURL;
-    this.token = localStorage.getItem('auth_token');
   }
 
   private async request<T>(
@@ -14,13 +12,17 @@ class APIClient {
   ): Promise<{ data: T | null; error: string | null }> {
     try {
       const url = `${this.baseURL}${endpoint}`;
+      
+      // Get token fresh from localStorage each time
+      const token = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
+      
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
         ...options.headers,
       };
 
-      if (this.token) {
-        headers['Authorization'] = `Bearer ${this.token}`;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
 
       const response = await fetch(url, {
@@ -30,7 +32,7 @@ class APIClient {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
+        throw new Error(errorData.message || errorData.error || `HTTP ${response.status}`);
       }
 
       const data = await response.json();
@@ -52,7 +54,7 @@ class APIClient {
     });
 
     if (result.data?.token) {
-      this.token = result.data.token;
+      localStorage.setItem('authToken', result.data.token);
       localStorage.setItem('auth_token', result.data.token);
       localStorage.setItem('user', JSON.stringify(result.data.user));
     }
@@ -61,7 +63,7 @@ class APIClient {
   }
 
   logout() {
-    this.token = null;
+    localStorage.removeItem('authToken');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
   }
@@ -132,34 +134,23 @@ class APIClient {
     });
   }
 
-  // Staff API methods
-  async getStaff() {
-    return this.request('/staff');
-  }
-
-  async createStaff(staffData: any) {
-    return this.request('/staff', {
-      method: 'POST',
-      body: JSON.stringify(staffData),
-    });
-  }
-
-  async updateStaff(id: string, staffData: any) {
-    return this.request(`/staff/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(staffData),
-    });
-  }
-
-  async deleteStaff(id: string) {
-    return this.request(`/staff/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
   // Gallery API methods
   async getGallery() {
-    return this.request('/gallery');
+    const response = await this.request('/gallery');
+    
+    // Transform backend data (url, title, description) to frontend format (image_url, title, description)
+    if (response.data && Array.isArray(response.data)) {
+      response.data = response.data.map((item: any) => ({
+        id: item._id || item.id,
+        image_url: `http://localhost:5000${item.url}`, // Add full backend URL
+        title: item.title || item.caption || 'Untitled',
+        description: item.description || '',
+        created_at: item.uploadedAt,
+        updated_at: item.uploadedAt
+      }));
+    }
+    
+    return response;
   }
 
   async createGalleryItem(galleryData: any) {
@@ -200,9 +191,10 @@ class APIClient {
     if (folder) formData.append('folder', folder);
 
     try {
+      const token = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
       const headers: HeadersInit = {};
-      if (this.token) {
-        headers['Authorization'] = `Bearer ${this.token}`;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
 
       const response = await fetch(`${this.baseURL}/upload`, {
@@ -230,6 +222,35 @@ class APIClient {
   // Search method
   async searchContent(query: string) {
     return this.request(`/search?q=${encodeURIComponent(query)}`);
+  }
+
+  // Staff API methods
+  async getStaff() {
+    return this.request('/staff');
+  }
+
+  async getCurrentUser() {
+    return this.request('/staff/me');
+  }
+
+  async createStaff(staffData: any) {
+    return this.request('/staff', {
+      method: 'POST',
+      body: JSON.stringify(staffData),
+    });
+  }
+
+  async updateStaff(id: string, staffData: any) {
+    return this.request(`/staff/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(staffData),
+    });
+  }
+
+  async deleteStaff(id: string) {
+    return this.request(`/staff/${id}`, {
+      method: 'DELETE',
+    });
   }
 }
 

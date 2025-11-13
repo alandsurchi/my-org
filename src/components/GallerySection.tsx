@@ -59,13 +59,18 @@ const GallerySection = () => {
   // Use backend data if available, otherwise fallback to static data
   const displayImages = galleryImages.length > 0 
     ? galleryImages.map((item, index) => ({
-        id: item.id,
-        url: item.image_url || fallbackImages[index % fallbackImages.length]?.url || '',
-        descriptionKey: item.title,
+        id: item._id || item.id,
+        url: item.url 
+          ? (item.url.startsWith('http') ? item.url : `http://localhost:5000${item.url}`)
+          : fallbackImages[index % fallbackImages.length]?.url || '',
+        descriptionKey: item.title || item.caption || 'Gallery Image',
         category: 'gallery',
         icon: '📸'
       }))
     : fallbackImages;
+
+  console.log('🖼️ Gallery component - Raw data:', galleryImages);
+  console.log('🖼️ Gallery component - Display images:', displayImages);
 
   if (isLoading) {
     return (

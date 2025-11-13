@@ -31,11 +31,24 @@ const upload = multer({
 // GET all projects
 router.get('/', async (req, res) => {
   try {
+    console.log('🚀 API: Fetching all projects from database...');
     const { status } = req.query;
     const filter = status ? { status } : {};
     const projects = await Project.find(filter).sort({ createdAt: -1 });
-    res.json(projects);
+    console.log(`🚀 API: Found ${projects.length} projects`);
+    console.log('🚀 API: First item:', projects[0] ? projects[0].title : 'No items');
+    
+    // Transform projects to include both formats for frontend compatibility
+    const transformedProjects = projects.map(project => ({
+      ...project.toObject(),
+      title_en: project.title,
+      description_en: project.description,
+      created_at: project.createdAt
+    }));
+    
+    res.json(transformedProjects);
   } catch (error) {
+    console.error('❌ API: Error fetching projects:', error);
     res.status(500).json({ message: 'Error fetching projects', error: error.message });
   }
 });
@@ -57,10 +70,12 @@ router.get('/:id', async (req, res) => {
 router.post('/', upload.single('image'), async (req, res) => {
   try {
     const projectData = {
-      title: req.body.title,
-      description: req.body.description,
+      title: req.body.title || req.body.title_en,
+      description: req.body.description || req.body.description_en,
       status: req.body.status || 'active',
-      imageUrl: req.file ? `/uploads/projects/${req.file.filename}` : null
+      imageUrl: req.file ? `/uploads/projects/${req.file.filename}` : null,
+      category: req.body.category || null,
+      location: req.body.location || null
     };
     
     const project = new Project(projectData);
@@ -78,6 +93,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
       title: req.body.title,
       description: req.body.description,
       status: req.body.status,
+      category: req.body.category,
+      location: req.body.location,
       updatedAt: Date.now()
     };
     

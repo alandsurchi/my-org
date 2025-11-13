@@ -1,10 +1,12 @@
 
 import React, { useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAboutImage } from '@/hooks/useAboutAPI';
 import { Heart } from 'lucide-react';
 
 const AboutSection = () => {
   const { t } = useLanguage();
+  const { data: aboutImage } = useAboutImage();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -58,7 +60,11 @@ const AboutSection = () => {
           <div className="fade-in-on-scroll">
             <div className="relative">
               <img 
-                src="https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=600&h=400&fit=crop" 
+                src={
+                  aboutImage && aboutImage.url
+                    ? (aboutImage.url.startsWith('http') ? aboutImage.url : `http://localhost:5000${aboutImage.url}`)
+                    : "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=600&h=400&fit=crop"
+                }
                 alt="MROVDOSTAN community work" 
                 className="rounded-3xl shadow-2xl w-full h-96 object-cover hover-lift" 
               />

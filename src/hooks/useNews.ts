@@ -1,21 +1,28 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { apiClient } from '@/lib/apiClient';
+
+export interface NewsItem {
+  id: string;
+  title_en: string;
+  description_en: string;
+  category: string;
+  status: string;
+  image_url?: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export const useNews = () => {
   return useQuery({
     queryKey: ['news'],
     queryFn: async () => {
-      console.log('🔍 Fetching news data from Supabase...');
+      console.log('🔍 Fetching news data from API...');
       
-      const { data, error } = await supabase
-        .from('news')
-        .select('*')
-        .order('date', { ascending: false });
+      const { data, error } = await apiClient.getNews();
       
       if (error) {
         console.error('❌ Error fetching news:', error);
-        throw error;
+        throw new Error(error);
       }
       
       console.log('✅ News data fetched successfully:', data);
@@ -36,23 +43,19 @@ export const useCreateNews = () => {
       title_en: string;
       description_en: string;
       category: string;
+      status: string;
       image_url?: string;
-      date: string;
     }) => {
-      console.log('📝 Creating news article...');
+      console.log('📝 Creating news...');
       
-      const { data, error } = await supabase
-        .from('news')
-        .insert([newsData])
-        .select()
-        .single();
+      const { data, error } = await apiClient.createNews(newsData);
       
       if (error) {
         console.error('🔴 Error creating news:', error);
-        throw error;
+        throw new Error(error);
       }
       
-      console.log('✅ News article created successfully:', data);
+      console.log('✅ News created successfully:', data);
       return data;
     },
     onSuccess: () => {
@@ -69,24 +72,19 @@ export const useUpdateNews = () => {
       title_en: string;
       description_en: string;
       category: string;
+      status: string;
       image_url: string;
-      date: string;
     }>) => {
-      console.log('📝 Updating news article:', id);
+      console.log('📝 Updating news:', id);
       
-      const { data, error } = await supabase
-        .from('news')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
+      const { data, error } = await apiClient.updateNews(id, updateData);
       
       if (error) {
         console.error('🔴 Error updating news:', error);
-        throw error;
+        throw new Error(error);
       }
       
-      console.log('✅ News article updated successfully:', data);
+      console.log('✅ News updated successfully:', data);
       return data;
     },
     onSuccess: () => {
@@ -100,19 +98,17 @@ export const useDeleteNews = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      console.log('🗑️ Deleting news article:', id);
+      console.log('🗑️ Deleting news:', id);
       
-      const { error } = await supabase
-        .from('news')
-        .delete()
-        .eq('id', id);
+      const { data, error } = await apiClient.deleteNews(id);
       
       if (error) {
         console.error('🔴 Error deleting news:', error);
-        throw error;
+        throw new Error(error);
       }
       
-      console.log('✅ News article deleted successfully');
+      console.log('✅ News deleted successfully');
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] });

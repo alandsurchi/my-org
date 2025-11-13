@@ -13,9 +13,10 @@ export const useHeroImage = () => {
     },
     retry: 3,
     retryDelay: 1000,
-    staleTime: 1000, // Reduced to 1 second for testing
-    refetchOnWindowFocus: true, // Enable refetch on focus
-    refetchInterval: 5000, // Refetch every 5 seconds for testing
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false, // Use cached data if available
   });
 };
 

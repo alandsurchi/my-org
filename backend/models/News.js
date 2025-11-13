@@ -10,6 +10,11 @@ const NewsSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  category: {
+    type: String,
+    trim: true,
+    default: null
+  },
   imageUrl: {
     type: String
   },

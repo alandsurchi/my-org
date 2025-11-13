@@ -7,6 +7,7 @@ import ProjectsSection from '@/components/ProjectsSection';
 import NewsSection from '@/components/NewsSection';
 import GallerySection from '@/components/GallerySection';
 import Footer from '@/components/Footer';
+import { useAPIHealthCheck } from '@/hooks/useAPIHealthCheck';
 
 const LoadingSection = ({ name }: { name: string }) => (
   <div className="py-24 flex items-center justify-center">
@@ -14,8 +15,19 @@ const LoadingSection = ({ name }: { name: string }) => (
   </div>
 );
 
+const APILoadingSection = ({ name }: { name: string }) => (
+  <div className="py-24 flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+      <div className="text-lg text-gray-600">Connecting to server...</div>
+      <div className="text-sm text-gray-500 mt-2">Loading {name}</div>
+    </div>
+  </div>
+);
+
 const Index = () => {
   console.log('🏠 Index component rendering');
+  const { isHealthy, isChecking, error } = useAPIHealthCheck();
   
   return (
     <div className="min-h-screen w-full">
@@ -26,15 +38,37 @@ const Index = () => {
       <Suspense fallback={<LoadingSection name="About" />}>
         <AboutSection />
       </Suspense>
-      <Suspense fallback={<LoadingSection name="Projects" />}>
-        <ProjectsSection />
-      </Suspense>
-      <Suspense fallback={<LoadingSection name="News" />}>
-        <NewsSection />
-      </Suspense>
-      <Suspense fallback={<LoadingSection name="Gallery" />}>
-        <GallerySection />
-      </Suspense>
+      
+      {/* Only render data-dependent sections when API is healthy */}
+      {isHealthy ? (
+        <>
+          <Suspense fallback={<LoadingSection name="Projects" />}>
+            <ProjectsSection />
+          </Suspense>
+          <Suspense fallback={<LoadingSection name="News" />}>
+            <NewsSection />
+          </Suspense>
+          <Suspense fallback={<LoadingSection name="Gallery" />}>
+            <GallerySection />
+          </Suspense>
+        </>
+      ) : isChecking ? (
+        <>
+          <APILoadingSection name="Projects" />
+          <APILoadingSection name="News" />
+          <APILoadingSection name="Gallery" />
+        </>
+      ) : (
+        <div className="py-24 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-500 text-lg mb-2">⚠️ Connection Error</div>
+            <div className="text-gray-600">Unable to connect to server</div>
+            <div className="text-sm text-gray-500 mt-2">Please check that the backend server is running</div>
+            {error && <div className="text-xs text-red-400 mt-2">{error}</div>}
+          </div>
+        </div>
+      )}
+      
       <Footer />
     </div>
   );

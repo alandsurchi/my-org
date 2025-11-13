@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; white-space: pre-wrap; }
+        .error { background: #f8d7da; color: #721c24; }
+        .success { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <h1>API Debug Dashboard</h1>
+    
+    <div class="section">
+        <h2>Backend API Status</h2>
+        <button class="button" onclick="testBackend()">Test Backend Connection</button>
+        <button class="button" onclick="testNews()">Test News API</button>
+        <button class="button" onclick="testProjects()">Test Projects API</button>
+        <div id="backend-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Create Test Data</h2>
+        <button class="button" onclick="createTestNews()">Create Test News</button>
+        <button class="button" onclick="createTestProject()">Create Test Project</button>
+        <div id="create-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Database Content</h2>
+        <button class="button" onclick="listAllNews()">List All News</button>
+        <button class="button" onclick="listAllProjects()">List All Projects</button>
+        <div id="content-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Frontend Tests</h2>
+        <button class="button" onclick="testFrontendAPIs()">Test Frontend API Hooks</button>
+        <div id="frontend-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        
+        async function testBackend() {
+            const result = document.getElementById('backend-result');
+            try {
+                const response = await fetch(`${API_BASE}/news`);
+                if (response.ok) {
+                    result.className = 'result success';
+                    result.textContent = `✅ Backend is running (Status: ${response.status})`;
+                } else {
+                    result.className = 'result error';
+                    result.textContent = `❌ Backend error (Status: ${response.status})`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Cannot connect to backend: ${error.message}`;
+            }
+        }
+
+        async function testNews() {
+            const result = document.getElementById('backend-result');
+            try {
+                const response = await fetch(`${API_BASE}/news`);
+                const data = await response.json();
+                result.className = 'result success';
+                result.textContent = `✅ News API working. Found ${data.length} items:\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ News API error: ${error.message}`;
+            }
+        }
+
+        async function testProjects() {
+            const result = document.getElementById('backend-result');
+            try {
+                const response = await fetch(`${API_BASE}/projects`);
+                const data = await response.json();
+                result.className = 'result success';
+                result.textContent = `✅ Projects API working. Found ${data.length} items:\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Projects API error: ${error.message}`;
+            }
+        }
+
+        async function createTestNews() {
+            const result = document.getElementById('create-result');
+            try {
+                const response = await fetch(`${API_BASE}/news`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: 'Test News Item',
+                        content: 'This is a test news item created from debug dashboard',
+                        category: 'Place Visited'
+                    })
+                });
+                const data = await response.json();
+                result.className = 'result success';
+                result.textContent = `✅ Test news created:\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Failed to create test news: ${error.message}`;
+            }
+        }
+
+        async function createTestProject() {
+            const result = document.getElementById('create-result');
+            try {
+                const response = await fetch(`${API_BASE}/projects`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: 'Test Project',
+                        description: 'This is a test project created from debug dashboard',
+                        status: 'active'
+                    })
+                });
+                const data = await response.json();
+                result.className = 'result success';
+                result.textContent = `✅ Test project created:\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Failed to create test project: ${error.message}`;
+            }
+        }
+
+        async function listAllNews() {
+            const result = document.getElementById('content-result');
+            try {
+                const response = await fetch(`${API_BASE}/news`);
+                const data = await response.json();
+                result.className = 'result';
+                result.textContent = `📰 All News Items (${data.length}):\n${JSON.stringify(data.map(item => ({
+                    id: item._id,
+                    title: item.title,
+                    category: item.category,
+                    created: item.createdAt
+                })), null, 2)}`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error listing news: ${error.message}`;
+            }
+        }
+
+        async function listAllProjects() {
+            const result = document.getElementById('content-result');
+            try {
+                const response = await fetch(`${API_BASE}/projects`);
+                const data = await response.json();
+                result.className = 'result';
+                result.textContent = `🚀 All Projects (${data.length}):\n${JSON.stringify(data.map(item => ({
+                    id: item._id,
+                    title: item.title,
+                    status: item.status,
+                    created: item.createdAt
+                })), null, 2)}`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error listing projects: ${error.message}`;
+            }
+        }
+
+        async function testFrontendAPIs() {
+            const result = document.getElementById('frontend-result');
+            try {
+                // Test if we can access the main site's APIs
+                const frontendResponse = await fetch('http://localhost:8080');
+                result.className = 'result success';
+                result.textContent = `✅ Frontend accessible (Status: ${frontendResponse.status})`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Frontend connection error: ${error.message}`;
+            }
+        }
+
+        // Auto-test on load
+        window.onload = () => {
+            testBackend();
+        };
+    </script>
+</body>
+</html>

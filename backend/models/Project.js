@@ -10,6 +10,23 @@ const ProjectSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // Origin/category of the project (e.g. provision, distribution, renovation, building, news)
+  category: {
+    type: String,
+    trim: true,
+    enum: [
+      'provision',
+      'distribution',
+      'renovation',
+      'building',
+      'news',
+      'water',
+      'education',
+      'emergency',
+      'healthcare'
+    ],
+    default: null
+  },
   status: {
     type: String,
     enum: ['active', 'completed', 'planned', 'on-hold'],
@@ -17,6 +34,12 @@ const ProjectSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String
+  },
+  // Optional location field mapped from template forms (city/province etc.)
+  location: {
+    type: String,
+    trim: true,
+    default: null
   },
   createdAt: {
     type: Date,

@@ -22,10 +22,8 @@ const upload = multer({
     } else {
       cb(new Error('Only image files are allowed!'), false);
     }
-  },
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
   }
+  // No file size limit - accept any size
 });
 
 // GET all gallery photos
@@ -60,7 +58,9 @@ router.post('/', upload.single('photo'), async (req, res) => {
     
     const photoData = {
       url: `/uploads/gallery/${req.file.filename}`,
-      caption: req.body.caption || ''
+      title: req.body.title || 'Untitled',
+      description: req.body.description || '',
+      caption: req.body.caption || '' // Keep for backwards compatibility
     };
     
     const photo = new GalleryPhoto(photoData);

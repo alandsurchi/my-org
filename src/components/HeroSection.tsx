@@ -53,6 +53,7 @@ const HeroSection = () => {
 
   return (
     <section 
+      id="home"
       ref={heroRef} 
       className="relative min-h-screen h-screen flex items-center justify-center overflow-hidden"
     >
@@ -128,9 +129,9 @@ const HeroSection = () => {
 
       {/* Enhanced discover more button */}
       <div className="absolute bottom-8 md:bottom-12 left-1/2 transform -translate-x-1/2 fade-in-on-scroll">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center justify-center">
           {/* Enhanced animated scroll text */}
-          <div className="mb-4 md:mb-6 text-center">
+          <div className="mb-4 md:mb-6 text-center flex justify-center w-full">
             <span className="text-white text-xs sm:text-sm font-medium tracking-wider uppercase px-6 py-3 rounded-full backdrop-blur-lg bg-gradient-to-r from-white/10 to-white/5 border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-white/50">
               {t('discoverMore')}
             </span>

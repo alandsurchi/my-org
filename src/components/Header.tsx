@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useHeaderState } from '@/hooks/useHeaderState';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSecretAccess } from '@/hooks/useSecretAccess';
 import HeaderLogo from './header/HeaderLogo';
 import NavigationItems from './header/NavigationItems';
 import LanguageSelector from './header/LanguageSelector';
@@ -12,7 +12,9 @@ import MobileMenu from './header/MobileMenu';
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useLanguage();
+  const isHomePage = location.pathname === '/';
   const {
     isMobileMenuOpen,
     setIsMobileMenuOpen,
@@ -20,6 +22,17 @@ const Header = () => {
     isInHeroSection,
     activeSection
   } = useHeaderState();
+
+  // Initialize secret access (Ctrl+Alt+A or triple-click logo)
+  useSecretAccess({
+    enabled: true,
+    keySequence: ['Control', 'Alt', 'KeyA'],
+    clickSequence: {
+      selector: '.logo-trigger',
+      clicks: 3,
+      timeWindow: 2000
+    }
+  });
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -39,6 +52,11 @@ const Header = () => {
 
   // Determine header styling based on scroll and hero section
   const getHeaderStyling = () => {
+    // On non-home pages, always use white background
+    if (!isHomePage) {
+      return 'bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg';
+    }
+    
     if (isScrolled && !isInHeroSection) {
       return 'bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg';
     } else {
@@ -49,18 +67,31 @@ const Header = () => {
 
   const getTextStyling = (itemId: string) => {
     const isActive = activeSection === itemId;
+    
+    // On non-home pages, always use black/dark text
+    if (!isHomePage) {
+      return isActive 
+        ? 'text-blue-600 font-bold' 
+        : 'text-gray-900 font-semibold hover:text-blue-600';
+    }
+    
     if (isScrolled && !isInHeroSection) {
       return isActive 
-        ? 'text-blue-600 font-semibold' 
-        : 'text-gray-700 hover:text-blue-600';
+        ? 'text-blue-600 font-bold' 
+        : 'text-gray-900 font-semibold hover:text-blue-600';
     } else {
       return isActive 
-        ? 'text-white font-semibold' 
-        : 'text-white/90 hover:text-white';
+        ? 'text-white font-bold' 
+        : 'text-white font-semibold hover:text-white';
     }
   };
 
   const getLogoStyling = () => {
+    // On non-home pages, always use gradient
+    if (!isHomePage) {
+      return 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent';
+    }
+    
     if (isScrolled && !isInHeroSection) {
       return 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent';
     } else {
@@ -69,16 +100,26 @@ const Header = () => {
   };
 
   const getSelectStyling = () => {
+    // On non-home pages, always use white background
+    if (!isHomePage) {
+      return 'border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900';
+    }
+    
     if (isScrolled && !isInHeroSection) {
-      return 'border-gray-200 bg-white/80 backdrop-blur-sm';
+      return 'border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900';
     } else {
       return 'border-white/30 bg-white/10 backdrop-blur-sm text-white';
     }
   };
 
   const getMobileButtonStyling = () => {
+    // On non-home pages, always use white background
+    if (!isHomePage) {
+      return 'border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900';
+    }
+    
     if (isScrolled && !isInHeroSection) {
-      return 'border-gray-200 bg-white/80 backdrop-blur-sm';
+      return 'border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900';
     } else {
       return 'border-white/30 bg-white/10 backdrop-blur-sm text-white';
     }
@@ -98,18 +139,6 @@ const Header = () => {
 
           <div className="flex items-center space-x-2 sm:space-x-4">
             <LanguageSelector getSelectStyling={getSelectStyling} />
-
-            {/* Sign Up Button - hidden on small mobile */}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="hidden sm:flex bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover-lift touch-manipulation text-sm"
-              onClick={() => navigate('/signup')}
-            >
-              <LogIn className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden md:inline">{t('signUp')}</span>
-              <span className="md:hidden">{t('join')}</span>
-            </Button>
 
             <MobileMenu 
               isMobileMenuOpen={isMobileMenuOpen}
