@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const upload = require('../middleware/upload');
-const { uploadToR2 } = require('../utils/r2Client');
+const { saveFile } = require('../utils/storage');
 const { requireStaffAuth } = require('../middleware/staffSecurity');
 const { galleryValidation, validateRequest } = require('../middleware/validator');
 
@@ -34,7 +34,7 @@ router.get('/:id', async (req, res, next) => {
 // POST upload new photo
 router.post('/', requireStaffAuth, upload.single('photo'), galleryValidation, validateRequest, async (req, res, next) => {
   try {
-    const imageUrl = await uploadToR2(req.file, 'gallery');
+    const imageUrl = await saveFile(req.file, 'gallery');
     
     const result = await pool.query(
       `INSERT INTO gallery_photos (url, title, description, caption) VALUES ($1, $2, $3, $4) RETURNING id, url, title, description, caption, uploaded_at AS "uploadedAt"`,

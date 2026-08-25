@@ -58,6 +58,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+n// Serve uploaded files statically
+const { STORAGE_PATH } = require('./utils/storage');
+app.use('/uploads', express.static(STORAGE_PATH));
 
 // Create default admin user
 const createDefaultAdmin = async () => {

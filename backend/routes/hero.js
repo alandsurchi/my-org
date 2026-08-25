@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const upload = require('../middleware/upload');
-const { uploadToR2 } = require('../utils/r2Client');
+const { saveFile } = require('../utils/storage');
 const { requireStaffAuth } = require('../middleware/staffSecurity');
 const { fileValidation, validateRequest } = require('../middleware/validator');
 
@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
 // POST upload new hero image
 router.post('/', requireStaffAuth, upload.single('heroImage'), fileValidation, validateRequest, async (req, res, next) => {
   try {
-    const imageUrl = await uploadToR2(req.file, 'hero');
+    const imageUrl = await saveFile(req.file, 'hero');
     
     const sizeOf = require('image-size');
     let dimensions = { width: 0, height: 0 };
@@ -61,7 +61,7 @@ router.post('/', requireStaffAuth, upload.single('heroImage'), fileValidation, v
 // PUT update hero image
 router.put('/', requireStaffAuth, upload.single('heroImage'), fileValidation, validateRequest, async (req, res, next) => {
   try {
-    const imageUrl = await uploadToR2(req.file, 'hero');
+    const imageUrl = await saveFile(req.file, 'hero');
     
     const sizeOf = require('image-size');
     let dimensions = { width: 0, height: 0 };

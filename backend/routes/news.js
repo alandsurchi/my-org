@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const upload = require('../middleware/upload');
-const { uploadToR2 } = require('../utils/r2Client');
+const { saveFile } = require('../utils/storage');
 const { requireStaffAuth } = require('../middleware/staffSecurity');
 const { newsValidation, validateRequest } = require('../middleware/validator');
 
@@ -40,7 +40,7 @@ router.post('/', requireStaffAuth, upload.single('image'), newsValidation(false)
   try {
     let imageUrl = null;
     if (req.file) {
-      imageUrl = await uploadToR2(req.file, 'news');
+      imageUrl = await saveFile(req.file, 'news');
     }
     
     const result = await pool.query(
@@ -57,7 +57,7 @@ router.post('/', requireStaffAuth, upload.single('image'), newsValidation(false)
 // PUT update news
 router.put('/:id', requireStaffAuth, upload.single('image'), newsValidation(true), validateRequest, async (req, res, next) => {
   try {
-    const imageUrl = req.file ? await uploadToR2(req.file, 'news') : undefined;
+    const imageUrl = req.file ? await saveFile(req.file, 'news') : undefined;
     
     const updates = [];
     const values = [];
