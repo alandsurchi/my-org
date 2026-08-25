@@ -9,7 +9,7 @@ const { fileValidation, validateRequest } = require('../middleware/validator');
 const SELECT_HERO = `SELECT id, url, original_name AS "originalName", file_name AS "fileName", file_size AS "fileSize", mime_type AS "mimeType", dimensions, uploaded_by AS "uploadedBy", is_active AS "isActive", created_at AS "createdAt", updated_at AS "updatedAt" FROM hero_images`;
 
 // GET current hero image
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
     const result = await pool.query(
       `${SELECT_HERO} WHERE is_active = true ORDER BY updated_at DESC LIMIT 1`
