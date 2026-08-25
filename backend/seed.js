@@ -27,6 +27,7 @@ async function seedDatabase() {
     // Remove comment lines, then split by semicolons
     const cleanSql = seedSql.split('\n').filter(l => !l.trim().startsWith('--')).join('\n');
     const statements = cleanSql.split(';').map(s => s.trim()).filter(s => s.length > 0);
+    const hasContent = count > 0;
     for (const stmt of statements) {
         if (hasContent && (stmt.includes('INSERT INTO news') || stmt.includes('INSERT INTO projects'))) continue;
         try {

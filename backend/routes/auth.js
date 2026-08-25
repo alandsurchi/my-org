@@ -112,29 +112,4 @@ router.get('/users', authenticateToken, async (req, res) => {
   }
 });
 
-// TEMPORARY: One-time password rotation endpoint (remove after deployment)
-router.post('/rotate-admin-password', authenticateToken, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'Admin access required' });
-    }
-    const bcrypt = require('bcrypt');
-    // Accept custom password from body, or generate random
-    let pw = req.body && req.body.password;
-    if (!pw || pw.length < 8) {
-      const crypto = require('crypto');
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-      pw = '';
-      const bytes = crypto.randomBytes(24);
-      for (let i = 0; i < 20; i++) pw += chars[bytes[i] % chars.length];
-      pw = 'X' + pw.substring(1);
-    }
-    const hash = await bcrypt.hash(pw, 10);
-    await pool.query('UPDATE users SET password = $1 WHERE email = $2', [hash, 'admin@charity.com']);
-    res.json({ success: true, message: 'Admin password rotated. New password: ' + pw });
-  } catch (error) {
-    next(error);
-  }
-});
-
 module.exports = router;
