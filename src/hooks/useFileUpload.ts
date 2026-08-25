@@ -1,31 +1,42 @@
-// File upload hook for Node.js backend
-import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
+import { config } from '../config/env';
 
 export const useFileUpload = () => {
-  return useMutation({
-    mutationFn: async (file: File) => {
-      console.log('Uploading file to backend:', file.name);
-      
-      const formData = new FormData();
-      formData.append('image', file);
+  const [uploading, setUploading] = useState(false);
 
-      const response = await fetch('http://localhost:5000/api/gallery/upload', {
+  const uploadFile = async (file: File) => {
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const response = await fetch(`${config.apiUrl}/gallery`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+        },
         body: formData,
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Upload failed:', errorText);
         throw new Error(`Upload failed: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Upload successful:', data);
-      
-      return { 
-        url: data.imageUrl || data.url || data.filePath 
-      };
-    },
-  });
+      const fileUrl = data.data?.url || data.url;
+      return fileUrl;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return {
+    uploadFile,
+    uploading,
+    mutateAsync: uploadFile,
+    isPending: uploading
+  };
 };

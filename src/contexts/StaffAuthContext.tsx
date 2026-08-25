@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { config } from '../config/env';
 
 interface StaffUser {
   id?: string;
@@ -52,10 +52,8 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      console.log('🔐 Attempting login with backend API...');
-      
       // Call backend login API
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${config.apiUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,13 +62,10 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ Login failed:', errorData.message);
         return false;
       }
 
       const data = await response.json();
-      console.log('✅ Login successful:', data);
 
       const user: StaffUser = {
         id: data.user.id,
@@ -87,13 +82,11 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
       
       return true;
     } catch (error) {
-      console.error('❌ Login error:', error);
       return false;
     }
   };
 
   const logout = () => {
-    console.log('🚪 Logging out - clearing all authentication data');
     setStaffUser(null);
     
     // Clear all possible authentication-related localStorage items
@@ -103,8 +96,6 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
     localStorage.removeItem('staffAuthTimestamp');
     localStorage.removeItem('staffSessionExpiry');
     localStorage.removeItem('auth_token');
-    
-    console.log('🧹 All authentication data cleared');
   };
 
   const isAuthenticated = !!staffUser;

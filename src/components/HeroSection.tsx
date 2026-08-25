@@ -3,15 +3,14 @@ import React, { useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useHeroImage } from '@/hooks/useHeroAPI';
 import { ArrowDown } from 'lucide-react';
+import { config } from '../config/env';
 
 const HeroSection = () => {
-  console.log('HeroSection rendering');
   const { t } = useLanguage();
   const { data: heroImage } = useHeroImage();
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log('HeroSection useEffect running');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -36,8 +35,6 @@ const HeroSection = () => {
     }
   };
 
-  console.log('Organization name from translation:', t('orgName'));
-  console.log('Hero image data:', heroImage);
 
   // Determine the background image URL
   const getBackgroundImageUrl = () => {
@@ -45,7 +42,7 @@ const HeroSection = () => {
       // If the URL is relative, prepend the API base URL
       return heroImage.url.startsWith('http') 
         ? heroImage.url 
-        : `http://localhost:5000${heroImage.url}`;
+        : `${config.cdnUrl}${heroImage.url}`;
     }
     // Fallback to default image if no hero image is set
     return 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80';

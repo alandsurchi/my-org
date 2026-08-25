@@ -30,12 +30,6 @@ const AuthDebugPanel = () => {
     const sessionData = localStorage.getItem('sessionTimestamp');
     const attemptsData = localStorage.getItem('staffLoginAttempts');
     
-    console.log('🔍 Authentication Debug Info:');
-    console.log('- isAuthenticated:', isAuthenticated);
-    console.log('- staffUser:', staffUser);
-    console.log('- localStorage staffUser:', staffData);
-    console.log('- localStorage sessionTimestamp:', sessionData);
-    console.log('- localStorage staffLoginAttempts:', attemptsData);
     
     toast({
       title: "Debug Info",

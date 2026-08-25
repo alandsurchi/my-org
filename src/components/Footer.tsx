@@ -1,10 +1,34 @@
 
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
 
 const Footer = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleSectionClick = (event: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    event.preventDefault();
+
+    if (sectionId === 'home') {
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
+      window.history.replaceState(null, '', '/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (location.pathname !== '/') {
+      navigate('/');
+    }
+
+    const targetHash = `#${sectionId}`;
+    window.history.replaceState(null, '', targetHash);
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  };
 
   return (
     <footer className="bg-gray-900 text-white py-12">
@@ -27,10 +51,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('quickLinks')}</h3>
             <ul className="space-y-2">
-              <li><a href="#about" className="text-gray-400 hover:text-white transition-colors">{t('about')}</a></li>
-              <li><a href="#projects" className="text-gray-400 hover:text-white transition-colors">{t('projects')}</a></li>
-              <li><a href="#news" className="text-gray-400 hover:text-white transition-colors">{t('news')}</a></li>
-              <li><a href="#gallery" className="text-gray-400 hover:text-white transition-colors">{t('gallery')}</a></li>
+              <li><a href="#about" onClick={(event) => handleSectionClick(event, 'about')} className="text-gray-400 hover:text-white transition-colors">{t('about')}</a></li>
+              <li><a href="#projects" onClick={(event) => handleSectionClick(event, 'projects')} className="text-gray-400 hover:text-white transition-colors">{t('projects')}</a></li>
+              <li><a href="#news" onClick={(event) => handleSectionClick(event, 'news')} className="text-gray-400 hover:text-white transition-colors">{t('news')}</a></li>
+              <li><a href="#gallery" onClick={(event) => handleSectionClick(event, 'gallery')} className="text-gray-400 hover:text-white transition-colors">{t('gallery')}</a></li>
             </ul>
           </div>
 

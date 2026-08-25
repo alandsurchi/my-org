@@ -1,6 +1,6 @@
 # Charity Dashboard Backend
 
-A Node.js + Express + MongoDB backend for managing charity staff dashboard content.
+A Node.js + Express backend using a managed MongoDB service for charity staff dashboard content.
 
 ## Features
 
@@ -53,9 +53,9 @@ A Node.js + Express + MongoDB backend for managing charity staff dashboard conte
    npm install
    ```
 
-3. Configure environment variables in `.env`:
+3. Configure your environment variables in Railway or in a secure local `.env` file for development:
    ```
-   MONGO_URI=your_mongodb_connection_string
+   MONGO_URI=your_managed_mongodb_connection_string
    PORT=5000
    JWT_SECRET=your_strong_jwt_secret
    ```
@@ -120,7 +120,7 @@ Images are uploaded to the `uploads/` directory with the following structure:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| MONGO_URI | MongoDB connection string | Required |
+| MONGO_URI | Managed MongoDB connection string | Required |
 | PORT | Server port | 5000 |
 | JWT_SECRET | JWT signing secret | Required |
 

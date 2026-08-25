@@ -76,7 +76,6 @@ export default function ImageCropDialog({
         }, 'image/jpeg', 0.95);
       });
     } catch (e) {
-      console.error('Error creating cropped image:', e);
       throw e;
     }
   };
@@ -89,7 +88,6 @@ export default function ImageCropDialog({
         onClose();
       }
     } catch (e) {
-      console.error('Error saving cropped image:', e);
     }
   };
 

@@ -3,7 +3,7 @@ import { apiClient } from '@/lib/apiClient';
 
 export interface StaffAccount {
   id: string;
-  _id?: string;
+  _id?: string; // Kept for compatibility
   email: string;
   name: string;
   role: 'super_admin' | 'admin';
@@ -19,10 +19,8 @@ export const useStaffAccounts = () => {
   return useQuery({
     queryKey: ['staff-accounts'],
     queryFn: async () => {
-      console.log('🔍 Fetching staff accounts from API...');
       try {
         const response = await apiClient.getStaff();
-        console.log('✅ Staff accounts fetched:', response.data);
         
         // Transform backend format to match frontend expectations
         const staff = response.data.map((member: any) => ({
@@ -41,7 +39,6 @@ export const useStaffAccounts = () => {
         
         return staff;
       } catch (error) {
-        console.error('❌ Error fetching staff accounts:', error);
         throw error;
       }
     },
@@ -63,9 +60,7 @@ export const useCreateStaffAccount = () => {
       role: 'super_admin' | 'admin';
       password: string;
     }) => {
-      console.log('📝 Creating staff account:', accountData.email);
       const response = await apiClient.createStaff(accountData);
-      console.log('✅ Staff account created successfully');
       return response.data;
     },
     onSuccess: () => {
@@ -79,9 +74,7 @@ export const useUpdateStaffAccount = () => {
   
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<StaffAccount> }) => {
-      console.log('✏️ Updating staff account:', id);
       const response = await apiClient.updateStaff(id, data);
-      console.log('✅ Staff account updated successfully');
       return response.data;
     },
     onSuccess: () => {
@@ -95,9 +88,7 @@ export const useDeleteStaffAccount = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      console.log('🗑️ Deleting staff account:', id);
       const response = await apiClient.deleteStaff(id);
-      console.log('✅ Staff account deleted successfully');
       return response.data;
     },
     onSuccess: () => {
@@ -111,13 +102,10 @@ export const useCurrentUser = () => {
   return useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      console.log('👤 Fetching current user info...');
       try {
         const response = await apiClient.getCurrentUser();
-        console.log('✅ Current user fetched:', response.data);
         return response.data;
       } catch (error) {
-        console.error('❌ Error fetching current user:', error);
         throw error;
       }
     },

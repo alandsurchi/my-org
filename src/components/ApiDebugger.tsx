@@ -9,7 +9,6 @@ const ApiDebugger = () => {
 
   useEffect(() => {
     setMounted(true);
-    console.log('🔍 API Debugger mounted');
   }, []);
 
   useEffect(() => {

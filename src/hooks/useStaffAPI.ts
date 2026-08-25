@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/apiClient';
 
 export interface StaffMember {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   role: 'super_admin' | 'admin';

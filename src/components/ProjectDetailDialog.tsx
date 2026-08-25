@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Calendar, MapPin, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { config } from '../config/env';
 
 interface Project {
   id: string;
@@ -30,7 +31,7 @@ const ProjectDetailDialog = ({ project, isOpen, onClose }: ProjectDetailDialogPr
   const getImageSrc = (url?: string) => {
     if (!url) return null;
     if (url.startsWith('/uploads/')) {
-      return `http://localhost:5000${url}`;
+      return `${config.cdnUrl}${url}`;
     }
     return url;
   };

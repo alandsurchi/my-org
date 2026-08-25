@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useNews } from '@/hooks/useNewsAPI';
 import NewsDetailDialog from './NewsDetailDialog';
 import { Link } from 'react-router-dom';
+import { config } from '../config/env';
 
 const NewsSection = () => {
   const { t } = useLanguage();
@@ -19,29 +20,16 @@ const NewsSection = () => {
   const getImageSrc = (url?: string) => {
     if (!url) return null;
     if (url.startsWith('/uploads/')) {
-      return `http://localhost:5000${url}`;
+      return `${config.cdnUrl}${url}`;
     }
     return url;
   };
 
-  console.log('📰 NewsSection rendering...');
-  console.log('📰 News data from backend:', allNews);
-  console.log('📰 News data length:', allNews?.length);
-  console.log('📰 News loading state:', isLoading);
-  console.log('📰 News error state:', error);
-  console.log('📰 Type of allNews:', typeof allNews, Array.isArray(allNews));
   
   // Debug: Log all categories found in news data
   if (allNews && allNews.length > 0) {
     const categories = allNews.map(item => item?.category).filter(Boolean);
-    console.log('📰 All categories found in news:', [...new Set(categories)]);
-    console.log('📰 First news item structure:', JSON.stringify(allNews[0], null, 2));
-    console.log('📰 First news item category:', allNews[0]?.category);
-    console.log('📰 First news item title:', allNews[0]?.title);
-    console.log('📰 First news item content:', allNews[0]?.content);
   } else {
-    console.log('📰 No news data found or empty array');
-    console.log('📰 allNews value:', allNews);
   }
 
   // Group news by category with proper fallback for null categories
@@ -74,25 +62,15 @@ const NewsSection = () => {
   };
 
   // Debug: Log grouped news data
-  console.log('📰 Grouped news data:', newsData);
-  console.log('📰 placesVisited count:', newsData.placesVisited?.length);
-  console.log('📰 visitors count:', newsData.visitors?.length);
-  console.log('📰 certificatesReceived count:', newsData.certificatesReceived?.length);
-  console.log('📰 certificatesAwarded count:', newsData.certificatesAwarded?.length);
-  console.log('📰 Total news items:', allNews?.length || 0);
   
   // Log first item from each category if exists
   if (newsData.placesVisited?.length > 0) {
-    console.log('📰 First placesVisited item:', newsData.placesVisited[0]);
   }
   if (newsData.visitors?.length > 0) {
-    console.log('📰 First visitors item:', newsData.visitors[0]);
   }
   if (newsData.certificatesReceived?.length > 0) {
-    console.log('📰 First certificatesReceived item:', newsData.certificatesReceived[0]);
   }
   if (newsData.certificatesAwarded?.length > 0) {
-    console.log('📰 First certificatesAwarded item:', newsData.certificatesAwarded[0]);
   }
 
   const filterNews = (newsItems: any[]) => {
@@ -219,7 +197,6 @@ const NewsSection = () => {
 
   // Show error state if there's an error
   if (error) {
-    console.error('News section error:', error);
     return (
       <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 via-blue-50/20 to-gray-50 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">

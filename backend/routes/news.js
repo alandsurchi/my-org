@@ -1,120 +1,97 @@
 const express = require('express');
 const router = express.Router();
-const News = require('../models/News');
-const multer = require('multer');
-const path = require('path');
+const pool = require('../db');
+const upload = require('../middleware/upload');
+const { uploadToR2 } = require('../utils/r2Client');
+const { requireStaffAuth } = require('../middleware/staffSecurity');
+const { newsValidation, validateRequest } = require('../middleware/validator');
 
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/news/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname))
-  }
-});
-
-const upload = multer({ 
-  storage: storage,
-  fileFilter: function (req, file, cb) {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'), false);
-    }
-  },
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
-});
+const SELECT_NEWS = `SELECT id, title, content, category, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt" FROM news`;
 
 // GET all news
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
-    console.log('📰 API: Fetching all news from database...');
-    const allNews = await News.find().sort({ createdAt: -1 });
-    console.log(`📰 API: Found ${allNews.length} news items`);
-    console.log('📰 API: First item:', allNews[0] ? allNews[0].title : 'No items');
-    
-    // Log all categories to help debug
-    if (allNews.length > 0) {
-      const categories = allNews.map(n => n.category).filter(Boolean);
-      const uniqueCategories = [...new Set(categories)];
-      console.log('📰 API: Categories found:', uniqueCategories);
-    }
-    
-    res.json(allNews);
+    const limit = parseInt(req.query.limit) || 100;
+    const result = await pool.query(
+      `${SELECT_NEWS} ORDER BY created_at DESC LIMIT $1`,
+      [limit]
+    );
+    res.json({ success: true, data: result.rows });
   } catch (error) {
-    console.error('❌ API: Error fetching news:', error);
-    res.status(500).json({ message: 'Error fetching news', error: error.message });
+    next(error);
   }
 });
 
 // GET single news by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    const news = await News.findById(req.params.id);
-    if (!news) {
-      return res.status(404).json({ message: 'News not found' });
+    const result = await pool.query(`${SELECT_NEWS} WHERE id = $1`, [req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'News not found' });
     }
-    res.json(news);
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching news', error: error.message });
+    next(error);
   }
 });
 
 // POST create new news
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', requireStaffAuth, upload.single('image'), newsValidation(false), validateRequest, async (req, res, next) => {
   try {
-    const newsData = {
-      title: req.body.title,
-      content: req.body.content,
-      category: req.body.category || null,
-      imageUrl: req.file ? `/uploads/news/${req.file.filename}` : null
-    };
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = await uploadToR2(req.file, 'news');
+    }
     
-    const news = new News(newsData);
-    await news.save();
-    res.status(201).json(news);
+    const result = await pool.query(
+      `INSERT INTO news (title, content, category, image_url) VALUES ($1, $2, $3, $4) RETURNING id, title, content, category, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"`,
+      [req.body.title, req.body.content, req.body.category || null, imageUrl]
+    );
+    
+    res.status(201).json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(400).json({ message: 'Error creating news', error: error.message });
+    next(error);
   }
 });
 
 // PUT update news
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id', requireStaffAuth, upload.single('image'), newsValidation(true), validateRequest, async (req, res, next) => {
   try {
-    const updateData = {
-      title: req.body.title,
-      content: req.body.content,
-      category: req.body.category || null,
-      updatedAt: Date.now()
-    };
+    const imageUrl = req.file ? await uploadToR2(req.file, 'news') : undefined;
     
-    if (req.file) {
-      updateData.imageUrl = `/uploads/news/${req.file.filename}`;
-    }
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (req.body.title) { updates.push(`title = $${paramIndex++}`); values.push(req.body.title); }
+    if (req.body.content) { updates.push(`content = $${paramIndex++}`); values.push(req.body.content); }
+    if (req.body.category !== undefined) { updates.push(`category = $${paramIndex++}`); values.push(req.body.category || null); }
+    if (imageUrl) { updates.push(`image_url = $${paramIndex++}`); values.push(imageUrl); }
+    updates.push(`updated_at = NOW()`);
+
+    values.push(req.params.id);
+    const query = `UPDATE news SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING id, title, content, category, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"`;
     
-    const news = await News.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    if (!news) {
-      return res.status(404).json({ message: 'News not found' });
+    const result = await pool.query(query, values);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'News not found' });
     }
-    res.json(news);
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(400).json({ message: 'Error updating news', error: error.message });
+    next(error);
   }
 });
 
 // DELETE news
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireStaffAuth, async (req, res, next) => {
   try {
-    const news = await News.findByIdAndDelete(req.params.id);
-    if (!news) {
-      return res.status(404).json({ message: 'News not found' });
+    const result = await pool.query('DELETE FROM news WHERE id = $1 RETURNING id', [req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'News not found' });
     }
-    res.json({ message: 'News deleted successfully' });
+    res.json({ success: true, data: { message: 'News deleted successfully' } });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting news', error: error.message });
+    next(error);
   }
 });
 

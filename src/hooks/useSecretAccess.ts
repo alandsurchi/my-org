@@ -36,7 +36,6 @@ export const useSecretAccess = ({
 
   const performSecretAccess = useCallback(() => {
     // Always logout first to clear any existing session
-    console.log('🔑 Secret access activated - clearing session and redirecting to login');
     logout();
     
     // Clear any localStorage authentication data
@@ -44,9 +43,6 @@ export const useSecretAccess = ({
     localStorage.removeItem('staffAuthTimestamp');
     localStorage.removeItem('staffSessionExpiry');
     
-    console.log('🧹 Session cleared - redirecting to staff login');
-    console.log('🔄 Current location:', window.location.href);
-    console.log('🎯 Redirecting to:', staffLoginPath);
     
     // Navigate to login page
     navigate(staffLoginPath, { replace: true });

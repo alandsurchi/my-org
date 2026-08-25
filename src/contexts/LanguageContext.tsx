@@ -465,12 +465,10 @@ const translations = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  console.log('LanguageProvider rendering');
   const [language, setLanguage] = useState<Language>('ku');
 
   const t = (key: string): string => {
     const translation = translations[language][key as keyof typeof translations['en']];
-    console.log(`Translation for key "${key}" in language "${language}":`, translation);
     return translation || key;
   };
 
@@ -484,7 +482,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
-    console.error('useLanguage must be used within a LanguageProvider');
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '@/lib/charityDashboardAPI';
+import { config } from '../config/env';
 
 interface HealthCheckState {
   isHealthy: boolean;
@@ -20,14 +20,14 @@ export const useAPIHealthCheck = () => {
     try {
       setState(prev => ({ ...prev, isChecking: true, error: null }));
       
-      // Try to fetch a simple endpoint to check if API is available
-      const response = await fetch('http://localhost:5000/', {
+      // Try to fetch the backend health check endpoint
+      const rootUrl = config.apiUrl.replace(/\/api$/, '');
+      const response = await fetch(`${rootUrl}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000), // 5 second timeout
       });
       
       if (response.ok) {
-        console.log('✅ API Health Check: Backend is healthy');
         setState({
           isHealthy: true,
           isChecking: false,
@@ -39,7 +39,6 @@ export const useAPIHealthCheck = () => {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('❌ API Health Check Failed:', error);
       setState({
         isHealthy: false,
         isChecking: false,

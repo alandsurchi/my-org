@@ -85,7 +85,6 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
         onCropComplete(croppedImage);
       }
     } catch (e) {
-      console.error('Error cropping image:', e);
     }
   }, [croppedAreaPixels, image, onCropComplete, fileName]);
 

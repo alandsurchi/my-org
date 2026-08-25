@@ -3,6 +3,7 @@ import { useNews } from '@/hooks/useNewsAPI';
 import { useProjects } from '@/hooks/useProjectsAPI';
 import { useGallery } from '@/hooks/useGalleryAPI';
 import { useHeroImage } from '@/hooks/useHeroAPI';
+import { config } from '../config/env';
 
 const DataDebugger = () => {
   const { data: news, isLoading: newsLoading, error: newsError } = useNews();
@@ -56,7 +57,7 @@ const DataDebugger = () => {
       </div>
 
       <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #374151', fontSize: '10px', color: '#94a3b8' }}>
-        Backend: http://localhost:5000
+        Backend: ${config.cdnUrl}
       </div>
     </div>
   );

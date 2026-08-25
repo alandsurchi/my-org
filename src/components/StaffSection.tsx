@@ -3,27 +3,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Users, ArrowRight } from 'lucide-react';
-import { useStaff } from '@/hooks/useStaff';
+import { useStaff } from '@/hooks/useStaffAPI';
 import { StaffSkeleton } from '@/components/ui/staff-skeleton';
 import { Link } from 'react-router-dom';
 
 const StaffSection = () => {
   const { t } = useLanguage();
-  const { data: staffMembers = [], isLoading, error } = useStaff();
+  const { data: staffMembers = [], isLoading, error } = useStaffMembers();
 
-  console.log('🔵 StaffSection component is rendering');
-  console.log('🔵 StaffSection render - staffMembers:', staffMembers);
-  console.log('🔵 StaffSection render - staffMembers length:', staffMembers?.length);
-  console.log('🔵 StaffSection render - isLoading:', isLoading);
-  console.log('🔵 StaffSection render - error:', error);
 
   if (isLoading) {
-    console.log('🟡 Staff section is loading...');
     return <StaffSkeleton />;
   }
 
   if (error) {
-    console.log('🔴 Staff section error:', error);
     return (
       <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden min-h-screen">
         <div className="container mx-auto px-4 relative z-10">
@@ -46,7 +39,6 @@ const StaffSection = () => {
   }
 
   if (!staffMembers || staffMembers.length === 0) {
-    console.log('🟠 No staff members found');
     return (
       <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden min-h-screen">
         <div className="container mx-auto px-4 relative z-10">
@@ -62,8 +54,6 @@ const StaffSection = () => {
     );
   }
 
-  console.log('🟢 Rendering staff members:', staffMembers.length);
-  console.log('🟢 Staff members data:', staffMembers);
 
   return (
     <section id="staff" className="py-24 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-gray-50 relative overflow-hidden w-full min-h-screen">
@@ -92,7 +82,6 @@ const StaffSection = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 w-full mb-16">
           {staffMembers.map((member, index) => {
-            console.log('🟢 Rendering individual staff member:', member);
             return (
               <Card key={member.id} className="group bg-white/90 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll w-full" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardContent className="p-8 text-center">

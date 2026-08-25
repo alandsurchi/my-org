@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useProjects } from '@/hooks/useProjectsAPI';
 import ProjectDetailDialog from './ProjectDetailDialog';
 import { Link } from 'react-router-dom';
+import { config } from '../config/env';
 
 const ProjectsSection = () => {
   const { t } = useLanguage();
@@ -17,11 +18,10 @@ const ProjectsSection = () => {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: projects = [], isLoading } = useProjects();
 
-  console.log('🚀 Projects data from backend:', projects);
 
   const getImageSrc = (url?: string) => {
     if (!url) return null;
-    if (url.startsWith('/uploads/')) return `http://localhost:5000${url}`;
+    if (url.startsWith('/uploads/')) return `${config.cdnUrl}${url}`;
     return url;
   };
 

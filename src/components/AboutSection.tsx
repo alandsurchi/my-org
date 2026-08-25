@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAboutImage } from '@/hooks/useAboutAPI';
 import { Heart } from 'lucide-react';
+import { config } from '../config/env';
 
 const AboutSection = () => {
   const { t } = useLanguage();
@@ -62,7 +63,7 @@ const AboutSection = () => {
               <img 
                 src={
                   aboutImage && aboutImage.url
-                    ? (aboutImage.url.startsWith('http') ? aboutImage.url : `http://localhost:5000${aboutImage.url}`)
+                    ? (aboutImage.url.startsWith('http') ? aboutImage.url : `${config.cdnUrl}${aboutImage.url}`)
                     : "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=600&h=400&fit=crop"
                 }
                 alt="MROVDOSTAN community work" 

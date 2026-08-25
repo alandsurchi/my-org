@@ -6,9 +6,7 @@ export const useAboutImage = () => {
   return useQuery({
     queryKey: ['about'],
     queryFn: async () => {
-      console.log('🔍 Fetching about image from Node.js API...');
       const data = await api.getAboutImage();
-      console.log('✅ About image fetched successfully:', data);
       return data;
     },
     retry: 3,
@@ -26,15 +24,12 @@ export const useUploadAboutImage = () => {
   
   return useMutation({
     mutationFn: async (image: File) => {
-      console.log('📤 Uploading about image...');
       return await api.uploadAboutImage(image);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['about'] });
-      console.log('✅ About image uploaded and cache invalidated');
     },
     onError: (error) => {
-      console.error('❌ Error uploading about image:', error);
     },
   });
 };
@@ -45,15 +40,12 @@ export const useDeleteAboutImage = () => {
   
   return useMutation({
     mutationFn: async () => {
-      console.log('🗑️ Deleting about image...');
       return await api.deleteAboutImage();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['about'] });
-      console.log('✅ About image deleted and cache invalidated');
     },
     onError: (error) => {
-      console.error('❌ Error deleting about image:', error);
     },
   });
 };

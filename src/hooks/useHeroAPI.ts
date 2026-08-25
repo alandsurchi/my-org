@@ -6,9 +6,7 @@ export const useHeroImage = () => {
   return useQuery({
     queryKey: ['hero'],
     queryFn: async () => {
-      console.log('🔍 Fetching hero image from Node.js API...');
       const data = await api.getHeroImage();
-      console.log('✅ Hero image fetched successfully:', data);
       return data;
     },
     retry: 3,
@@ -26,15 +24,12 @@ export const useUploadHeroImage = () => {
   
   return useMutation({
     mutationFn: async (image: File) => {
-      console.log('📤 Uploading hero image...');
       return await api.uploadHeroImage(image);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hero'] });
-      console.log('✅ Hero image uploaded and cache invalidated');
     },
     onError: (error) => {
-      console.error('❌ Error uploading hero image:', error);
     },
   });
 };

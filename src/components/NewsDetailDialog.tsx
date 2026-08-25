@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Calendar, X, Award, Users, Building, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { config } from '../config/env';
 
 interface NewsItem {
   id: string;
@@ -28,7 +29,7 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
   const getImageSrc = (url?: string) => {
     if (!url) return null;
     if (url.startsWith('/uploads/')) {
-      return `http://localhost:5000${url}`;
+      return `${config.cdnUrl}${url}`;
     }
     return url;
   };

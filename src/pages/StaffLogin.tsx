@@ -43,7 +43,6 @@ const StaffLogin = () => {
     
     if (referrer.includes(secretPath) || location.state?.fromSecret) {
       setAccessedViaSecret(true);
-      console.log('🔐 Staff login accessed via secret method - forcing fresh login');
       
       // Force clear all authentication data when accessed via secret methods
       localStorage.removeItem('staffUser');
@@ -57,7 +56,6 @@ const StaffLogin = () => {
       setPassword('');
       setError('');
       
-      console.log('🧹 All authentication data cleared for fresh login');
     }
 
     // Only redirect if authenticated AND not accessed via secret method
@@ -171,7 +169,6 @@ const StaffLogin = () => {
         });
       }
     } catch (error) {
-      console.error('Login error:', error);
       setError('System error. Please try again later.');
       recordFailedAttempt();
     } finally {

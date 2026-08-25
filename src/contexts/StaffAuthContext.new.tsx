@@ -26,7 +26,6 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
       try {
         setStaffUser(JSON.parse(savedStaffUser));
       } catch (error) {
-        console.error('Error parsing saved user data:', error);
         localStorage.removeItem('user');
         localStorage.removeItem('auth_token');
       }
@@ -35,12 +34,10 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      console.log('🔐 Attempting staff login...');
       
       const { data, error } = await apiClient.login(email, password);
       
       if (error || !data) {
-        console.error('❌ Login failed:', error);
         return false;
       }
       
@@ -51,17 +48,14 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
       };
       
       setStaffUser(user);
-      console.log('✅ Login successful:', user);
       return true;
       
     } catch (error) {
-      console.error('❌ Login error:', error);
       return false;
     }
   };
 
   const logout = () => {
-    console.log('🚪 Logging out staff user...');
     setStaffUser(null);
     apiClient.logout();
   };

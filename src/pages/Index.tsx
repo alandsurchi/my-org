@@ -1,5 +1,6 @@
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
@@ -26,8 +27,27 @@ const APILoadingSection = ({ name }: { name: string }) => (
 );
 
 const Index = () => {
-  console.log('🏠 Index component rendering');
   const { isHealthy, isChecking, error } = useAPIHealthCheck();
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleHashNavigation = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (!hash) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      const element = document.getElementById(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+
+    handleHashNavigation();
+    window.addEventListener('hashchange', handleHashNavigation);
+    return () => window.removeEventListener('hashchange', handleHashNavigation);
+  }, [location.pathname, location.hash]);
   
   return (
     <div className="min-h-screen w-full">

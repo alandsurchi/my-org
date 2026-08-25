@@ -155,7 +155,6 @@ const SecretStaffLogin = () => {
         });
       }
     } catch (error) {
-      console.error('Login error:', error);
       setError('System error. Please try again later.');
       recordFailedAttempt();
     } finally {

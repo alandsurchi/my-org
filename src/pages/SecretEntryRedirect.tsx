@@ -9,7 +9,6 @@ const SecretEntryRedirect = () => {
 
   useEffect(() => {
     // Log the secret access attempt for security monitoring
-    console.log('🔑 Secret URL accessed - clearing session and redirecting to staff login');
     
     // Always logout first to clear any existing session
     logout();

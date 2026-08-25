@@ -16,13 +16,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNews, useCreateNews, useDeleteNews } from '@/hooks/useNewsAPI';
 // Use the API-backed hooks that handle FormData uploads
 import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks/useProjectsAPI';
-import { useGallery, useCreateGalleryItem, useDeleteGalleryItem } from '@/hooks/useGallery';
-import { useWebsiteImages, useCreateWebsiteImage, useDeleteWebsiteImage } from '@/hooks/useWebsiteImages';
+import { useGallery, useUploadGalleryPhoto, useDeletePhoto } from '@/hooks/useGalleryAPI';
 import { useStaffAccounts, useCreateStaffAccount, useDeleteStaffAccount, useCurrentUser, useUpdateStaffAccount } from '@/hooks/useStaffAccounts';
 import { useHeroImage, useUploadHeroImage } from '@/hooks/useHeroAPI';
 import { useAboutImage, useUploadAboutImage } from '@/hooks/useAboutAPI';
 import { useFileUpload } from '@/hooks/useFileUpload';
-import WebsiteImageManager from './WebsiteImageManager';
 import ImageCropDialog from './ImageCropDialog';
 import ImageCropper from './ImageCropper';
 
@@ -38,11 +36,10 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const queryClient = useQueryClient();
   const fileUploadMutation = useFileUpload();
 
-  // Real data from Supabase
+  // Real data from PostgreSQL database
   const { data: news = [] } = useNews();
   const { data: projects = [] } = useProjects() as { data: any[] };
   const { data: galleryItems = [] } = useGallery();
-  const { data: websiteImages = [] } = useWebsiteImages();
   const { data: staffAccounts = [] } = useStaffAccounts();
   const { data: heroImage } = useHeroImage();
   const { data: aboutImage } = useAboutImage();
@@ -51,12 +48,10 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
   const isSuperAdmin = staffUser?.isSuperAdmin || false;
 
   // Mutations
-  const createGalleryItem = useCreateGalleryItem();
-  const deleteGalleryItem = useDeleteGalleryItem();
+  const createGalleryItem = useUploadGalleryPhoto();
+  const deleteGalleryItem = useDeletePhoto();
   const uploadHeroImage = useUploadHeroImage();
   const uploadAboutImage = useUploadAboutImage();
-  const createWebsiteImage = useCreateWebsiteImage();
-  const deleteWebsiteImage = useDeleteWebsiteImage();
   const createStaffAccount = useCreateStaffAccount();
   const deleteStaffAccount = useDeleteStaffAccount();
   const createNews = useCreateNews();
@@ -519,7 +514,6 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
       
       for (const file of Array.from(files)) {
         try {
-          console.log('Uploading file:', file.name);
           
           // Create FormData with file and metadata
           const formData = new FormData();
@@ -535,15 +529,12 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
 
           if (!response.ok) {
             const errorText = await response.text();
-            console.error('Upload failed:', errorText);
             throw new Error(`Upload failed: ${response.statusText}`);
           }
 
           const data = await response.json();
-          console.log('Gallery item created:', data);
           successCount++;
         } catch (fileError) {
-          console.error('Error uploading file:', file.name, fileError);
           toast({
             title: "Upload Failed",
             description: `Failed to upload ${file.name}. Please try again.`,
@@ -567,7 +558,6 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
       // Reset the file input
       event.target.value = '';
     } catch (error) {
-      console.error('Gallery upload error:', error);
       toast({
         title: "Upload Error",
         description: "Something went wrong. Please try again.",
@@ -600,7 +590,6 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
           description: `${newStaffForm.name} has been added successfully as ${newStaffForm.role === 'super_admin' ? 'Full Control' : 'Admin'}.`,
         });
       } catch (error) {
-        console.error('Error adding staff member:', error);
         toast({
           title: "❌ Error adding staff member",
           description: "Failed to add the staff member. Email might already exist or you don't have permission.",
@@ -662,7 +651,6 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
           description: `${editStaffForm.name} has been updated successfully.`,
         });
       } catch (error) {
-        console.error('Error updating staff member:', error);
         toast({
           title: "❌ Error updating staff member",
           description: "Failed to update the staff member. Please try again.",
@@ -1263,7 +1251,6 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
         description: "The news item has been successfully updated.",
       });
     } catch (error) {
-      console.error('❌ Dashboard: Update error:', error);
       toast({
         title: "Error", 
         description: `Failed to update news item: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -1521,7 +1508,6 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
     }
 
     try {
-      console.log('🗑️ Dashboard: Attempting to delete news with ID:', itemId);
       await deleteNews.mutateAsync(itemId);
       
       if (editingNewsItem === itemId) {
@@ -1534,7 +1520,6 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
         description: "The news item has been deleted successfully.",
       });
     } catch (error) {
-      console.error('❌ Dashboard: Delete error:', error);
       toast({
         title: "Error",
         description: `Failed to delete news item: ${error instanceof Error ? error.message : 'Unknown error'}`,

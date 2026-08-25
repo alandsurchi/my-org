@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import ProjectDetailDialog from '@/components/ProjectDetailDialog';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { config } from '../config/env';
 
 const AllProjects = () => {
   const { t } = useLanguage();
@@ -22,7 +22,7 @@ const AllProjects = () => {
   const getImageSrc = (url?: string) => {
     if (!url) return null;
     if (url.startsWith('/uploads/')) {
-      return `http://localhost:5000${url}`;
+      return `${config.cdnUrl}${url}`;
     }
     return url;
   };

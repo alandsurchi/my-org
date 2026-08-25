@@ -8,9 +8,10 @@ import NewsDetailDialog from '@/components/NewsDetailDialog';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { config } from '../config/env';
 
 interface NewsItem {
-  _id: string;
+  id: string;
   title: string;
   content: string;
   imageUrl?: string;
@@ -44,7 +45,7 @@ const AllNews = () => {
 
   const handleReadMore = (newsItem: NewsItem) => {
     const dialogNewsItem: DialogNewsItem = {
-      id: newsItem._id,
+      id: newsItem.id,
       title_en: newsItem.title,
       description_en: newsItem.content,
       category: 'News',
@@ -64,7 +65,7 @@ const AllNews = () => {
     if (!imageUrl) return null;
     // If it's a relative path, prepend the API base URL
     if (imageUrl.startsWith('/uploads/')) {
-      return `http://localhost:5000${imageUrl}`;
+      return `${config.cdnUrl}${imageUrl}`;
     }
     return imageUrl;
   };
@@ -142,7 +143,7 @@ const AllNews = () => {
                 const imageUrl = getImageUrl(newsItem.imageUrl);
                 
                 return (
-                  <div key={newsItem._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <div key={newsItem.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                     {imageUrl && (
                       <img 
                         src={imageUrl} 

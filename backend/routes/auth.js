@@ -1,167 +1,114 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const pool = require('../db');
 const { staffLoginLimiter, securityHeaders, auditLog } = require('../middleware/staffSecurity');
+const { loginValidation, staffValidation, validateRequest } = require('../middleware/validator');
 
-// Super admin emails (hardcoded)
-const SUPER_ADMINS = [
+const SUPER_ADMINS = process.env.SUPER_ADMINS ? process.env.SUPER_ADMINS.split(',') : [
   'aland.surchi456@gmail.com',
   'aland.raed.othman@gmail.com'
 ];
 
-// Apply security headers to all auth routes
+const SELECT_USER_SAFE = 'SELECT id, name, email, role, created_at AS "createdAt" FROM users';
+const SELECT_USER_ALL = 'SELECT id, name, email, role, created_at AS "createdAt", last_login AS "lastLogin" FROM users';
+
 router.use(securityHeaders);
 
-// Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
-  }
-
+  if (!token) return res.status(401).json({ success: false, message: 'Access token required' });
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid or expired token' });
-    }
+    if (err) return res.status(403).json({ success: false, message: 'Invalid or expired token' });
     req.user = user;
     next();
   });
 };
 
-// POST register new user (admin only in production)
-router.post('/register', async (req, res) => {
+// POST register
+router.post('/register', staffValidation, validateRequest, async (req, res, next) => {
   try {
-    const { email, password, role } = req.body;
-    
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+    const { email, password, role, name } = req.body;
+    const normalizedEmail = email.toLowerCase();
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [normalizedEmail]);
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ success: false, message: 'User already exists' });
     }
-    
-    const user = new User({
-      email,
-      password,
-      role: role || 'staff'
-    });
-    
-    await user.save();
-    
-    // Don't send password in response
-    const userResponse = {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt
-    };
-    
-    res.status(201).json({ 
-      message: 'User created successfully', 
-      user: userResponse 
-    });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const result = await pool.query(
+      `${SELECT_USER_SAFE} FROM users WHERE email = $1`,
+      [normalizedEmail]
+    );
+    // Re-query to get the inserted user
+    await pool.query(
+      'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)',
+      [name || normalizedEmail.split('@')[0], normalizedEmail, hashedPassword, role || 'staff']
+    );
+    const inserted = await pool.query(`${SELECT_USER_SAFE} FROM users WHERE email = $1`, [normalizedEmail]);
+    res.status(201).json({ success: true, message: 'User created successfully', data: { user: inserted.rows[0] } });
   } catch (error) {
-    res.status(400).json({ message: 'Error creating user', error: error.message });
+    next(error);
   }
 });
 
-// POST login with enhanced security
-router.post('/login', staffLoginLimiter, auditLog('LOGIN_ATTEMPT'), async (req, res) => {
+// POST login
+router.post('/login', staffLoginLimiter, auditLog('LOGIN_ATTEMPT'), loginValidation, validateRequest, async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    
-    // Input validation
-    if (!email || !password) {
-      return res.status(400).json({ 
-        message: 'Email and password are required',
-        code: 'MISSING_CREDENTIALS'
-      });
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (result.rows.length === 0) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials', code: 'INVALID_CREDENTIALS' });
     }
-    
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      // Don't reveal whether user exists or not
-      return res.status(401).json({ 
-        message: 'Invalid credentials',
-        code: 'INVALID_CREDENTIALS'
-      });
-    }
-    
-    // Check password
-    const isPasswordValid = await user.comparePassword(password);
+    const user = result.rows[0];
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ 
-        message: 'Invalid credentials',
-        code: 'INVALID_CREDENTIALS'
-      });
+      return res.status(401).json({ success: false, message: 'Invalid credentials', code: 'INVALID_CREDENTIALS' });
     }
-    
-    // Generate JWT token with shorter expiry for security
     const sessionTimeout = process.env.STAFF_SESSION_TIMEOUT || '1h';
     const token = jwt.sign(
-      { 
-        userId: user._id, 
-        email: user.email, 
-        role: user.role,
-        iat: Math.floor(Date.now() / 1000)
-      },
+      { userId: user.id, email: user.email, role: user.role, iat: Math.floor(Date.now() / 1000) },
       process.env.JWT_SECRET,
       { expiresIn: sessionTimeout }
     );
-    
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
-    
-    // Log successful login
+    await pool.query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
     console.log(`🔒 SUCCESSFUL LOGIN: ${email} from IP: ${req.ip}`);
-    
     const isSuperAdmin = SUPER_ADMINS.includes(user.email);
-    
     res.json({
-      message: 'Login successful',
-      token,
-      expiresIn: sessionTimeout,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isSuperAdmin: isSuperAdmin
+      success: true,
+      data: {
+        message: 'Login successful',
+        token,
+        expiresIn: sessionTimeout,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role, isSuperAdmin }
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error during login', error: error.message });
+    next(error);
   }
 });
 
 // GET verify token
 router.get('/verify', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json({ user });
+    const result = await pool.query(`${SELECT_USER_SAFE} FROM users WHERE id = $1`, [req.user.userId]);
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, data: { user: result.rows[0] } });
   } catch (error) {
-    res.status(500).json({ message: 'Error verifying token', error: error.message });
+    next(error);
   }
 });
 
 // GET all users (admin only)
 router.get('/users', authenticateToken, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Admin access required' });
-    }
-    
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
-    res.json(users);
+    if (req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'Admin access required' });
+    const result = await pool.query(`${SELECT_USER_SAFE} FROM users ORDER BY created_at DESC`);
+    res.json({ success: true, data: result.rows });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching users', error: error.message });
+    next(error);
   }
 });
 

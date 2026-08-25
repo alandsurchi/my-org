@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useHeaderState } from '@/hooks/useHeaderState';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSecretAccess } from '@/hooks/useSecretAccess';
@@ -14,14 +14,20 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLanguage();
-  const isHomePage = location.pathname === '/';
   const {
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     isScrolled,
     isInHeroSection,
-    activeSection
+    activeSection,
+    setActiveSection: setActiveSectionFromHook
   } = useHeaderState();
+
+  const setActiveSection = (section: string) => {
+    if (typeof setActiveSectionFromHook === 'function') {
+      setActiveSectionFromHook(section);
+    }
+  };
 
   // Initialize secret access (Ctrl+Alt+A or triple-click logo)
   useSecretAccess({
@@ -34,29 +40,68 @@ const Header = () => {
     }
   });
 
+  const [pendingSection, setPendingSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingSection) return;
+
+    const targetHash = pendingSection === 'home' ? '' : `#${pendingSection}`;
+    if (targetHash) {
+      window.history.replaceState(null, '', targetHash);
+    } else {
+      window.history.replaceState(null, '', '/');
+    }
+
+    const element = document.getElementById(pendingSection);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (pendingSection === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    setActiveSection(pendingSection);
+    setIsMobileMenuOpen(false);
+    setPendingSection(null);
+  }, [location.pathname, pendingSection, setActiveSection, setIsMobileMenuOpen]);
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     setIsMobileMenuOpen(false);
   };
 
   const handleNavigation = (item: any) => {
+    console.log(`🔘 Navigation clicked: ${item.id}`);
     if (item.id === 'home') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (location.pathname !== '/') {
+        setPendingSection('home');
+        navigate('/');
+      } else {
+        window.history.replaceState(null, '', '/');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setActiveSection('home');
+        setIsMobileMenuOpen(false);
+      }
+      console.log('🏠 Set active section to: home');
+      return;
+    }
+
+    if (location.pathname !== '/') {
+      setPendingSection(item.id);
+      navigate('/');
     } else {
+      const targetHash = `#${item.id}`;
+      window.history.replaceState(null, '', targetHash);
       scrollToSection(item.id);
+      setActiveSection(item.id);
+      console.log(`🎯 Set active section to: ${item.id}`);
     }
   };
 
   // Determine header styling based on scroll and hero section
   const getHeaderStyling = () => {
-    // On non-home pages, always use white background
-    if (!isHomePage) {
-      return 'bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg';
-    }
-    
     if (isScrolled && !isInHeroSection) {
       return 'bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg';
     } else {
@@ -67,31 +112,18 @@ const Header = () => {
 
   const getTextStyling = (itemId: string) => {
     const isActive = activeSection === itemId;
-    
-    // On non-home pages, always use black/dark text
-    if (!isHomePage) {
-      return isActive 
-        ? 'text-blue-600 font-bold' 
-        : 'text-gray-900 font-semibold hover:text-blue-600';
-    }
-    
     if (isScrolled && !isInHeroSection) {
       return isActive 
-        ? 'text-blue-600 font-bold' 
-        : 'text-gray-900 font-semibold hover:text-blue-600';
+        ? 'text-blue-600 font-semibold' 
+        : 'text-gray-700 hover:text-blue-600';
     } else {
       return isActive 
-        ? 'text-white font-bold' 
-        : 'text-white font-semibold hover:text-white';
+        ? 'text-white font-semibold' 
+        : 'text-white/90 hover:text-white';
     }
   };
 
   const getLogoStyling = () => {
-    // On non-home pages, always use gradient
-    if (!isHomePage) {
-      return 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent';
-    }
-    
     if (isScrolled && !isInHeroSection) {
       return 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent';
     } else {
@@ -100,26 +132,16 @@ const Header = () => {
   };
 
   const getSelectStyling = () => {
-    // On non-home pages, always use white background
-    if (!isHomePage) {
-      return 'border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900';
-    }
-    
     if (isScrolled && !isInHeroSection) {
-      return 'border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900';
+      return 'border-gray-200 bg-white/80 backdrop-blur-sm';
     } else {
       return 'border-white/30 bg-white/10 backdrop-blur-sm text-white';
     }
   };
 
   const getMobileButtonStyling = () => {
-    // On non-home pages, always use white background
-    if (!isHomePage) {
-      return 'border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900';
-    }
-    
     if (isScrolled && !isInHeroSection) {
-      return 'border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900';
+      return 'border-gray-200 bg-white/80 backdrop-blur-sm';
     } else {
       return 'border-white/30 bg-white/10 backdrop-blur-sm text-white';
     }
