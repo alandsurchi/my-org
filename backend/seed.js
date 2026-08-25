@@ -28,9 +28,10 @@ async function seedDatabase() {
     const cleanSql = seedSql.split('\n').filter(l => !l.trim().startsWith('--')).join('\n');
     const statements = cleanSql.split(';').map(s => s.trim()).filter(s => s.length > 0);
     for (const stmt of statements) {
-      try {
-        await client.query(stmt);
-      } catch (err) {
+        if (hasContent && (stmt.includes('INSERT INTO news') || stmt.includes('INSERT INTO projects'))) continue;
+        try {
+          await client.query(stmt);
+        } catch (err) {
         console.warn('  ⚠️ Seed statement warning:', err.message.substring(0, 80));
       }
     }
