@@ -1,121 +1,95 @@
 const express = require('express');
 const router = express.Router();
-const HeroImage = require('../models/HeroImage');
-const multer = require('multer');
-const path = require('path');
+const pool = require('../db');
+const upload = require('../middleware/upload');
+const { uploadToR2 } = require('../utils/r2Client');
+const { requireStaffAuth } = require('../middleware/staffSecurity');
+const { fileValidation, validateRequest } = require('../middleware/validator');
 
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/hero/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname))
-  }
-});
-
-const upload = multer({ 
-  storage: storage,
-  fileFilter: function (req, file, cb) {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'), false);
-    }
-  },
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit for hero images
-  }
-});
+const SELECT_HERO = `SELECT id, url, original_name AS "originalName", file_name AS "fileName", file_size AS "fileSize", mime_type AS "mimeType", dimensions, uploaded_by AS "uploadedBy", is_active AS "isActive", created_at AS "createdAt", updated_at AS "updatedAt" FROM hero_images`;
 
 // GET current hero image
 router.get('/', async (req, res) => {
   try {
-    const heroImage = await HeroImage.findOne({ isActive: true }).sort({ updatedAt: -1 });
-    if (!heroImage) {
-      return res.status(404).json({ message: 'No hero image found' });
+    const result = await pool.query(
+      `${SELECT_HERO} WHERE is_active = true ORDER BY updated_at DESC LIMIT 1`
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'No hero image found' });
     }
-    res.json(heroImage);
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching hero image', error: error.message });
+    next(error);
   }
 });
 
 // POST upload new hero image
-router.post('/', upload.single('heroImage'), async (req, res) => {
+router.post('/', requireStaffAuth, upload.single('heroImage'), fileValidation, validateRequest, async (req, res, next) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No image uploaded' });
-    }
+    const imageUrl = await uploadToR2(req.file, 'hero');
     
-    // Get image dimensions (basic implementation)
     const sizeOf = require('image-size');
     let dimensions = { width: 0, height: 0 };
     try {
-      dimensions = sizeOf(req.file.path);
+      dimensions = sizeOf(req.file.buffer);
     } catch (err) {
       console.warn('Could not get image dimensions:', err.message);
     }
     
-    const heroImageData = {
-      url: `/uploads/hero/${req.file.filename}`,
-      originalName: req.file.originalname,
-      fileName: req.file.filename,
-      fileSize: req.file.size,
-      mimeType: req.file.mimetype,
-      dimensions: dimensions,
-      uploadedBy: req.user?.email || 'admin',
-      isActive: true,
-      updatedAt: Date.now()
-    };
+    await pool.query('UPDATE hero_images SET is_active = false');
     
-    // Delete old hero images (keep only the latest)
-    await HeroImage.updateMany({}, { isActive: false });
+    const result = await pool.query(
+      `INSERT INTO hero_images (url, original_name, file_name, file_size, mime_type, dimensions, uploaded_by, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, true) RETURNING id, url, original_name AS "originalName", file_name AS "fileName", file_size AS "fileSize", mime_type AS "mimeType", dimensions, uploaded_by AS "uploadedBy", is_active AS "isActive", created_at AS "createdAt", updated_at AS "updatedAt"`,
+      [
+        imageUrl,
+        req.file.originalname,
+        req.file.originalname,
+        req.file.size,
+        req.file.mimetype,
+        JSON.stringify(dimensions),
+        req.user?.email || 'admin'
+      ]
+    );
     
-    const heroImage = new HeroImage(heroImageData);
-    await heroImage.save();
-    res.status(201).json(heroImage);
+    res.status(201).json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(400).json({ message: 'Error uploading hero image', error: error.message });
+    next(error);
   }
 });
 
 // PUT update hero image
-router.put('/', upload.single('heroImage'), async (req, res) => {
+router.put('/', requireStaffAuth, upload.single('heroImage'), fileValidation, validateRequest, async (req, res, next) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No image uploaded' });
-    }
+    const imageUrl = await uploadToR2(req.file, 'hero');
     
-    // Get image dimensions
     const sizeOf = require('image-size');
     let dimensions = { width: 0, height: 0 };
     try {
-      dimensions = sizeOf(req.file.path);
+      dimensions = sizeOf(req.file.buffer);
     } catch (err) {
       console.warn('Could not get image dimensions:', err.message);
     }
     
-    // Deactivate old hero images
-    await HeroImage.updateMany({}, { isActive: false });
+    await pool.query('UPDATE hero_images SET is_active = false');
     
-    const heroImageData = {
-      url: `/uploads/hero/${req.file.filename}`,
-      originalName: req.file.originalname,
-      fileName: req.file.filename,
-      fileSize: req.file.size,
-      mimeType: req.file.mimetype,
-      dimensions: dimensions,
-      uploadedBy: req.user?.email || 'admin',
-      isActive: true,
-      updatedAt: Date.now()
-    };
+    const result = await pool.query(
+      `INSERT INTO hero_images (url, original_name, file_name, file_size, mime_type, dimensions, uploaded_by, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, true) RETURNING id, url, original_name AS "originalName", file_name AS "fileName", file_size AS "fileSize", mime_type AS "mimeType", dimensions, uploaded_by AS "uploadedBy", is_active AS "isActive", created_at AS "createdAt", updated_at AS "updatedAt"`,
+      [
+        imageUrl,
+        req.file.originalname,
+        req.file.originalname,
+        req.file.size,
+        req.file.mimetype,
+        JSON.stringify(dimensions),
+        req.user?.email || 'admin'
+      ]
+    );
     
-    const heroImage = new HeroImage(heroImageData);
-    await heroImage.save();
-    res.json(heroImage);
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(400).json({ message: 'Error updating hero image', error: error.message });
+    next(error);
   }
 });
 

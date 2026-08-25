@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
-import { Search, ArrowLeft, Camera, Eye, Heart } from 'lucide-react';
+import { Search, ArrowLeft, Camera, Eye, Heart, ImageOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useGallery } from '@/hooks/useGalleryAPI';
+import { useGallery, GalleryPhoto } from '@/hooks/useGalleryAPI';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -15,57 +15,15 @@ const AllGallery = () => {
   const [hoveredImage, setHoveredImage] = useState<number | null>(null);
   const { data: galleryImages = [], isLoading } = useGallery();
 
-  // Fallback static images if no data from backend
-  const fallbackImages = [
-    {
-      id: 1,
-      url: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      title: 'Children Education Program',
-      description: 'Educational initiatives for underprivileged children'
-    },
-    {
-      id: 2,
-      url: 'https://images.unsplash.com/photo-1439886183900-e79ec0057170?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      title: 'Community Health Initiative',
-      description: 'Healthcare programs in rural communities'
-    },
-    {
-      id: 3,
-      url: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      title: 'Environmental Conservation',
-      description: 'Wildlife protection and environmental awareness'
-    },
-    {
-      id: 4,
-      url: 'https://images.unsplash.com/photo-1517022812141-23620dba5c23?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      title: 'Agricultural Development',
-      description: 'Supporting farmers with modern techniques'
-    },
-    {
-      id: 5,
-      url: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      title: 'Women Empowerment Workshop',
-      description: 'Skills training and empowerment programs'
-    },
-    {
-      id: 6,
-      url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      title: 'Technology Training',
-      description: 'Digital literacy and technology education'
-    }
-  ];
+  const normalizedImages: GalleryPhoto[] = galleryImages.map((item, index) => ({
+    ...item,
+    id: item.id || item._id || String(index),
+    url: item.url || '',
+    title: item.title || 'Gallery photo',
+    description: item.description || item.caption || ''
+  }));
 
-  // Use backend data if available, otherwise fallback to static data
-  const displayImages = galleryImages.length > 0 
-    ? galleryImages.map((item) => ({
-        id: item.id,
-        url: item.image_url || '',
-        title: item.title,
-        description: item.description || ''
-      }))
-    : fallbackImages;
-
-  const filteredImages = displayImages.filter(image => {
+  const filteredImages = normalizedImages.filter(image => {
     return image.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
            image.description.toLowerCase().includes(searchTerm.toLowerCase());
   });
@@ -120,31 +78,38 @@ const AllGallery = () => {
           </div>
 
           {filteredImages.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-gray-500 text-lg">No images found matching your search.</div>
+            <div className="text-center py-16 bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm">
+              <div className="flex justify-center mb-4">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white">
+                  <ImageOff className="w-7 h-7" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No photos yet</h3>
+              <p className="text-gray-600 mb-6">There are no gallery items available right now.</p>
+              <Button variant="outline" onClick={() => setSearchTerm('')}>Clear search</Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredImages.map((image, index) => (
                 <div 
-                  key={image.id} 
+                  key={image.id || index} 
                   className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 bg-white"
-                  onMouseEnter={() => setHoveredImage(Number(image.id))}
+                  onMouseEnter={() => setHoveredImage(Number(index))}
                   onMouseLeave={() => setHoveredImage(null)}
                 >
-                  <div className="aspect-square overflow-hidden">
+                  <div className="aspect-square overflow-hidden bg-gray-100">
                     <img 
-                      src={image.url} 
+                      src={image.url || '/placeholder.svg'} 
                       alt={image.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                   </div>
                   
                   {/* Hover overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${hoveredImage === Number(image.id) ? 'opacity-100' : 'opacity-0'}`}>
+                  <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${hoveredImage === Number(index) ? 'opacity-100' : 'opacity-0'}`}>
                     <div className="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                       <h3 className="text-lg font-bold mb-2">{image.title}</h3>
-                      <p className="text-sm text-white/80 mb-3">{image.description}</p>
+                      <p className="text-sm text-white/80 mb-3 line-clamp-2">{image.description || ' '}</p>
                       <div className="flex items-center gap-4 text-sm">
                         <div className="flex items-center gap-1">
                           <Eye className="w-4 h-4" />

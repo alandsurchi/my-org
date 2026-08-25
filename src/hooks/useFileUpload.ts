@@ -1,53 +1,42 @@
-
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { config } from '../config/env';
 
 export const useFileUpload = () => {
   const [uploading, setUploading] = useState(false);
-  const { toast } = useToast();
 
-  const uploadFile = async (file: File, bucket: string = 'dashboard-images'): Promise<string | null> => {
+  const uploadFile = async (file: File) => {
     try {
       setUploading(true);
-      console.log('📤 Uploading file:', file.name);
+      const formData = new FormData();
+      formData.append('photo', file);
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${bucket}/${fileName}`;
+      const response = await fetch(`${config.apiUrl}/gallery`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+        },
+        body: formData,
+      });
 
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file);
-
-      if (uploadError) {
-        console.error('🔴 Upload error:', uploadError);
-        toast({
-          title: "Upload failed",
-          description: uploadError.message,
-          variant: "destructive"
-        });
-        return null;
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
       }
 
-      const { data } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(filePath);
-
-      console.log('✅ File uploaded successfully:', data.publicUrl);
-      return data.publicUrl;
+      const data = await response.json();
+      const fileUrl = data.data?.url || data.url;
+      return fileUrl;
     } catch (error) {
-      console.error('🔴 Unexpected upload error:', error);
-      toast({
-        title: "Upload failed",
-        description: "An unexpected error occurred during upload",
-        variant: "destructive"
-      });
-      return null;
+      console.error('Upload error:', error);
+      throw error;
     } finally {
       setUploading(false);
     }
   };
 
-  return { uploadFile, uploading };
+  return {
+    uploadFile,
+    uploading,
+    mutateAsync: uploadFile,
+    isPending: uploading
+  };
 };

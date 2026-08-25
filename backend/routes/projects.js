@@ -1,110 +1,126 @@
 const express = require('express');
 const router = express.Router();
-const Project = require('../models/Project');
-const multer = require('multer');
-const path = require('path');
+const pool = require('../db');
+const upload = require('../middleware/upload');
+const { uploadToR2 } = require('../utils/r2Client');
+const { requireStaffAuth } = require('../middleware/staffSecurity');
+const { projectValidation, validateRequest } = require('../middleware/validator');
 
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/projects/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname))
-  }
-});
-
-const upload = multer({ 
-  storage: storage,
-  fileFilter: function (req, file, cb) {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'), false);
-    }
-  },
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
-});
+const SELECT_PROJECTS = `SELECT id, title, description, category, status, image_url AS "imageUrl", location, created_at AS "createdAt", updated_at AS "updatedAt" FROM projects`;
 
 // GET all projects
 router.get('/', async (req, res) => {
   try {
-    const { status } = req.query;
-    const filter = status ? { status } : {};
-    const projects = await Project.find(filter).sort({ createdAt: -1 });
-    res.json(projects);
+    const { status, limit: queryLimit } = req.query;
+    const limit = parseInt(queryLimit) || 100;
+    let result;
+    
+    if (status) {
+      result = await pool.query(
+        `${SELECT_PROJECTS} WHERE status = $1 ORDER BY created_at DESC LIMIT $2`,
+        [status, limit]
+      );
+    } else {
+      result = await pool.query(
+        `${SELECT_PROJECTS} ORDER BY created_at DESC LIMIT $1`,
+        [limit]
+      );
+    }
+    
+    // Transform projects to include both formats for frontend compatibility
+    const transformedProjects = result.rows.map(project => ({
+      ...project,
+      title_en: project.title,
+      description_en: project.description,
+      created_at: project.createdAt
+    }));
+    
+    res.json({ success: true, data: transformedProjects });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching projects', error: error.message });
+    next(error);
   }
 });
 
 // GET single project by ID
 router.get('/:id', async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
+    const result = await pool.query(`${SELECT_PROJECTS} WHERE id = $1`, [req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Project not found' });
     }
-    res.json(project);
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching project', error: error.message });
+    next(error);
   }
 });
 
 // POST create new project
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', requireStaffAuth, upload.single('image'), projectValidation(false), validateRequest, async (req, res, next) => {
   try {
-    const projectData = {
-      title: req.body.title,
-      description: req.body.description,
-      status: req.body.status || 'active',
-      imageUrl: req.file ? `/uploads/projects/${req.file.filename}` : null
-    };
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = await uploadToR2(req.file, 'projects');
+    }
+
+    const result = await pool.query(
+      `INSERT INTO projects (title, description, status, image_url, category, location)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, title, description, category, status, image_url AS "imageUrl", location, created_at AS "createdAt", updated_at AS "updatedAt"`,
+      [
+        req.body.title || req.body.title_en,
+        req.body.description || req.body.description_en,
+        req.body.status || 'active',
+        imageUrl,
+        req.body.category || null,
+        req.body.location || null
+      ]
+    );
     
-    const project = new Project(projectData);
-    await project.save();
-    res.status(201).json(project);
+    res.status(201).json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(400).json({ message: 'Error creating project', error: error.message });
+    next(error);
   }
 });
 
 // PUT update project
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id', requireStaffAuth, upload.single('image'), projectValidation(true), validateRequest, async (req, res, next) => {
   try {
-    const updateData = {
-      title: req.body.title,
-      description: req.body.description,
-      status: req.body.status,
-      updatedAt: Date.now()
-    };
+    const imageUrl = req.file ? await uploadToR2(req.file, 'projects') : undefined;
     
-    if (req.file) {
-      updateData.imageUrl = `/uploads/projects/${req.file.filename}`;
-    }
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (req.body.title) { updates.push(`title = $${paramIndex++}`); values.push(req.body.title); }
+    if (req.body.description) { updates.push(`description = $${paramIndex++}`); values.push(req.body.description); }
+    if (req.body.status) { updates.push(`status = $${paramIndex++}`); values.push(req.body.status); }
+    if (req.body.category !== undefined) { updates.push(`category = $${paramIndex++}`); values.push(req.body.category || null); }
+    if (req.body.location !== undefined) { updates.push(`location = $${paramIndex++}`); values.push(req.body.location || null); }
+    if (imageUrl) { updates.push(`image_url = $${paramIndex++}`); values.push(imageUrl); }
+    updates.push(`updated_at = NOW()`);
+
+    values.push(req.params.id);
+    const query = `UPDATE projects SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING id, title, description, category, status, image_url AS "imageUrl", location, created_at AS "createdAt", updated_at AS "updatedAt"`;
     
-    const project = await Project.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
+    const result = await pool.query(query, values);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Project not found' });
     }
-    res.json(project);
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(400).json({ message: 'Error updating project', error: error.message });
+    next(error);
   }
 });
 
 // DELETE project
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireStaffAuth, async (req, res, next) => {
   try {
-    const project = await Project.findByIdAndDelete(req.params.id);
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
+    const result = await pool.query('DELETE FROM projects WHERE id = $1 RETURNING id', [req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Project not found' });
     }
-    res.json({ message: 'Project deleted successfully' });
+    res.json({ success: true, data: { message: 'Project deleted successfully' } });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting project', error: error.message });
+    next(error);
   }
 });
 

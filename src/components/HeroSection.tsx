@@ -3,15 +3,14 @@ import React, { useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useHeroImage } from '@/hooks/useHeroAPI';
 import { ArrowDown } from 'lucide-react';
+import { config } from '../config/env';
 
 const HeroSection = () => {
-  console.log('HeroSection rendering');
   const { t } = useLanguage();
   const { data: heroImage } = useHeroImage();
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log('HeroSection useEffect running');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -36,8 +35,6 @@ const HeroSection = () => {
     }
   };
 
-  console.log('Organization name from translation:', t('orgName'));
-  console.log('Hero image data:', heroImage);
 
   // Determine the background image URL
   const getBackgroundImageUrl = () => {
@@ -45,7 +42,7 @@ const HeroSection = () => {
       // If the URL is relative, prepend the API base URL
       return heroImage.url.startsWith('http') 
         ? heroImage.url 
-        : `http://localhost:5000${heroImage.url}`;
+        : `${config.cdnUrl}${heroImage.url}`;
     }
     // Fallback to default image if no hero image is set
     return 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80';
@@ -53,6 +50,7 @@ const HeroSection = () => {
 
   return (
     <section 
+      id="home"
       ref={heroRef} 
       className="relative min-h-screen h-screen flex items-center justify-center overflow-hidden"
     >
@@ -128,9 +126,9 @@ const HeroSection = () => {
 
       {/* Enhanced discover more button */}
       <div className="absolute bottom-8 md:bottom-12 left-1/2 transform -translate-x-1/2 fade-in-on-scroll">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center justify-center">
           {/* Enhanced animated scroll text */}
-          <div className="mb-4 md:mb-6 text-center">
+          <div className="mb-4 md:mb-6 text-center flex justify-center w-full">
             <span className="text-white text-xs sm:text-sm font-medium tracking-wider uppercase px-6 py-3 rounded-full backdrop-blur-lg bg-gradient-to-r from-white/10 to-white/5 border border-white/30 shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-white/50">
               {t('discoverMore')}
             </span>

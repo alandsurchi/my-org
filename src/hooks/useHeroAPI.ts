@@ -6,16 +6,15 @@ export const useHeroImage = () => {
   return useQuery({
     queryKey: ['hero'],
     queryFn: async () => {
-      console.log('🔍 Fetching hero image from Node.js API...');
       const data = await api.getHeroImage();
-      console.log('✅ Hero image fetched successfully:', data);
       return data;
     },
     retry: 3,
     retryDelay: 1000,
-    staleTime: 1000, // Reduced to 1 second for testing
-    refetchOnWindowFocus: true, // Enable refetch on focus
-    refetchInterval: 5000, // Refetch every 5 seconds for testing
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false, // Use cached data if available
   });
 };
 
@@ -25,15 +24,12 @@ export const useUploadHeroImage = () => {
   
   return useMutation({
     mutationFn: async (image: File) => {
-      console.log('📤 Uploading hero image...');
       return await api.uploadHeroImage(image);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['hero'] });
-      console.log('✅ Hero image uploaded and cache invalidated');
     },
     onError: (error) => {
-      console.error('❌ Error uploading hero image:', error);
     },
   });
 };

@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useNews } from '@/hooks/useNewsAPI';
 import NewsDetailDialog from './NewsDetailDialog';
 import { Link } from 'react-router-dom';
+import { config } from '../config/env';
 
 const NewsSection = () => {
   const { t } = useLanguage();
@@ -16,17 +17,61 @@ const NewsSection = () => {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: allNews = [], isLoading, error } = useNews();
 
-  console.log('📰 News data from backend:', allNews);
-  console.log('📰 News loading state:', isLoading);
-  console.log('📰 News error state:', error);
-
-  // Group news by category with fallback for empty data
-  const newsData = {
-    placesVisited: (allNews || []).filter(item => item?.category === 'placesVisited'),
-    visitors: (allNews || []).filter(item => item?.category === 'visitors'),
-    certificatesReceived: (allNews || []).filter(item => item?.category === 'certificatesReceived'),
-    certificatesAwarded: (allNews || []).filter(item => item?.category === 'certificatesAwarded')
+  const getImageSrc = (url?: string) => {
+    if (!url) return null;
+    if (url.startsWith('/uploads/')) {
+      return `${config.cdnUrl}${url}`;
+    }
+    return url;
   };
+
+  
+  // Debug: Log all categories found in news data
+  if (allNews && allNews.length > 0) {
+    const categories = allNews.map(item => item?.category).filter(Boolean);
+  } else {
+  }
+
+  // Group news by category with proper fallback for null categories
+  const newsData = {
+    placesVisited: (allNews || []).filter(item => 
+      !item?.category || item?.category === null || item?.category === 'placesVisited' || 
+      item?.category === 'Place Visited' || item?.category === 'سەردانی فەرمی' ||
+      item?.title?.toLowerCase().includes('visit') || item?.content?.toLowerCase().includes('visit') ||
+      item?.title?.toLowerCase().includes('delegation') || item?.content?.toLowerCase().includes('delegation') ||
+      item?.title?.includes('سەردان') || item?.content?.includes('سەردان')
+    ),
+    visitors: (allNews || []).filter(item => 
+      item?.category === 'visitors' || item?.category === 'Visitors' || item?.category === 'میوانداری' ||
+      item?.title?.includes('میوان') || item?.content?.includes('میوان')
+    ),
+    certificatesReceived: (allNews || []).filter(item => 
+      item?.category === 'certificatesReceived' || item?.category === 'Certificate Received' || 
+      item?.category === 'وەرگرتنی سوپاس و پێزانین' ||
+      item?.title?.toLowerCase().includes('certificate') || item?.content?.toLowerCase().includes('certificate') ||
+      item?.title?.toLowerCase().includes('appreciation') || item?.content?.toLowerCase().includes('appreciation') ||
+      item?.title?.includes('سوپاس') || item?.content?.includes('سوپاس') ||
+      item?.title?.includes('پێزانین') || item?.content?.includes('پێزانین')
+    ),
+    certificatesAwarded: (allNews || []).filter(item => 
+      item?.category === 'certificatesAwarded' || item?.category === 'Certificate Awarded' ||
+      item?.title?.toLowerCase().includes('volunteer') || item?.content?.toLowerCase().includes('volunteer') ||
+      item?.title?.toLowerCase().includes('thank') || item?.content?.toLowerCase().includes('thank') ||
+      item?.title?.includes('بەخشین') || item?.content?.includes('بەخشین')
+    )
+  };
+
+  // Debug: Log grouped news data
+  
+  // Log first item from each category if exists
+  if (newsData.placesVisited?.length > 0) {
+  }
+  if (newsData.visitors?.length > 0) {
+  }
+  if (newsData.certificatesReceived?.length > 0) {
+  }
+  if (newsData.certificatesAwarded?.length > 0) {
+  }
 
   const filterNews = (newsItems: any[]) => {
     if (!newsItems || !Array.isArray(newsItems)) return [];
@@ -34,9 +79,9 @@ const NewsSection = () => {
     return newsItems.filter(item => {
       if (!item) return false;
       const title = item.title || '';
-      const description = item.description || '';
+      const content = item.content || '';
       return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             description.toLowerCase().includes(searchTerm.toLowerCase());
+             content.toLowerCase().includes(searchTerm.toLowerCase());
     });
   };
 
@@ -83,41 +128,53 @@ const NewsSection = () => {
       );
     }
 
+    // Sort by creation date (newest first) and limit to 3 items
+    const sortedNews = filteredNews
+      .sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.date || 0);
+        const dateB = new Date(b.createdAt || b.date || 0);
+        return dateB.getTime() - dateA.getTime();
+      })
+      .slice(0, 3);
+
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredNews.map((item, index) => {
+        {sortedNews.map((item, index) => {
           if (!item) return null;
           
+          const imageUrl = getImageSrc(item.imageUrl || item.image_url);
           const IconComponent = getIconComponent(category);
           
           return (
-            <Card key={item.id || index} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className="relative overflow-hidden">
-                <img 
-                  src={item.image_url || 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop'} 
-                  alt={item.title_en || 'News item'}
-                  className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                
-                <div className="absolute top-4 right-4">
-                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                    <IconComponent className="w-6 h-6 text-white" />
+            <Card key={item._id || item.id || index} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+              {imageUrl && (
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={imageUrl} 
+                    alt={item.title || item.title_en || 'News item'}
+                    className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                  
+                  <div className="absolute top-4 right-4">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                      <IconComponent className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                  
+                  <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : (item.date ? new Date(item.date).toLocaleDateString() : 'No date')}
                   </div>
                 </div>
-                
-                <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  {item.date ? new Date(item.date).toLocaleDateString() : 'No date'}
-                </div>
-              </div>
+              )}
               
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                  {item.title_en || 'Untitled News'}
+                  {item.title || item.title_en || 'Untitled News'}
                 </CardTitle>
                 <CardDescription className="text-gray-600 leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                  {item.description_en || 'No description available'}
+                  {item.content || item.description_en || item.description || 'No description available'}
                 </CardDescription>
               </CardHeader>
               
@@ -140,7 +197,6 @@ const NewsSection = () => {
 
   // Show error state if there's an error
   if (error) {
-    console.error('News section error:', error);
     return (
       <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 via-blue-50/20 to-gray-50 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
@@ -183,6 +239,7 @@ const NewsSection = () => {
               {t('newsTitle')}
             </span>
           </h2>
+          <p className="text-lg text-gray-600 mb-4">Latest 3 news updates</p>
           <div className="w-32 h-1 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 mx-auto rounded-full"></div>
         </div>
 

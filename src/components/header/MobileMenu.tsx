@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LogIn, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Home, Info, Briefcase, Newspaper, Image, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -68,17 +68,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               </button>
             );
           })}
-          <Button 
-            variant="outline" 
-            className="mt-6 justify-start bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 hover:from-blue-700 hover:to-purple-700 hover:scale-105 transition-all duration-300 touch-manipulation"
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              navigate('/signup');
-            }}
-          >
-            <LogIn className="w-4 h-4 mr-2" />
-            {t('signUp')}
-          </Button>
         </div>
       </SheetContent>
     </Sheet>

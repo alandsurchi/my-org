@@ -23,15 +23,12 @@ export const useLogin = () => {
       email: string;
       password: string;
     }) => {
-      console.log('🔐 Logging in...');
       return await api.login(email, password);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['auth'] });
-      console.log('✅ Login successful');
     },
     onError: (error) => {
-      console.error('❌ Login failed:', error);
     },
   });
 };
@@ -44,11 +41,9 @@ export const useRegister = () => {
       password: string;
       role?: string;
     }) => {
-      console.log('📝 Registering user...');
       return await api.register(email, password, role);
     },
     onError: (error) => {
-      console.error('❌ Registration failed:', error);
     },
   });
 };
@@ -65,7 +60,6 @@ export const useLogout = () => {
     onSuccess: () => {
       queryClient.setQueryData(['auth'], null);
       queryClient.clear();
-      console.log('✅ Logout successful');
     },
   });
 };
@@ -75,9 +69,7 @@ export const useUsers = () => {
   return useQuery({
     queryKey: ['users'],
     queryFn: async () => {
-      console.log('🔍 Fetching users from Node.js API...');
       const data = await api.getAllUsers();
-      console.log('✅ Users data fetched successfully:', data);
       return data;
     },
     retry: 3,

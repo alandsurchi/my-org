@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useStaff } from '@/hooks/useStaff';
+import { useStaff } from '@/hooks/useStaffAPI';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -13,7 +13,7 @@ import Footer from '@/components/Footer';
 const AllStaff = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
-  const { data: staffMembers = [], isLoading } = useStaff();
+  const { data: staffMembers = [], isLoading } = useStaffMembers();
 
   const filteredStaff = staffMembers.filter(member => {
     const name = member.name_en || '';

@@ -8,9 +8,10 @@ import NewsDetailDialog from '@/components/NewsDetailDialog';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { config } from '../config/env';
 
 interface NewsItem {
-  _id: string;
+  id: string;
   title: string;
   content: string;
   imageUrl?: string;
@@ -44,7 +45,7 @@ const AllNews = () => {
 
   const handleReadMore = (newsItem: NewsItem) => {
     const dialogNewsItem: DialogNewsItem = {
-      id: newsItem._id,
+      id: newsItem.id,
       title_en: newsItem.title,
       description_en: newsItem.content,
       category: 'News',
@@ -61,10 +62,10 @@ const AllNews = () => {
   };
 
   const getImageUrl = (imageUrl?: string) => {
-    if (!imageUrl) return 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop';
+    if (!imageUrl) return null;
     // If it's a relative path, prepend the API base URL
     if (imageUrl.startsWith('/uploads/')) {
-      return `http://localhost:5000${imageUrl}`;
+      return `${config.cdnUrl}${imageUrl}`;
     }
     return imageUrl;
   };
@@ -138,41 +139,44 @@ const AllNews = () => {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredNews.map((newsItem: NewsItem) => (
-                <div key={newsItem._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                  <img 
-                    src={getImageUrl(newsItem.imageUrl)} 
-                    alt={newsItem.title}
-                    className="h-48 w-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=400&h=250&fit=crop';
-                    }}
-                  />
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-medium">
-                        News
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        {new Date(newsItem.createdAt).toLocaleDateString()}
-                      </span>
+              {filteredNews.map((newsItem: NewsItem) => {
+                const imageUrl = getImageUrl(newsItem.imageUrl);
+                
+                return (
+                  <div key={newsItem.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    {imageUrl && (
+                      <img 
+                        src={imageUrl} 
+                        alt={newsItem.title}
+                        className="h-48 w-full object-cover"
+                      />
+                    )}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-medium">
+                          News
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {new Date(newsItem.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-3">{newsItem.title}</h3>
+                      <p className="text-gray-600 mb-4 line-clamp-3">
+                        {newsItem.content.length > 100 
+                          ? `${newsItem.content.substring(0, 100)}...` 
+                          : newsItem.content
+                        }
+                      </p>
+                      <Button 
+                        onClick={() => handleReadMore(newsItem)}
+                        className="w-full"
+                      >
+                        Read More
+                      </Button>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">{newsItem.title}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-3">
-                      {newsItem.content.length > 100 
-                        ? `${newsItem.content.substring(0, 100)}...` 
-                        : newsItem.content
-                      }
-                    </p>
-                    <Button 
-                      onClick={() => handleReadMore(newsItem)}
-                      className="w-full"
-                    >
-                      Read More
-                    </Button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

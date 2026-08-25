@@ -1,103 +1,95 @@
 const express = require('express');
 const router = express.Router();
-const GalleryPhoto = require('../models/GalleryPhoto');
-const multer = require('multer');
-const path = require('path');
+const pool = require('../db');
+const upload = require('../middleware/upload');
+const { uploadToR2 } = require('../utils/r2Client');
+const { requireStaffAuth } = require('../middleware/staffSecurity');
+const { galleryValidation, validateRequest } = require('../middleware/validator');
 
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/gallery/')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname))
-  }
-});
-
-const upload = multer({ 
-  storage: storage,
-  fileFilter: function (req, file, cb) {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'), false);
-    }
-  },
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
-});
+const SELECT_GALLERY = `SELECT id, url, title, description, caption, uploaded_at AS "uploadedAt" FROM gallery_photos`;
 
 // GET all gallery photos
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
-    const photos = await GalleryPhoto.find().sort({ uploadedAt: -1 });
-    res.json(photos);
+    const result = await pool.query(`${SELECT_GALLERY} ORDER BY uploaded_at DESC`);
+    res.json(result.rows);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching gallery photos', error: error.message });
+    next(error);
   }
 });
 
 // GET single photo by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    const photo = await GalleryPhoto.findById(req.params.id);
-    if (!photo) {
-      return res.status(404).json({ message: 'Photo not found' });
+    const result = await pool.query(`${SELECT_GALLERY} WHERE id = $1`, [req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Photo not found' });
     }
-    res.json(photo);
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching photo', error: error.message });
+    next(error);
   }
 });
 
 // POST upload new photo
-router.post('/', upload.single('photo'), async (req, res) => {
+router.post('/', requireStaffAuth, upload.single('photo'), galleryValidation, validateRequest, async (req, res, next) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No photo uploaded' });
-    }
+    const imageUrl = await uploadToR2(req.file, 'gallery');
     
-    const photoData = {
-      url: `/uploads/gallery/${req.file.filename}`,
-      caption: req.body.caption || ''
-    };
+    const result = await pool.query(
+      `INSERT INTO gallery_photos (url, title, description, caption) VALUES ($1, $2, $3, $4) RETURNING id, url, title, description, caption, uploaded_at AS "uploadedAt"`,
+      [
+        imageUrl,
+        req.body.title || req.body.caption || 'Untitled',
+        req.body.description || '',
+        req.body.caption || ''
+      ]
+    );
     
-    const photo = new GalleryPhoto(photoData);
-    await photo.save();
-    res.status(201).json(photo);
+    res.status(201).json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(400).json({ message: 'Error uploading photo', error: error.message });
+    next(error);
   }
 });
 
 // PUT update photo caption
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireStaffAuth, async (req, res, next) => {
   try {
-    const photo = await GalleryPhoto.findByIdAndUpdate(
-      req.params.id, 
-      { caption: req.body.caption }, 
-      { new: true }
-    );
-    if (!photo) {
-      return res.status(404).json({ message: 'Photo not found' });
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (req.body.caption !== undefined) { updates.push(`caption = $${paramIndex++}`); values.push(req.body.caption); }
+    if (req.body.title !== undefined) { updates.push(`title = $${paramIndex++}`); values.push(req.body.title); }
+    if (req.body.description !== undefined) { updates.push(`description = $${paramIndex++}`); values.push(req.body.description); }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, message: 'No fields to update' });
     }
-    res.json(photo);
+
+    values.push(req.params.id);
+    const query = `UPDATE gallery_photos SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING id, url, title, description, caption, uploaded_at AS "uploadedAt"`;
+    
+    const result = await pool.query(query, values);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Photo not found' });
+    }
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
-    res.status(400).json({ message: 'Error updating photo', error: error.message });
+    next(error);
   }
 });
 
 // DELETE photo
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireStaffAuth, async (req, res, next) => {
   try {
-    const photo = await GalleryPhoto.findByIdAndDelete(req.params.id);
-    if (!photo) {
-      return res.status(404).json({ message: 'Photo not found' });
+    const result = await pool.query('DELETE FROM gallery_photos WHERE id = $1 RETURNING id', [req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Photo not found' });
     }
-    res.json({ message: 'Photo deleted successfully' });
+    res.json({ success: true, data: { message: 'Photo deleted successfully' } });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting photo', error: error.message });
+    next(error);
   }
 });
 

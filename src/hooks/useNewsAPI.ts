@@ -1,20 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/charityDashboardAPI';
 
+const NEWS_API_KEY = 'news-api';
+
 // Hook to fetch all news
 export const useNews = () => {
   return useQuery({
     queryKey: ['news'],
     queryFn: async () => {
-      console.log('🔍 Fetching news data from Node.js API...');
-      const data = await api.getAllNews();
-      console.log('✅ News data fetched successfully:', data);
-      return data;
+      try {
+        const data = await api.getAllNews();
+        if (data && data.length > 0) {
+        }
+        return data || [];
+      } catch (error: any) {
+        throw error;
+      }
     },
-    retry: 3,
-    retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: (failureCount, error) => {
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
     refetchOnWindowFocus: false,
+    refetchOnMount: true, // ensure fresh data after navigation
   });
 };
 
@@ -35,20 +45,18 @@ export const useCreateNews = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ title, content, image }: {
+    mutationFn: async ({ title, content, category, image }: {
       title: string;
       content: string;
+      category?: string;
       image?: File;
     }) => {
-      console.log('📝 Creating news article...');
-      return await api.createNews(title, content, image);
+      return await api.createNews(title, content, category, image);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] });
-      console.log('✅ News created and cache invalidated');
     },
     onError: (error) => {
-      console.error('❌ Error creating news:', error);
     },
   });
 };
@@ -64,15 +72,12 @@ export const useUpdateNews = () => {
       content: string;
       image?: File;
     }) => {
-      console.log('📝 Updating news article...');
       return await api.updateNews(id, title, content, image);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] });
-      console.log('✅ News updated and cache invalidated');
     },
     onError: (error) => {
-      console.error('❌ Error updating news:', error);
     },
   });
 };
@@ -83,15 +88,12 @@ export const useDeleteNews = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      console.log('🗑️ Deleting news article...');
       return await api.deleteNews(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] });
-      console.log('✅ News deleted and cache invalidated');
     },
     onError: (error) => {
-      console.error('❌ Error deleting news:', error);
     },
   });
 };

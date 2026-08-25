@@ -1,10 +1,10 @@
 
-import React from 'react';
-import { LogIn } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useHeaderState } from '@/hooks/useHeaderState';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSecretAccess } from '@/hooks/useSecretAccess';
 import HeaderLogo from './header/HeaderLogo';
 import NavigationItems from './header/NavigationItems';
 import LanguageSelector from './header/LanguageSelector';
@@ -12,28 +12,91 @@ import MobileMenu from './header/MobileMenu';
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useLanguage();
   const {
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     isScrolled,
     isInHeroSection,
-    activeSection
+    activeSection,
+    setActiveSection: setActiveSectionFromHook
   } = useHeaderState();
+
+  const setActiveSection = (section: string) => {
+    if (typeof setActiveSectionFromHook === 'function') {
+      setActiveSectionFromHook(section);
+    }
+  };
+
+  // Initialize secret access (Ctrl+Alt+A or triple-click logo)
+  useSecretAccess({
+    enabled: true,
+    keySequence: ['Control', 'Alt', 'KeyA'],
+    clickSequence: {
+      selector: '.logo-trigger',
+      clicks: 3,
+      timeWindow: 2000
+    }
+  });
+
+  const [pendingSection, setPendingSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingSection) return;
+
+    const targetHash = pendingSection === 'home' ? '' : `#${pendingSection}`;
+    if (targetHash) {
+      window.history.replaceState(null, '', targetHash);
+    } else {
+      window.history.replaceState(null, '', '/');
+    }
+
+    const element = document.getElementById(pendingSection);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (pendingSection === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    setActiveSection(pendingSection);
+    setIsMobileMenuOpen(false);
+    setPendingSection(null);
+  }, [location.pathname, pendingSection, setActiveSection, setIsMobileMenuOpen]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     setIsMobileMenuOpen(false);
   };
 
   const handleNavigation = (item: any) => {
+    console.log(`🔘 Navigation clicked: ${item.id}`);
     if (item.id === 'home') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (location.pathname !== '/') {
+        setPendingSection('home');
+        navigate('/');
+      } else {
+        window.history.replaceState(null, '', '/');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setActiveSection('home');
+        setIsMobileMenuOpen(false);
+      }
+      console.log('🏠 Set active section to: home');
+      return;
+    }
+
+    if (location.pathname !== '/') {
+      setPendingSection(item.id);
+      navigate('/');
     } else {
+      const targetHash = `#${item.id}`;
+      window.history.replaceState(null, '', targetHash);
       scrollToSection(item.id);
+      setActiveSection(item.id);
+      console.log(`🎯 Set active section to: ${item.id}`);
     }
   };
 
@@ -98,18 +161,6 @@ const Header = () => {
 
           <div className="flex items-center space-x-2 sm:space-x-4">
             <LanguageSelector getSelectStyling={getSelectStyling} />
-
-            {/* Sign Up Button - hidden on small mobile */}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="hidden sm:flex bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover-lift touch-manipulation text-sm"
-              onClick={() => navigate('/signup')}
-            >
-              <LogIn className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden md:inline">{t('signUp')}</span>
-              <span className="md:hidden">{t('join')}</span>
-            </Button>
 
             <MobileMenu 
               isMobileMenuOpen={isMobileMenuOpen}

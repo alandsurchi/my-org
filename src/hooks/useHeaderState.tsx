@@ -31,28 +31,32 @@ export const useHeaderState = () => {
           if (entry.isIntersecting) {
             const sectionId = entry.target.id;
             if (sectionId) {
+              console.log(`🎯 Section "${sectionId}" is now active (intersecting)`);
               setActiveSection(sectionId);
             } else {
               // If no id, assume it's the hero section (home)
+              console.log('🏠 Setting home as active section (no section ID found)');
               setActiveSection('home');
             }
           }
         });
       },
       {
-        threshold: 0.3, // Section needs to be 30% visible to be considered active
-        rootMargin: '-100px 0px -100px 0px' // Offset to account for header height
+        threshold: 0.15, // Section needs to be 15% visible to be considered active (more responsive)
+        rootMargin: '-80px 0px -80px 0px' // Offset to account for header height
       }
     );
 
     // Observe all sections
     const sections = document.querySelectorAll('section');
-    sections.forEach((section, index) => {
-      if (index === 0 && !section.id) {
-        // First section without ID is assumed to be hero/home
+    console.log(`📍 Found ${sections.length} sections to observe:`);
+    sections.forEach((section) => {
+      // Observe all sections that have an id attribute
+      if (section.id) {
+        console.log(`  ✅ Observing section: #${section.id}`);
         observer.observe(section);
-      } else if (section.id) {
-        observer.observe(section);
+      } else {
+        console.log(`  ⚠️ Skipping section without ID`);
       }
     });
 
@@ -64,6 +68,7 @@ export const useHeaderState = () => {
     setIsMobileMenuOpen,
     isScrolled,
     isInHeroSection,
-    activeSection
+    activeSection,
+    setActiveSection
   };
 };

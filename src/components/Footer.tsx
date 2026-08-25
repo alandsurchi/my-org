@@ -1,10 +1,34 @@
 
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Facebook, Instagram, X } from 'lucide-react';
+import { Facebook, Instagram, Youtube } from 'lucide-react';
 
 const Footer = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleSectionClick = (event: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    event.preventDefault();
+
+    if (sectionId === 'home') {
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
+      window.history.replaceState(null, '', '/');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (location.pathname !== '/') {
+      navigate('/');
+    }
+
+    const targetHash = `#${sectionId}`;
+    window.history.replaceState(null, '', targetHash);
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  };
 
   return (
     <footer className="bg-gray-900 text-white py-12">
@@ -27,34 +51,50 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('quickLinks')}</h3>
             <ul className="space-y-2">
-              <li><a href="#about" className="text-gray-400 hover:text-white transition-colors">{t('about')}</a></li>
-              <li><a href="#projects" className="text-gray-400 hover:text-white transition-colors">{t('projects')}</a></li>
-              <li><a href="#news" className="text-gray-400 hover:text-white transition-colors">{t('news')}</a></li>
-              <li><a href="#gallery" className="text-gray-400 hover:text-white transition-colors">{t('gallery')}</a></li>
-              <li><a href="#staff" className="text-gray-400 hover:text-white transition-colors">{t('staff')}</a></li>
+              <li><a href="#about" onClick={(event) => handleSectionClick(event, 'about')} className="text-gray-400 hover:text-white transition-colors">{t('about')}</a></li>
+              <li><a href="#projects" onClick={(event) => handleSectionClick(event, 'projects')} className="text-gray-400 hover:text-white transition-colors">{t('projects')}</a></li>
+              <li><a href="#news" onClick={(event) => handleSectionClick(event, 'news')} className="text-gray-400 hover:text-white transition-colors">{t('news')}</a></li>
+              <li><a href="#gallery" onClick={(event) => handleSectionClick(event, 'gallery')} className="text-gray-400 hover:text-white transition-colors">{t('gallery')}</a></li>
             </ul>
           </div>
 
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('contactInfo')}</h3>
             <ul className="space-y-2 text-gray-400">
-              <li>📧 info@mrovdostan.org</li>
-              <li>📱 +964 750 123 4567</li>
-              <li>📍 Erbil, Kurdistan Region, Iraq</li>
+              <li>📧 ohumanism@gmail.com</li>
+              <li>📍 Kurdistan Region, Iraq</li>
             </ul>
           </div>
 
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('followUs')}</h3>
             <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+              <a 
+                href="https://www.facebook.com/mrovdostanorganization" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
+                aria-label="Facebook"
+              >
                 <Facebook className="w-5 h-5 text-white" />
               </a>
-              <a href="#" className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-600 transition-colors">
+              <a 
+                href="https://www.instagram.com/mrov.dostan?igsh=Mmk0a3Mzb2d5MTdr" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-600 transition-colors"
+                aria-label="Instagram"
+              >
                 <Instagram className="w-5 h-5 text-white" />
               </a>
-              <a href="#" className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors">
-                <X className="w-5 h-5 text-white" />
+              <a 
+                href="https://www.youtube.com/@mrovdostanorganization174" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition-colors"
+                aria-label="YouTube"
+              >
+                <Youtube className="w-5 h-5 text-white" />
               </a>
             </div>
           </div>
