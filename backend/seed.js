@@ -24,16 +24,14 @@ async function seedDatabase() {
     
     await client.query('BEGIN');
     
-    // Split by semicolons and execute each statement
-    const statements = seedSql.split(';').filter(s => s.trim() && !s.trim().startsWith('--'));
+    // Remove comment lines, then split by semicolons
+    const cleanSql = seedSql.split('\n').filter(l => !l.trim().startsWith('--')).join('\n');
+    const statements = cleanSql.split(';').map(s => s.trim()).filter(s => s.length > 0);
     for (const stmt of statements) {
-      const trimmed = stmt.trim();
-      if (trimmed) {
-        try {
-          await client.query(trimmed);
-        } catch (err) {
-          console.warn('  ⚠️ Seed statement warning:', err.message.substring(0, 80));
-        }
+      try {
+        await client.query(stmt);
+      } catch (err) {
+        console.warn('  ⚠️ Seed statement warning:', err.message.substring(0, 80));
       }
     }
     
