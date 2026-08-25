@@ -9,10 +9,8 @@ async function seedDatabase() {
     const result = await client.query('SELECT COUNT(*) FROM users');
     const count = parseInt(result.rows[0].count);
     
-    if (count > 1) {
-      console.log('📦 Database already seeded (' + count + ' users). Skipping.');
-      return;
-    }
+    // Always run user upserts (they use ON CONFLICT DO UPDATE, safe to re-run)
+    // Only skip news/projects if already seeded
 
     // Read and execute seed SQL
     const seedPath = path.join(__dirname, 'seed-data.sql');
