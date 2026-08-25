@@ -140,6 +140,10 @@ async function startServer() {
     
     // Create default admin after DB connection
     await createDefaultAdmin();
+    
+    // Seed database with migrated data if empty
+    const seedDatabase = require('./seed');
+    await seedDatabase();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error.message);
     console.log('⚠️ Server will continue running without database connection');
