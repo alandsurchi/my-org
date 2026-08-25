@@ -113,32 +113,3 @@ router.get('/users', authenticateToken, async (req, res) => {
 });
 
 module.exports = router;
-
-// POST /api/auth/cleanup-duplicates - One-time cleanup of duplicate records
-router.post('/cleanup-duplicates', authenticateToken, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'Admin access required' });
-    }
-    
-    // Delete duplicate news
-    const newsBefore = await pool.query('SELECT COUNT(*) FROM news');
-    await pool.query('DELETE FROM news WHERE id NOT IN (SELECT MIN(id) FROM news GROUP BY title, content)');
-    const newsAfter = await pool.query('SELECT COUNT(*) FROM news');
-    
-    // Delete duplicate projects
-    const projBefore = await pool.query('SELECT COUNT(*) FROM projects');
-    await pool.query('DELETE FROM projects WHERE id NOT IN (SELECT MIN(id) FROM projects GROUP BY title, description)');
-    const projAfter = await pool.query('SELECT COUNT(*) FROM projects');
-    
-    res.json({
-      success: true,
-      data: {
-        news: { before: parseInt(newsBefore.rows[0].count), after: parseInt(newsAfter.rows[0].count) },
-        projects: { before: parseInt(projBefore.rows[0].count), after: parseInt(projAfter.rows[0].count) }
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-});

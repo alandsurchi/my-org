@@ -1,7 +1,7 @@
 -- Seed data from MongoDB migration
 -- Runs on every startup (uses UPSERT, safe to re-run)
 
-INSERT INTO users (name, email, password, role, created_at) VALUES ('Default Admin', 'admin@charity.com', '$2b$12$3tq.1AwIdmsiAisPbKBzbuTCJTXbv7gE0CY0zyNqC2DdzPduQFdlG', 'admin', '2026-05-25T19:22:23.882Z') ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password, name = EXCLUDED.name, role = EXCLUDED.role;
+INSERT INTO users (name, email, password, role, created_at) VALUES ('Default Admin', 'admin@charity.com', '$2b$10$yocll2NKL2xSaD8U5eJgfeV9KWjnhHIcM8Th.E1e.3gigsVZi5r3C', 'admin', '2026-05-25T19:22:23.882Z') ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password, name = EXCLUDED.name, role = EXCLUDED.role;
 INSERT INTO users (name, email, password, role, created_at) VALUES ('Staff Test', 'staff-role-check@example.com', '$2b$10$oVWA.gJZIQP0YNiF4rRhEuWwvlKE3sb9Sb7UxEEtlyy1uN7t3XlGG', 'staff', '2026-08-02T22:09:09.136Z') ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password, name = EXCLUDED.name, role = EXCLUDED.role;
 INSERT INTO news (title, content, category, image_url, created_at, updated_at) VALUES ('سەردانی فەرمی بۆ رێکخراوی تەندروستی', 'لە ڕۆژی دووشەممە، ٢٠٢٥/٠١/١٠، وەفدێکی ڕێکخراوی مرۆڤدۆستان سەردانی رێکخراوی تەندروستی جیهانی کرد بۆ باسکردنی پرۆژەکانی هاوبەش', 'KurdishVisitors', NULL, '2026-05-25T19:28:36.566Z', '2026-05-25T19:28:36.593Z') ON CONFLICT DO NOTHING;
 INSERT INTO news (title, content, category, image_url, created_at, updated_at) VALUES ('وەرگرتنی سوپاس و پێزانین', 'رێکخراوەکەمان بەڕێزنامەی سوپاسی لە لایەن وەزارەتی تەندروستیەوە ڕێزی لێ نرا بۆ کارە مرۆڤدۆستییەکانمان', 'KurdishCertificate', NULL, '2026-05-25T19:28:36.666Z', '2026-05-25T19:28:36.668Z') ON CONFLICT DO NOTHING;
