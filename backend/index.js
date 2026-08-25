@@ -69,14 +69,14 @@ const createDefaultAdmin = async () => {
     if (result.rows.length === 0) {
       const bcrypt = require('bcrypt');
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('admin123', salt);
+      const hashedPassword = await bcrypt.hash('REMOVED_PASSWORD', salt);
       await pool.query(
         `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)`,
         ['Default Admin', 'admin@charity.com', hashedPassword, 'admin']
       );
       console.log('🔑 Default admin user created:');
       console.log('   Email: admin@charity.com');
-      console.log('   Password: admin123');
+      console.log('   Password: REMOVED_PASSWORD');
       console.log('   Role: admin');
     } else {
       console.log('✅ Admin user already exists: admin@charity.com');
