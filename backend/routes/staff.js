@@ -10,7 +10,7 @@ const SUPER_ADMINS = process.env.SUPER_ADMINS ? process.env.SUPER_ADMINS.split('
   'aland.raed.othman@gmail.com'
 ];
 
-const SELECT_USER_SAFE = 'SELECT id, name, email, role, created_at AS "createdAt" FROM users';
+const SELECT_USER_SAFE = 'SELECT id, name, email, role, created_at AS "createdAt"';
 
 const verifySuperAdmin = async (req, res, next) => {
   try {
