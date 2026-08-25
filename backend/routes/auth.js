@@ -78,12 +78,10 @@ router.post('/login', staffLoginLimiter, auditLog('LOGIN_ATTEMPT'), loginValidat
     const isSuperAdmin = SUPER_ADMINS.includes(user.email);
     res.json({
       success: true,
-      data: {
-        message: 'Login successful',
-        token,
-        expiresIn: sessionTimeout,
-        user: { id: user.id, name: user.name, email: user.email, role: user.role, isSuperAdmin }
-      }
+      message: 'Login successful',
+      token,
+      expiresIn: sessionTimeout,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, isSuperAdmin }
     });
   } catch (error) {
     next(error);
