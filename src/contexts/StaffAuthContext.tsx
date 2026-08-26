@@ -61,27 +61,42 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await response.json().catch(() => null);
+      
       if (!response.ok) {
+        console.error('Login failed:', response.status, data);
         return false;
       }
 
-      const data = await response.json();
+      // Handle both response formats:
+      // Format 1: { success, token, user } (direct)
+      // Format 2: { success, data: { token, user } } (wrapped)
+      const token = data.token || data?.data?.token;
+      const userData = data.user || data?.data?.user;
+
+      if (!token || !userData) {
+        console.error('Login response missing token or user:', data);
+        return false;
+      }
 
       const user: StaffUser = {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name || email.split('@')[0],
-        role: data.user.role,
-        isSuperAdmin: data.user.isSuperAdmin || false
+        id: userData.id?.toString(),
+        email: userData.email,
+        name: userData.name || email.split('@')[0],
+        role: userData.role,
+        isSuperAdmin: userData.isSuperAdmin || false
       };
 
       setStaffUser(user);
       localStorage.setItem('staffUser', JSON.stringify(user));
-      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('authToken', token);
       localStorage.setItem('sessionTimestamp', Date.now().toString());
+      // Clear any stale lockout data
+      localStorage.removeItem('staffLoginAttempts');
       
       return true;
     } catch (error) {
+      console.error('Login error:', error);
       return false;
     }
   };

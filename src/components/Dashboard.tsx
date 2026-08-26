@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { config } from '@/config/env';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -392,7 +393,7 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
     if (heroImage?.url) {
       const fullUrl = heroImage.url.startsWith('http') 
         ? heroImage.url 
-        : `http://localhost:5000${heroImage.url}`;
+        : `${config.apiUrl.replace(/\/api$/, '')}${heroImage.url}`;
       setImageToCrop(fullUrl);
       setCropImageType('hero');
       setCropDialogOpen(true);
@@ -424,7 +425,7 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
     if (aboutImage?.url) {
       const fullUrl = aboutImage.url.startsWith('http') 
         ? aboutImage.url 
-        : `http://localhost:5000${aboutImage.url}`;
+        : `${config.apiUrl.replace(/\/api$/, '')}${aboutImage.url}`;
       setImageToCrop(fullUrl);
       setCropImageType('about');
       setCropDialogOpen(true);
@@ -460,37 +461,6 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      for (const file of Array.from(files)) {
-        const result = await fileUploadMutation.mutateAsync(file);
-        if (result?.url) {
-          await createWebsiteImage.mutateAsync({
-            category: 'website',
-            image_url: result.url,
-            alt_text: file.name.replace(/\.[^/.]+$/, ""),
-            is_active: true
-          });
-        }
-      }
-      toast({
-        title: "Images uploaded successfully",
-        description: `${files.length} image(s) have been uploaded.`,
-      });
-      // Reset the file input
-      event.target.value = '';
-    }
-  };
-
-  const handleDeleteImage = async (id: string) => {
-    await deleteWebsiteImage.mutateAsync(id);
-    toast({
-      title: "Image deleted",
-      description: "The image has been removed successfully.",
-    });
-  };
-
   const handleGalleryUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     
@@ -522,8 +492,10 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
           formData.append('description', galleryForm.description);
           
           // Upload directly to backend
-          const response = await fetch('http://localhost:5000/api/gallery', {
+          const authToken = localStorage.getItem('authToken') || localStorage.getItem('auth_token') || '';
+          const response = await fetch(`${config.apiUrl}/gallery`, {
             method: 'POST',
+            headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
             body: formData,
           });
 
@@ -1735,8 +1707,7 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                       </Button>
                     </div>
                     <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
-                      <img 
-                        src={heroImage.url?.startsWith('http') ? heroImage.url : `http://localhost:5000${heroImage.url}`}
+                      <img                         src={heroImage.url?.startsWith('http') ? heroImage.url : `${config.apiUrl.replace(/\/api$/, '')}${heroImage.url}`}
                         alt="Current hero image"
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -1817,8 +1788,7 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                       </Button>
                     </div>
                     <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
-                      <img 
-                        src={aboutImage.url?.startsWith('http') ? aboutImage.url : `http://localhost:5000${aboutImage.url}`}
+                      <img                         src={aboutImage.url?.startsWith('http') ? aboutImage.url : `${config.apiUrl.replace(/\/api$/, '')}${aboutImage.url}`}
                         alt="Current about image"
                         className="w-full h-full object-cover"
                         onError={(e) => {

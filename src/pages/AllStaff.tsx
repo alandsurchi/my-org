@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useStaff } from '@/hooks/useStaffAPI';
+import { useStaffMembers } from '@/hooks/useStaffAPI';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -16,12 +16,10 @@ const AllStaff = () => {
   const { data: staffMembers = [], isLoading } = useStaffMembers();
 
   const filteredStaff = staffMembers.filter(member => {
-    const name = member.name_en || '';
-    const position = member.position_en || '';
-    const bio = member.bio_en || '';
+    const name = member.name || '';
+    const role = member.role || '';
     return name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           bio.toLowerCase().includes(searchTerm.toLowerCase());
+           role.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   if (isLoading) {
@@ -88,8 +86,8 @@ const AllStaff = () => {
                       <div className="relative mx-auto w-24 h-24 mb-4">
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 rounded-full p-1">
                           <img
-                            src={member.image_url || 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'}
-                            alt={member.name_en}
+                            src={member.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=6366f1&color=fff&size=200`}
+                            alt={member.name}
                             className="w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-105"
                             loading="lazy"
                           />
@@ -99,15 +97,9 @@ const AllStaff = () => {
                     
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
-                        {member.name_en}
+                        {member.name}
                       </h3>
-                      <p className="text-blue-600 font-semibold text-sm uppercase tracking-wider">{member.position_en}</p>
-                      
-                      {member.bio_en && (
-                        <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                          {member.bio_en}
-                        </p>
-                      )}
+                      <p className="text-blue-600 font-semibold text-sm uppercase tracking-wider">{member.role === 'super_admin' ? 'Super Admin' : member.role === 'admin' ? 'Admin' : 'Staff'}</p>
                       
                       {member.email && (
                         <p className="text-gray-500 text-xs">{member.email}</p>
