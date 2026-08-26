@@ -6,8 +6,8 @@ export const useHeroImage = () => {
   return useQuery({
     queryKey: ['hero'],
     queryFn: async () => {
-      const data = await api.getHeroImage();
-      return data;
+      const result = await api.getHeroImage();
+      return result.data;
     },
     retry: 3,
     retryDelay: 1000,

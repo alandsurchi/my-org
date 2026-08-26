@@ -6,8 +6,8 @@ export const useAboutImage = () => {
   return useQuery({
     queryKey: ['about'],
     queryFn: async () => {
-      const data = await api.getAboutImage();
-      return data;
+      const result = await api.getAboutImage();
+      return result.data;
     },
     retry: 3,
     retryDelay: 1000,
