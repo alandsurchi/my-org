@@ -50,14 +50,14 @@ app.use(securityHeaders);
 // CORS
 // ---------------------------------------------------------------------------
 // Auth uses Bearer tokens (no cookies), so accepting any origin is safe: a
-// foreign page cannot read our token. By default every origin is accepted so
-// the frontend can live on any host (Railway, Vercel, localhost). Set
-// ALLOWED_ORIGINS to a comma-separated list to restrict it.
+// foreign page cannot read our token. Every origin is accepted so the
+// frontend can live on any host (Railway, Vercel, localhost). To restrict,
+// set CORS_STRICT=true together with ALLOWED_ORIGINS (comma-separated list).
 const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
-const restrictOrigins = configuredOrigins.length > 0 && process.env.CORS_ALLOW_ALL !== 'true';
+const restrictOrigins = process.env.CORS_STRICT === 'true' && configuredOrigins.length > 0;
 console.log('  CORS:', restrictOrigins ? `restricted to ${configuredOrigins.join(', ')}` : 'any origin');
 
 app.use(cors({

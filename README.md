@@ -61,7 +61,7 @@ DEFAULT_ADMIN_EMAIL=<your email>
 DEFAULT_ADMIN_PASSWORD=<initial password, remove after first login>
 ```
 
-`ALLOWED_ORIGINS` is optional. Leave it unset and the API accepts requests from any site (safe: auth is a Bearer token, not a cookie).
+The API accepts requests from any site (safe: auth is a Bearer token, not a cookie). To restrict it, set `CORS_STRICT=true` and `ALLOWED_ORIGINS=https://your-frontend-domain`.
 
 **Frontend web service** — Root directory `/`. It builds the site and runs `server.mjs`, which serves the files and proxies `/api` and `/uploads` to the backend, so the browser only talks to one origin. Variables:
 

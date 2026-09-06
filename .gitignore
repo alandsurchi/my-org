@@ -35,3 +35,7 @@ dist-ssr
 
 # tool artifacts
 .freebuff/
+
+# keep the examples
+!.env.example
+!backend/.env.example
