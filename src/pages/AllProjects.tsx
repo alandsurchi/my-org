@@ -115,7 +115,7 @@ const AllProjects = () => {
               />
             </div>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full lg:w-64 h-12 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-xl">
+              <SelectTrigger aria-label={t('category')} className="w-full lg:w-64 h-12 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-xl">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

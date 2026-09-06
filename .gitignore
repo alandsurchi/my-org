@@ -39,3 +39,9 @@ dist-ssr
 # keep the examples
 !.env.example
 !backend/.env.example
+
+# Playwright
+/test-results/
+/playwright-report/
+/e2e/.auth/
+backend/uploads-e2e/

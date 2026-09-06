@@ -134,7 +134,7 @@ const ProjectsSection = () => {
 
         <div className="flex justify-center mb-16 fade-in-on-scroll">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full lg:w-64 h-14 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-2xl focus:ring-2 focus:ring-blue-500/20">
+            <SelectTrigger aria-label={t('category')} className="w-full lg:w-64 h-14 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-2xl focus:ring-2 focus:ring-blue-500/20">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="rounded-2xl border-0 shadow-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">

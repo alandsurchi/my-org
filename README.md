@@ -45,7 +45,18 @@ npm run typecheck && npm run lint && npm run build     # frontend
 cd backend && npm test                                  # backend smoke test (needs DATABASE_URL, JWT_SECRET, DEFAULT_ADMIN_PASSWORD)
 ```
 
-The same checks run in GitHub Actions on every push (`.github/workflows/ci.yml`).
+### Browser tests (Playwright)
+
+`e2e/` boots the real backend and the production web server against a throwaway Postgres and drives Chrome through the public pages, login, dashboard editing, and an accessibility scan (axe, WCAG 2 A/AA):
+
+```bash
+npm run build
+DATABASE_URL=postgresql://... JWT_SECRET=... DEFAULT_ADMIN_EMAIL=admin@charity.com DEFAULT_ADMIN_PASSWORD=... npm run test:e2e
+```
+
+Locally it uses the installed Google Chrome. Failures leave screenshots and traces in `test-results/`.
+
+All of the above run in GitHub Actions on every push (`.github/workflows/ci.yml`): typecheck + lint + build, backend tests, then the browser tests with a report uploaded on failure.
 
 ## Deployment (Railway)
 
