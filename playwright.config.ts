@@ -17,7 +17,10 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${WEB_PORT}`,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    // Containers (Railway, CI) have a tiny /dev/shm; without this Chromium crashes with "Target crashed".
+    launchOptions: process.env.CI ? { args: ['--disable-dev-shm-usage', '--no-sandbox', '--disable-gpu'] } : undefined,
   },
+  workers: process.env.CI ? 1 : undefined,
   // Locally, reuse the Google Chrome already installed (no 200 MB download); CI installs Chromium.
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'], channel: process.env.CI ? undefined : 'chrome' } },

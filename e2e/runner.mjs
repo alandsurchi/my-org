@@ -114,7 +114,8 @@ async function runSuite() {
 
   const backend = await run('npm', ['test'], { cwd: path.join(root, 'backend'), env: { TEST_PORT: '5099' } });
   log += backend.out;
-  const backendSummary = `${summarize(backend.out, /# pass (\d+)/, '?')} passed, ${summarize(backend.out, /# fail (\d+)/, '?')} failed`;
+  // node --test prints "# pass N" (TAP) when piped and "ℹ pass N" (spec) on a TTY
+  const backendSummary = `${summarize(backend.out, /(?:#|ℹ) pass (\d+)/, '?')} passed, ${summarize(backend.out, /(?:#|ℹ) fail (\d+)/, '?')} failed`;
 
   const e2e = await run('npx', ['playwright', 'test', '--reporter=line']);
   log += e2e.out;
