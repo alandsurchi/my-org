@@ -26,6 +26,7 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 import ImageCropDialog from './ImageCropDialog';
 import ImageCropper from './ImageCropper';
 import PostEditDialog, { type EditablePost } from './admin/PostEditDialog';
+import { DayOfWeekSelect, DatePickerField } from './admin/DateFields';
 
 const resolveImage = (url?: string | null) => (url ? (url.startsWith('http') ? url : `${config.cdnUrl}${url}`) : null);
 
@@ -2053,19 +2054,11 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                   <Label>ڕۆژی هەفتە (Day of Week)</Label>
-                                  <Input
-                                    value={kurdishVisitorsFields.dayOfWeek}
-                                    onChange={(e) => setKurdishVisitorsFields(prev => ({ ...prev, dayOfWeek: e.target.value }))}
-                                    placeholder="نموونە: چوار شەممە"
-                                  />
+                                  <DayOfWeekSelect value={kurdishVisitorsFields.dayOfWeek} onChange={(v) => setKurdishVisitorsFields(prev => ({ ...prev, dayOfWeek: v }))} />
                                 </div>
                                 <div>
                                   <Label>بەروار (Date)</Label>
-                                  <Input
-                                    value={kurdishVisitorsFields.date}
-                                    onChange={(e) => setKurdishVisitorsFields(prev => ({ ...prev, date: e.target.value }))}
-                                    placeholder="نموونە: 25/01/2023"
-                                  />
+                                  <DatePickerField value={kurdishVisitorsFields.date} onChange={(v) => setKurdishVisitorsFields(prev => ({ ...prev, date: v }))} onDayOfWeek={(day) => setKurdishVisitorsFields(prev => ({ ...prev, dayOfWeek: day }))} />
                                 </div>
                                 <div>
                                   <Label>ناوی میوان (Visitor Name)</Label>
@@ -2131,19 +2124,11 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                   <Label>ڕۆژی هەفتە (Day of Week)</Label>
-                                  <Input
-                                    value={kurdishCertificateFields.dayOfWeek}
-                                    onChange={(e) => setKurdishCertificateFields(prev => ({ ...prev, dayOfWeek: e.target.value }))}
-                                    placeholder="نموونە: شەممە"
-                                  />
+                                  <DayOfWeekSelect value={kurdishCertificateFields.dayOfWeek} onChange={(v) => setKurdishCertificateFields(prev => ({ ...prev, dayOfWeek: v }))} />
                                 </div>
                                 <div>
                                   <Label>بەروار (Date)</Label>
-                                  <Input
-                                    value={kurdishCertificateFields.date}
-                                    onChange={(e) => setKurdishCertificateFields(prev => ({ ...prev, date: e.target.value }))}
-                                    placeholder="نموونە: 04/06/2022"
-                                  />
+                                  <DatePickerField value={kurdishCertificateFields.date} onChange={(v) => setKurdishCertificateFields(prev => ({ ...prev, date: v }))} onDayOfWeek={(day) => setKurdishCertificateFields(prev => ({ ...prev, dayOfWeek: day }))} />
                                 </div>
                                 <div>
                                   <Label>ناوی رێکخراوی میوان (Visiting Organization)</Label>
@@ -2213,19 +2198,11 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                   <Label>ڕۆژی هەفتە (Day of Week)</Label>
-                                  <Input
-                                    value={kurdishCertGroupFields.dayOfWeek}
-                                    onChange={(e) => setKurdishCertGroupFields(prev => ({ ...prev, dayOfWeek: e.target.value }))}
-                                    placeholder="نموونە: شەممە"
-                                  />
+                                  <DayOfWeekSelect value={kurdishCertGroupFields.dayOfWeek} onChange={(v) => setKurdishCertGroupFields(prev => ({ ...prev, dayOfWeek: v }))} />
                                 </div>
                                 <div>
                                   <Label>بەروار (Date)</Label>
-                                  <Input
-                                    value={kurdishCertGroupFields.date}
-                                    onChange={(e) => setKurdishCertGroupFields(prev => ({ ...prev, date: e.target.value }))}
-                                    placeholder="نموونە: 15/03/2023"
-                                  />
+                                  <DatePickerField value={kurdishCertGroupFields.date} onChange={(v) => setKurdishCertGroupFields(prev => ({ ...prev, date: v }))} onDayOfWeek={(day) => setKurdishCertGroupFields(prev => ({ ...prev, dayOfWeek: day }))} />
                                 </div>
                                 <div className="md:col-span-2">
                                   <Label>وەسفی چاڵاکی (Activity Description)</Label>
@@ -2303,19 +2280,11 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                   <Label>ڕۆژی هەفتە (Day of Week)</Label>
-                                  <Input
-                                    value={kurdishCertIndividualFields.dayOfWeek}
-                                    onChange={(e) => setKurdishCertIndividualFields(prev => ({ ...prev, dayOfWeek: e.target.value }))}
-                                    placeholder="نموونە: یەک شەممە"
-                                  />
+                                  <DayOfWeekSelect value={kurdishCertIndividualFields.dayOfWeek} onChange={(v) => setKurdishCertIndividualFields(prev => ({ ...prev, dayOfWeek: v }))} />
                                 </div>
                                 <div>
                                   <Label>بەروار (Date)</Label>
-                                  <Input
-                                    value={kurdishCertIndividualFields.date}
-                                    onChange={(e) => setKurdishCertIndividualFields(prev => ({ ...prev, date: e.target.value }))}
-                                    placeholder="نموونە: 20/04/2023"
-                                  />
+                                  <DatePickerField value={kurdishCertIndividualFields.date} onChange={(v) => setKurdishCertIndividualFields(prev => ({ ...prev, date: v }))} onDayOfWeek={(day) => setKurdishCertIndividualFields(prev => ({ ...prev, dayOfWeek: day }))} />
                                 </div>
                                 <div className="md:col-span-2">
                                   <Label>وەسفی خزمەتگوزاری (Service Description)</Label>
@@ -2382,11 +2351,11 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <Label>ڕۆژی هەفتە (Day of Week)</Label>
-                                  <Input value={kurdishTemplateFields.dayOfWeek} onChange={(e) => setKurdishTemplateFields(prev => ({ ...prev, dayOfWeek: e.target.value }))} />
+                                  <DayOfWeekSelect value={kurdishTemplateFields.dayOfWeek} onChange={(v) => setKurdishTemplateFields(prev => ({ ...prev, dayOfWeek: v }))} />
                                 </div>
                                 <div>
                                   <Label>بەروار (Date)</Label>
-                                  <Input value={kurdishTemplateFields.date} onChange={(e) => setKurdishTemplateFields(prev => ({ ...prev, date: e.target.value }))} />
+                                  <DatePickerField value={kurdishTemplateFields.date} onChange={(v) => setKurdishTemplateFields(prev => ({ ...prev, date: v }))} onDayOfWeek={(day) => setKurdishTemplateFields(prev => ({ ...prev, dayOfWeek: day }))} />
                                 </div>
                               </div>
                               <div>
@@ -2659,19 +2628,11 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
                                 <Label>ڕۆژی هەفتە (Day of Week)</Label>
-                                <Input
-                                  value={kurdishProvisionFields.dayOfWeek}
-                                  onChange={(e) => setKurdishProvisionFields(prev => ({ ...prev, dayOfWeek: e.target.value }))}
-                                  placeholder="نموونە: شەممە"
-                                />
+                                <DayOfWeekSelect value={kurdishProvisionFields.dayOfWeek} onChange={(v) => setKurdishProvisionFields(prev => ({ ...prev, dayOfWeek: v }))} />
                               </div>
                               <div>
                                 <Label>بەروار (Date)</Label>
-                                <Input
-                                  value={kurdishProvisionFields.date}
-                                  onChange={(e) => setKurdishProvisionFields(prev => ({ ...prev, date: e.target.value }))}
-                                  placeholder="نموونە: 02/08/2025"
-                                />
+                                <DatePickerField value={kurdishProvisionFields.date} onChange={(v) => setKurdishProvisionFields(prev => ({ ...prev, date: v }))} onDayOfWeek={(day) => setKurdishProvisionFields(prev => ({ ...prev, dayOfWeek: day }))} />
                               </div>
                               <div className="md:col-span-2">
                                 <Label>چی دابین کرا (What Was Provided)</Label>
@@ -2746,19 +2707,11 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
                                 <Label>ڕۆژی هەفتە (Day of Week)</Label>
-                                <Input
-                                  value={kurdishDistributionFields.dayOfWeek}
-                                  onChange={(e) => setKurdishDistributionFields(prev => ({ ...prev, dayOfWeek: e.target.value }))}
-                                  placeholder="نموونە: سێ شەممە"
-                                />
+                                <DayOfWeekSelect value={kurdishDistributionFields.dayOfWeek} onChange={(v) => setKurdishDistributionFields(prev => ({ ...prev, dayOfWeek: v }))} />
                               </div>
                               <div>
                                 <Label>بەروار (Date)</Label>
-                                <Input
-                                  value={kurdishDistributionFields.date}
-                                  onChange={(e) => setKurdishDistributionFields(prev => ({ ...prev, date: e.target.value }))}
-                                  placeholder="نموونە: 29/07/2025"
-                                />
+                                <DatePickerField value={kurdishDistributionFields.date} onChange={(v) => setKurdishDistributionFields(prev => ({ ...prev, date: v }))} onDayOfWeek={(day) => setKurdishDistributionFields(prev => ({ ...prev, dayOfWeek: day }))} />
                               </div>
                               <div className="md:col-span-2">
                                 <Label>چی دابەش کرا (What Was Distributed)</Label>
@@ -2824,19 +2777,11 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
                                 <Label>ڕۆژی هەفتە (Day of Week)</Label>
-                                <Input
-                                  value={kurdishRenovationFields.dayOfWeek}
-                                  onChange={(e) => setKurdishRenovationFields(prev => ({ ...prev, dayOfWeek: e.target.value }))}
-                                  placeholder="نموونە: شەممە"
-                                />
+                                <DayOfWeekSelect value={kurdishRenovationFields.dayOfWeek} onChange={(v) => setKurdishRenovationFields(prev => ({ ...prev, dayOfWeek: v }))} />
                               </div>
                               <div>
                                 <Label>بەروار (Date)</Label>
-                                <Input
-                                  value={kurdishRenovationFields.date}
-                                  onChange={(e) => setKurdishRenovationFields(prev => ({ ...prev, date: e.target.value }))}
-                                  placeholder="نموونە: 11/10/2025"
-                                />
+                                <DatePickerField value={kurdishRenovationFields.date} onChange={(v) => setKurdishRenovationFields(prev => ({ ...prev, date: v }))} onDayOfWeek={(day) => setKurdishRenovationFields(prev => ({ ...prev, dayOfWeek: day }))} />
                               </div>
                               <div className="md:col-span-2">
                                 <Label>چی نۆژەن کرایەوە (What Was Renovated)</Label>
@@ -2902,19 +2847,11 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                               </div>
                               <div>
                                 <Label>ڕۆژی هەفتە (Day of Week)</Label>
-                                <Input
-                                  value={kurdishBuildingFields.dayOfWeek}
-                                  onChange={(e) => setKurdishBuildingFields(prev => ({ ...prev, dayOfWeek: e.target.value }))}
-                                  placeholder="نموونە: شەممە"
-                                />
+                                <DayOfWeekSelect value={kurdishBuildingFields.dayOfWeek} onChange={(v) => setKurdishBuildingFields(prev => ({ ...prev, dayOfWeek: v }))} />
                               </div>
                               <div>
                                 <Label>بەروار (Date)</Label>
-                                <Input
-                                  value={kurdishBuildingFields.date}
-                                  onChange={(e) => setKurdishBuildingFields(prev => ({ ...prev, date: e.target.value }))}
-                                  placeholder="نموونە: 11/10/2025"
-                                />
+                                <DatePickerField value={kurdishBuildingFields.date} onChange={(v) => setKurdishBuildingFields(prev => ({ ...prev, date: v }))} onDayOfWeek={(day) => setKurdishBuildingFields(prev => ({ ...prev, dayOfWeek: day }))} />
                               </div>
                               <div>
                                 <Label>دروست کرا بۆ (Built For)</Label>
