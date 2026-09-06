@@ -5,8 +5,9 @@ import { Calendar, X, Award, Users, Building, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { config } from '../config/env';
+import type { NewsItem } from '@/lib/apiClient';
 
-interface NewsItem {
+export interface DialogNewsItem {
   id: string;
   title_en: string;
   description_en: string;
@@ -15,8 +16,18 @@ interface NewsItem {
   date: string;
 }
 
+/** Converts an API news item (or legacy shape) into what the dialog renders. */
+export const toDialogNewsItem = (item: Partial<NewsItem> & { id: number | string; title_en?: string; description_en?: string; description?: string; image_url?: string | null; date?: string }): DialogNewsItem => ({
+  id: String(item.id),
+  title_en: item.title ?? item.title_en ?? '',
+  description_en: item.content ?? item.description_en ?? item.description ?? '',
+  category: item.category ?? 'placesVisited',
+  image_url: item.imageUrl ?? item.image_url ?? undefined,
+  date: item.createdAt ?? item.date ?? new Date().toISOString(),
+});
+
 interface NewsDetailDialogProps {
-  newsItem: NewsItem | null;
+  newsItem: DialogNewsItem | null;
   isOpen: boolean;
   onClose: () => void;
 }

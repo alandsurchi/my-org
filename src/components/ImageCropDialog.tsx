@@ -19,7 +19,7 @@ interface CroppedArea {
   height: number;
 }
 
-interface CroppedAreaPixels extends CroppedArea {}
+type CroppedAreaPixels = CroppedArea;
 
 export default function ImageCropDialog({
   open,
@@ -42,7 +42,7 @@ export default function ImageCropDialog({
   const createCroppedImage = async () => {
     if (!croppedAreaPixels) return;
 
-    try {
+    {
       const image = await createImage(imageSrc);
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -75,8 +75,6 @@ export default function ImageCropDialog({
           resolve(blob);
         }, 'image/jpeg', 0.95);
       });
-    } catch (e) {
-      throw e;
     }
   };
 
@@ -87,7 +85,8 @@ export default function ImageCropDialog({
         onCropComplete(croppedImageBlob);
         onClose();
       }
-    } catch (e) {
+    } catch {
+      // Cropping failed; the dialog stays open so the user can retry.
     }
   };
 

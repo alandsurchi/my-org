@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useHeaderState } from '@/hooks/useHeaderState';
@@ -23,11 +23,11 @@ const Header = () => {
     setActiveSection: setActiveSectionFromHook
   } = useHeaderState();
 
-  const setActiveSection = (section: string) => {
+  const setActiveSection = useCallback((section: string) => {
     if (typeof setActiveSectionFromHook === 'function') {
       setActiveSectionFromHook(section);
     }
-  };
+  }, [setActiveSectionFromHook]);
 
   // Initialize secret access (Ctrl+Alt+A or triple-click logo)
   useSecretAccess({
@@ -72,8 +72,7 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const handleNavigation = (item: any) => {
-    console.log(`🔘 Navigation clicked: ${item.id}`);
+  const handleNavigation = (item: { id: string }) => {
     if (item.id === 'home') {
       if (location.pathname !== '/') {
         setPendingSection('home');
@@ -84,7 +83,6 @@ const Header = () => {
         setActiveSection('home');
         setIsMobileMenuOpen(false);
       }
-      console.log('🏠 Set active section to: home');
       return;
     }
 
@@ -96,7 +94,6 @@ const Header = () => {
       window.history.replaceState(null, '', targetHash);
       scrollToSection(item.id);
       setActiveSection(item.id);
-      console.log(`🎯 Set active section to: ${item.id}`);
     }
   };
 

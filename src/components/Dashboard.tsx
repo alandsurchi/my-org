@@ -18,12 +18,22 @@ import { useNews, useCreateNews, useDeleteNews } from '@/hooks/useNewsAPI';
 // Use the API-backed hooks that handle FormData uploads
 import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks/useProjectsAPI';
 import { useGallery, useUploadGalleryPhoto, useDeletePhoto } from '@/hooks/useGalleryAPI';
-import { useStaffAccounts, useCreateStaffAccount, useDeleteStaffAccount, useCurrentUser, useUpdateStaffAccount } from '@/hooks/useStaffAccounts';
+import { useStaffAccounts, useCreateStaffAccount, useDeleteStaffAccount, useCurrentUser, useUpdateStaffAccount, type StaffAccount } from '@/hooks/useStaffAccounts';
+import type { NewsItem, Role, StaffUpdate } from '@/lib/apiClient';
 import { useHeroImage, useUploadHeroImage } from '@/hooks/useHeroAPI';
 import { useAboutImage, useUploadAboutImage } from '@/hooks/useAboutAPI';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import ImageCropDialog from './ImageCropDialog';
 import ImageCropper from './ImageCropper';
+
+interface LegacyNewsInput {
+  title?: string;
+  title_en?: string;
+  content?: string;
+  description?: string;
+  description_en?: string;
+  category?: string;
+}
 
 interface DashboardProps {
   userType: 'client' | 'staff';
@@ -39,7 +49,7 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
 
   // Real data from PostgreSQL database
   const { data: news = [] } = useNews();
-  const { data: projects = [] } = useProjects() as { data: any[] };
+  const { data: projects = [] } = useProjects();
   const { data: galleryItems = [] } = useGallery();
   const { data: staffAccounts = [] } = useStaffAccounts();
   const { data: heroImage } = useHeroImage();
@@ -291,7 +301,7 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
 
   // Announcement system state
   const [announcementCategory, setAnnouncementCategory] = useState<string>('');
-  const [announcementForm, setAnnouncementForm] = useState<any>({});
+  const [announcementForm, setAnnouncementForm] = useState<Record<string, string>>({});
   const [generatedAnnouncement, setGeneratedAnnouncement] = useState<string>('');
 
   // Template forms for each category
@@ -342,9 +352,6 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
   };
 
   // Edit states
-  const [editingNews, setEditingNews] = useState<any>(null);
-  const [editingProject, setEditingProject] = useState<any>(null);
-  const [editingStaff, setEditingStaff] = useState<any>(null);
 
   // Notifications state
   const [notifications, setNotifications] = useState([
@@ -585,9 +592,9 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
     });
   };
 
-  const handleEditStaffMember = (member: any) => {
+  const handleEditStaffMember = (member: StaffAccount) => {
     setEditStaffForm({
-      id: member.id || member._id,
+      id: member.id,
       name: member.name,
       email: member.email,
       role: member.role,
@@ -599,14 +606,14 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
   const handleUpdateStaffMember = async () => {
     if (editStaffForm.id && editStaffForm.name && editStaffForm.email && editStaffForm.role) {
       try {
-        const updateData: any = {
+        const updateData: StaffUpdate = {
           name: editStaffForm.name,
           email: editStaffForm.email,
-          role: editStaffForm.role
+          role: editStaffForm.role as Role
         };
         
         // Only include password if it was changed
-        if (editStaffForm.password && editStaffForm.password.length >= 6) {
+        if (editStaffForm.password && editStaffForm.password.length >= 8) {
           updateData.password = editStaffForm.password;
         }
 
@@ -638,8 +645,8 @@ At the same time, a delegation from (Humanitarian Organization) visited the (Dir
     }
   };
 
-  const handleCreateNews = async (customNews?: any) => {
-    const newsData = customNews || newsForm;
+  const handleCreateNews = async (customNews?: LegacyNewsInput) => {
+    const newsData: LegacyNewsInput = customNews || newsForm;
     const backendData = {
       title: newsData.title_en || newsData.title,
       content: newsData.description_en || newsData.content || newsData.description,
@@ -1189,22 +1196,22 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
     setTempNewsData({ date: '', title: '', content: '' });
   };
 
-  const handleEditBackendNewsItem = (item: any) => {
+  const handleEditBackendNewsItem = (item: NewsItem) => {
     if (editingNewsItem) {
       handleCancelEdit();
     }
     
-    const itemId = item._id || item.id;
+    const itemId = String(item.id);
     setEditingNewsItem(itemId);
     setTempNewsData({
-      date: item.date || new Date(item.createdAt).toLocaleDateString(),
-      title: item.title_en || item.title,
-      content: item.description_en || item.content
+      date: new Date(item.createdAt).toLocaleDateString(),
+      title: item.title,
+      content: item.content
     });
   };
 
-  const handleSaveBackendNewsItem = async (item: any) => {
-    const itemId = item._id || item.id;
+  const handleSaveBackendNewsItem = async (item: NewsItem) => {
+    const itemId = String(item.id);
     try {
       // Create a new updated item (since we don't have an update API, we'll create new and delete old)
       await createNews.mutateAsync({
@@ -1256,7 +1263,7 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
     resetTemplateFields('');
   };
 
-  const generateContentFromTemplate = (category: string, fields: any, date: string) => {
+  const generateContentFromTemplate = (category: string, fields: Record<string, string>, date: string) => {
     switch (category) {
       case 'Certificate Awarded':
         return {
@@ -1951,7 +1958,7 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                         {/* Image */}
                         <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                           <img 
-                            src={item.image_url || '/placeholder.svg'} 
+                            src={item.url || '/placeholder.svg'}
                             alt={item.title}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             onError={(e) => {
@@ -2510,7 +2517,7 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {(Array.isArray(news) ? news : [])
                       .map(item => {
-                        const itemId = item._id || item.id;
+                        const itemId = String(item.id);
                         return (
                         <Card 
                           key={itemId}
@@ -2546,13 +2553,13 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                               >
                                 {editingNewsItem === itemId ? (
                                   <Input
-                                    value={tempNewsData.date || item.date || new Date(item.createdAt).toLocaleDateString()}
+                                    value={tempNewsData.date || new Date(item.createdAt).toLocaleDateString()}
                                     onChange={(e) => setTempNewsData({...tempNewsData, date: e.target.value})}
                                     className="w-full bg-white text-gray-900 text-xs"
                                     placeholder="Enter date..."
                                   />
                                 ) : (
-                                  item.date || new Date(item.createdAt).toLocaleDateString()
+                                  new Date(item.createdAt).toLocaleDateString()
                                 )}
                               </Badge>
                             </div>
@@ -3090,7 +3097,7 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                         </Card>
                       ) : (
                         projects.map((project) => {
-                          const projectId = project._id || project.id;
+                          const projectId = String(project.id);
                           return (
                             <Card 
                               key={projectId}

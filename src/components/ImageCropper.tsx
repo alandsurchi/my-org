@@ -84,7 +84,8 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
         const croppedImage = await getCroppedImg(image, croppedAreaPixels, fileName);
         onCropComplete(croppedImage);
       }
-    } catch (e) {
+    } catch {
+      // Cropping failed; keep the dialog open so the user can retry.
     }
   }, [croppedAreaPixels, image, onCropComplete, fileName]);
 

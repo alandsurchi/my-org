@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useProjects } from '@/hooks/useProjectsAPI';
-import ProjectDetailDialog from '@/components/ProjectDetailDialog';
+import { useProjects, type Project } from '@/hooks/useProjectsAPI';
+import ProjectDetailDialog, { toDialogProject, type DialogProject } from '@/components/ProjectDetailDialog';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -15,9 +15,9 @@ const AllProjects = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [selectedProject, setSelectedProject] = useState<DialogProject | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-  const { data: projects = [], isLoading } = useProjects();
+  const { data: projects = [], isLoading, error } = useProjects();
 
   const getImageSrc = (url?: string) => {
     if (!url) return null;
@@ -34,19 +34,8 @@ const AllProjects = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleReadMore = (project: any) => {
-    // Transform project data to match dialog interface
-    const transformedProject = {
-      id: project._id || project.id,
-      title_en: project.title || project.title_en,
-      description_en: project.description || project.description_en,
-      category: project.category,
-      image_url: project.imageUrl || project.image_url,
-      location: project.location,
-      status: project.status,
-      created_at: project.createdAt || project.created_at
-    };
-    setSelectedProject(transformedProject);
+  const handleReadMore = (project: Project) => {
+    setSelectedProject(toDialogProject(project));
     setIsDetailDialogOpen(true);
   };
 
@@ -61,6 +50,27 @@ const AllProjects = () => {
         <Header />
         <div className="py-24 flex items-center justify-center">
           <div className="animate-pulse text-lg">Loading projects...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <div className="py-24 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-500 text-lg mb-2">Error loading projects</div>
+            <div className="text-gray-500 text-sm">{error.message}</div>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Retry
+            </button>
+          </div>
         </div>
         <Footer />
       </div>
@@ -139,7 +149,7 @@ const AllProjects = () => {
                 };
 
                 return (
-                  <div key={project._id || project.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <div key={project.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                     {imageUrl && (
                       <img 
                         src={imageUrl} 
@@ -153,7 +163,7 @@ const AllProjects = () => {
                           {getCategoryLabel(project.category)}
                         </span>
                         <span className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
-                          {project.isNewsProject ? 'News' : (project.status || 'active')}
+                          {project.status || 'active'}
                         </span>
                       </div>
                       <h3 className="text-xl font-bold text-gray-900 mb-3">{project.title || project.title_en}</h3>

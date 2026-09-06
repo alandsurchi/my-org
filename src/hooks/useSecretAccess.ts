@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStaffAuth } from '@/contexts/StaffAuthContext';
 
@@ -12,6 +12,13 @@ interface UseSecretAccessProps {
   };
 }
 
+const STAFF_LOGIN_PATH = '/staff-login';
+
+/**
+ * Hidden shortcuts to the staff login page:
+ * - press the key combination (default Ctrl+Alt+A), or
+ * - click the element matching `clickSequence.selector` N times quickly.
+ */
 export const useSecretAccess = ({
   enabled = true,
   keySequence = ['Control', 'Alt', 'KeyA'],
@@ -23,98 +30,75 @@ export const useSecretAccess = ({
 }: UseSecretAccessProps = {}) => {
   const navigate = useNavigate();
   const { logout } = useStaffAuth();
-  
-  // Always redirect to staff-login page for proper authentication
-  const staffLoginPath = '/staff-login';
 
-  // Track pressed keys
-  const pressedKeys = new Set<string>();
-  
-  // Track clicks
-  let clickCount = 0;
-  let lastClickTime = 0;
+  // Mutable trackers must survive re-renders, so they live in refs.
+  const pressedKeys = useRef(new Set<string>());
+  const clickCount = useRef(0);
+  const lastClickTime = useRef(0);
 
   const performSecretAccess = useCallback(() => {
-    // Always logout first to clear any existing session
+    // Always start from a clean session
     logout();
-    
-    // Clear any localStorage authentication data
     localStorage.removeItem('staffUser');
     localStorage.removeItem('staffAuthTimestamp');
     localStorage.removeItem('staffSessionExpiry');
-    
-    
-    // Navigate to login page
-    navigate(staffLoginPath, { replace: true });
-  }, [logout, navigate, staffLoginPath]);
+    navigate(STAFF_LOGIN_PATH, { replace: true, state: { fromSecret: true } });
+  }, [logout, navigate]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (!enabled) return;
+    pressedKeys.current.add(event.code);
+    pressedKeys.current.add(event.key);
 
-    pressedKeys.add(event.code);
-    pressedKeys.add(event.key);
-
-    // Check if all required keys are pressed
-    const allKeysPressed = keySequence.every(key => 
-      pressedKeys.has(key) || pressedKeys.has(key.toLowerCase())
+    const allKeysPressed = keySequence.every(
+      (key) => pressedKeys.current.has(key) || pressedKeys.current.has(key.toLowerCase())
     );
-
     if (allKeysPressed) {
       event.preventDefault();
+      pressedKeys.current.clear();
       performSecretAccess();
-      pressedKeys.clear();
     }
   }, [enabled, keySequence, performSecretAccess]);
 
   const handleKeyUp = useCallback((event: KeyboardEvent) => {
-    pressedKeys.delete(event.code);
-    pressedKeys.delete(event.key);
+    pressedKeys.current.delete(event.code);
+    pressedKeys.current.delete(event.key);
   }, []);
 
   const handleSecretClick = useCallback((event: Event) => {
     if (!enabled) return;
+    const now = Date.now();
+    if (now - lastClickTime.current > clickSequence.timeWindow) {
+      clickCount.current = 0;
+    }
+    clickCount.current += 1;
+    lastClickTime.current = now;
 
-    const currentTime = Date.now();
-    
-    // Reset click count if too much time has passed
-    if (currentTime - lastClickTime > clickSequence.timeWindow) {
-      clickCount = 0;
-    }
-    
-    clickCount++;
-    lastClickTime = currentTime;
-    
-    if (clickCount >= clickSequence.clicks) {
+    if (clickCount.current >= clickSequence.clicks) {
       event.preventDefault();
+      clickCount.current = 0;
       performSecretAccess();
-      clickCount = 0;
     }
-  }, [enabled, clickSequence, performSecretAccess]);
+  }, [enabled, clickSequence.clicks, clickSequence.timeWindow, performSecretAccess]);
 
   useEffect(() => {
     if (!enabled) return;
 
-    // Add keyboard listeners
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
 
-    // Add click listeners for secret elements
     const secretElements = document.querySelectorAll(clickSequence.selector);
-    secretElements.forEach(element => {
-      element.addEventListener('click', handleSecretClick);
-    });
+    secretElements.forEach((element) => element.addEventListener('click', handleSecretClick));
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
-      secretElements.forEach(element => {
-        element.removeEventListener('click', handleSecretClick);
-      });
+      secretElements.forEach((element) => element.removeEventListener('click', handleSecretClick));
     };
   }, [enabled, handleKeyDown, handleKeyUp, handleSecretClick, clickSequence.selector]);
 
   return {
-    staffLoginPath,
-    navigateToStaffLogin: () => performSecretAccess()
+    staffLoginPath: STAFF_LOGIN_PATH,
+    navigateToStaffLogin: performSecretAccess
   };
 };

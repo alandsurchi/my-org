@@ -1,51 +1,41 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '@/lib/charityDashboardAPI';
+import { apiClient, type ImageAsset } from '@/lib/apiClient';
 
-// Hook to fetch about image
 export const useAboutImage = () => {
-  return useQuery({
+  return useQuery<ImageAsset | null>({
     queryKey: ['about'],
     queryFn: async () => {
-      const result = await api.getAboutImage();
+      const result = await apiClient.getAboutImage();
+      if (result.error && /404/.test(result.error)) return null;
+      if (result.error) throw new Error(result.error);
       return result.data;
     },
-    retry: 3,
-    retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Use cached data if available
   });
 };
 
-// Hook to upload about image
 export const useUploadAboutImage = () => {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async (image: File) => {
-      return await api.uploadAboutImage(image);
+      const result = await apiClient.uploadAboutImage(image);
+      if (result.error) throw new Error(result.error);
+      return result.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['about'] });
-    },
-    onError: (error) => {
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['about'] }),
   });
 };
 
-// Hook to delete about image
 export const useDeleteAboutImage = () => {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async () => {
-      return await api.deleteAboutImage();
+      const result = await apiClient.deleteAboutImage();
+      if (result.error) throw new Error(result.error);
+      return result.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['about'] });
-    },
-    onError: (error) => {
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['about'] }),
   });
 };

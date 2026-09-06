@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useProjects } from '@/hooks/useProjectsAPI';
-import ProjectDetailDialog from './ProjectDetailDialog';
+import { useProjects, type Project } from '@/hooks/useProjectsAPI';
+import ProjectDetailDialog, { toDialogProject, type DialogProject } from './ProjectDetailDialog';
 import { Link } from 'react-router-dom';
 import { config } from '../config/env';
 
@@ -14,7 +14,7 @@ const ProjectsSection = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [selectedProject, setSelectedProject] = useState<DialogProject | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: projects = [], isLoading } = useProjects();
 
@@ -91,8 +91,8 @@ const ProjectsSection = () => {
     return labels[category] || category.charAt(0).toUpperCase() + category.slice(1);
   };
 
-  const handleReadMore = (project: any) => {
-    setSelectedProject(project);
+  const handleReadMore = (project: Project) => {
+    setSelectedProject(toDialogProject(project));
     setIsDetailDialogOpen(true);
   };
 
@@ -174,7 +174,7 @@ const ProjectsSection = () => {
               const imageUrl = getImageSrc(activity.image_url || activity.imageUrl);
               
               return (
-              <Card key={activity._id || activity.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+              <Card key={activity.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
                 {imageUrl && (
                   <div className="relative overflow-hidden">
                     <img 
@@ -193,7 +193,7 @@ const ProjectsSection = () => {
                     
                     <div className="absolute top-4 right-4">
                       <span className={`${getBadgeColor(activity.category || 'water')} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
-                        {activity.isNewsProject ? 'News' : (activity.status || 'completed')}
+                        {activity.status || 'completed'}
                       </span>
                     </div>
 

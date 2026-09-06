@@ -11,7 +11,7 @@ interface MobileMenuProps {
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (open: boolean) => void;
   activeSection: string;
-  handleNavigation: (item: any) => void;
+  handleNavigation: (item: { id: string }) => void;
   getMobileButtonStyling: () => string;
 }
 

@@ -13,11 +13,11 @@ const AllGallery = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [hoveredImage, setHoveredImage] = useState<number | null>(null);
-  const { data: galleryImages = [], isLoading } = useGallery();
+  const { data: galleryImages = [], isLoading, error } = useGallery();
 
   const normalizedImages: GalleryPhoto[] = galleryImages.map((item, index) => ({
     ...item,
-    id: item.id || item._id || String(index),
+    id: item.id || String(index),
     url: item.url || '',
     title: item.title || 'Gallery photo',
     description: item.description || item.caption || ''
@@ -34,6 +34,27 @@ const AllGallery = () => {
         <Header />
         <div className="py-24 flex items-center justify-center">
           <div className="animate-pulse text-lg">Loading gallery...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <div className="py-24 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-500 text-lg mb-2">Error loading gallery</div>
+            <div className="text-gray-500 text-sm">{error.message}</div>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Retry
+            </button>
+          </div>
         </div>
         <Footer />
       </div>

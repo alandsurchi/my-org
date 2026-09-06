@@ -1,5 +1,4 @@
-
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useHeroImage } from '@/hooks/useHeroAPI';
 import { ArrowDown } from 'lucide-react';
@@ -9,24 +8,6 @@ const HeroSection = () => {
   const { t } = useLanguage();
   const { data: heroImage } = useHeroImage();
   const heroRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const elements = document.querySelectorAll('.fade-in-on-scroll');
-    elements.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, []);
 
   const scrollToNext = () => {
     const nextSection = document.getElementById('about');

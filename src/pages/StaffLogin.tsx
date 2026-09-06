@@ -15,6 +15,9 @@ interface LoginAttempt {
   ip?: string;
 }
 
+const MAX_ATTEMPTS = parseInt(import.meta.env.VITE_STAFF_LOGIN_ATTEMPTS_LIMIT) || 3;
+const BLOCK_DURATION = 15 * 60 * 1000; // 15 minutes
+
 const StaffLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,8 +36,6 @@ const StaffLogin = () => {
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [accessedViaSecret, setAccessedViaSecret] = useState(false);
 
-  const MAX_ATTEMPTS = parseInt(import.meta.env.VITE_STAFF_LOGIN_ATTEMPTS_LIMIT) || 3;
-  const BLOCK_DURATION = 15 * 60 * 1000; // 15 minutes
 
   useEffect(() => {
     // Check if accessed via secret method

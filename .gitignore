@@ -29,3 +29,9 @@ dist-ssr
 .vercel
 .env*
 .env.local
+
+# Claude Code local config
+.claude/
+
+# tool artifacts
+.freebuff/

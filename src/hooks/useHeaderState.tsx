@@ -31,11 +31,9 @@ export const useHeaderState = () => {
           if (entry.isIntersecting) {
             const sectionId = entry.target.id;
             if (sectionId) {
-              console.log(`🎯 Section "${sectionId}" is now active (intersecting)`);
               setActiveSection(sectionId);
             } else {
               // If no id, assume it's the hero section (home)
-              console.log('🏠 Setting home as active section (no section ID found)');
               setActiveSection('home');
             }
           }
@@ -49,15 +47,9 @@ export const useHeaderState = () => {
 
     // Observe all sections
     const sections = document.querySelectorAll('section');
-    console.log(`📍 Found ${sections.length} sections to observe:`);
     sections.forEach((section) => {
       // Observe all sections that have an id attribute
-      if (section.id) {
-        console.log(`  ✅ Observing section: #${section.id}`);
-        observer.observe(section);
-      } else {
-        console.log(`  ⚠️ Skipping section without ID`);
-      }
+      if (section.id) observer.observe(section);
     });
 
     return () => observer.disconnect();

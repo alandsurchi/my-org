@@ -5,15 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useNews } from '@/hooks/useNewsAPI';
-import NewsDetailDialog from './NewsDetailDialog';
+import { useNews, type NewsItem } from '@/hooks/useNewsAPI';
+import NewsDetailDialog, { toDialogNewsItem, type DialogNewsItem } from './NewsDetailDialog';
+
+type NewsCard = NewsItem & { date?: string; image_url?: string; title_en?: string; description_en?: string; description?: string };
 import { Link } from 'react-router-dom';
 import { config } from '../config/env';
 
 const NewsSection = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedNewsItem, setSelectedNewsItem] = useState<any>(null);
+  const [selectedNewsItem, setSelectedNewsItem] = useState<DialogNewsItem | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: allNews = [], isLoading, error } = useNews();
 
@@ -25,12 +27,6 @@ const NewsSection = () => {
     return url;
   };
 
-  
-  // Debug: Log all categories found in news data
-  if (allNews && allNews.length > 0) {
-    const categories = allNews.map(item => item?.category).filter(Boolean);
-  } else {
-  }
 
   // Group news by category with proper fallback for null categories
   const newsData = {
@@ -61,19 +57,8 @@ const NewsSection = () => {
     )
   };
 
-  // Debug: Log grouped news data
-  
-  // Log first item from each category if exists
-  if (newsData.placesVisited?.length > 0) {
-  }
-  if (newsData.visitors?.length > 0) {
-  }
-  if (newsData.certificatesReceived?.length > 0) {
-  }
-  if (newsData.certificatesAwarded?.length > 0) {
-  }
 
-  const filterNews = (newsItems: any[]) => {
+  const filterNews = (newsItems: NewsCard[]) => {
     if (!newsItems || !Array.isArray(newsItems)) return [];
     
     return newsItems.filter(item => {
@@ -105,8 +90,8 @@ const NewsSection = () => {
     return iconMap[category as keyof typeof iconMap] || Building;
   };
 
-  const handleReadMore = (newsItem: any) => {
-    setSelectedNewsItem(newsItem);
+  const handleReadMore = (newsItem: NewsCard) => {
+    setSelectedNewsItem(toDialogNewsItem(newsItem));
     setIsDetailDialogOpen(true);
   };
 
@@ -115,7 +100,7 @@ const NewsSection = () => {
     setSelectedNewsItem(null);
   };
 
-  const renderNewsGrid = (newsItems: any[], category: string) => {
+  const renderNewsGrid = (newsItems: NewsCard[], category: string) => {
     const filteredNews = filterNews(newsItems);
     
     if (filteredNews.length === 0) {
@@ -146,7 +131,7 @@ const NewsSection = () => {
           const IconComponent = getIconComponent(category);
           
           return (
-            <Card key={item._id || item.id || index} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+            <Card key={item.id ?? index} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
               {imageUrl && (
                 <div className="relative overflow-hidden">
                   <img 
@@ -239,7 +224,7 @@ const NewsSection = () => {
               {t('newsTitle')}
             </span>
           </h2>
-          <p className="text-lg text-gray-600 mb-4">Latest 3 news updates</p>
+          <p className="text-lg text-gray-600 mb-4">{t('latestNews')}</p>
           <div className="w-32 h-1 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 mx-auto rounded-full"></div>
         </div>
 

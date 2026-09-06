@@ -3,21 +3,12 @@ import { Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useNews } from '@/hooks/useNewsAPI';
+import { useNews, type NewsItem } from '@/hooks/useNewsAPI';
 import NewsDetailDialog from '@/components/NewsDetailDialog';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { config } from '../config/env';
-
-interface NewsItem {
-  id: string;
-  title: string;
-  content: string;
-  imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface DialogNewsItem {
   id: string;
@@ -45,7 +36,7 @@ const AllNews = () => {
 
   const handleReadMore = (newsItem: NewsItem) => {
     const dialogNewsItem: DialogNewsItem = {
-      id: newsItem.id,
+      id: String(newsItem.id),
       title_en: newsItem.title,
       description_en: newsItem.content,
       category: 'News',

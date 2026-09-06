@@ -1,10 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '@/lib/charityDashboardAPI';
+import { apiClient } from '@/lib/apiClient';
 import { config } from '../config/env';
 
 export interface GalleryPhoto {
   id: string;
-  _id?: string; // Kept for compatibility
   url: string;
   title: string;
   description: string;
@@ -18,90 +17,47 @@ const buildImageUrl = (url?: string) => {
   return `${config.cdnUrl}${url}`;
 };
 
-// Hook to fetch all gallery photos
 export const useGallery = () => {
-  return useQuery({
+  return useQuery<GalleryPhoto[]>({
     queryKey: ['gallery'],
-    queryFn: async (): Promise<GalleryPhoto[]> => {
-      const data = await api.getAllGalleryPhotos();
-
-      const normalized = (data || []).map((item: any, index: number) => {
-        const sourceUrl = item.url || item.image_url || item.imageUrl || '';
-        const title = item.title || item.caption || 'Gallery photo';
-        const description = item.description || item.caption || '';
-
-        return {
-          id: item._id || item.id || sourceUrl || `gallery-item-${index}`,
-          _id: item._id,
-          url: buildImageUrl(sourceUrl),
-          title,
-          description,
-          caption: item.caption || '',
-          uploadedAt: item.uploadedAt,
-        };
-      });
-
-      return normalized;
+    queryFn: async () => {
+      const data = await apiClient.getAllGalleryPhotos();
+      return data.map((item, index) => ({
+        id: String(item.id ?? item.url ?? `gallery-item-${index}`),
+        url: buildImageUrl(item.url),
+        title: item.title || item.caption || 'Gallery photo',
+        description: item.description || item.caption || '',
+        caption: item.caption || '',
+        uploadedAt: item.uploadedAt,
+      }));
     },
-    retry: 3,
-    retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
   });
 };
 
-// Hook to upload gallery photo
 export const useUploadGalleryPhoto = () => {
   const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: async ({ photo, caption }: {
-      photo: File;
-      caption?: string;
-    }) => {
-      return await api.uploadGalleryPhoto(photo, caption);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gallery'] });
-    },
-    onError: (error) => {
-    },
+    mutationFn: ({ photo, caption }: { photo: File; caption?: string }) => apiClient.uploadGalleryPhoto(photo, caption || ''),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gallery'] }),
   });
 };
 
-// Hook to update photo caption
 export const useUpdatePhotoCaption = () => {
   const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: async ({ id, caption }: {
-      id: string;
-      caption: string;
-    }) => {
-      return await api.updatePhotoCaption(id, caption);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gallery'] });
-    },
-    onError: (error) => {
-    },
+    mutationFn: ({ id, caption }: { id: string | number; caption: string }) => apiClient.updatePhotoCaption(id, caption),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gallery'] }),
   });
 };
 
-// Hook to delete photo
 export const useDeletePhoto = () => {
   const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: async (id: string) => {
-      return await api.deletePhoto(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gallery'] });
-    },
-    onError: (error) => {
-    },
+    mutationFn: (id: string | number) => apiClient.deletePhoto(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gallery'] }),
   });
 };

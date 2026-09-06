@@ -5,8 +5,9 @@ import { Calendar, MapPin, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { config } from '../config/env';
+import type { Project } from '@/lib/apiClient';
 
-interface Project {
+export interface DialogProject {
   id: string;
   title_en: string;
   description_en: string;
@@ -17,8 +18,20 @@ interface Project {
   created_at: string;
 }
 
+/** Converts an API project (or legacy shape) into what the dialog renders. */
+export const toDialogProject = (p: Partial<Project> & { id: number | string }): DialogProject => ({
+  id: String(p.id),
+  title_en: p.title ?? p.title_en ?? '',
+  description_en: p.description ?? p.description_en ?? '',
+  category: p.category ?? 'water',
+  image_url: p.imageUrl ?? p.image_url ?? undefined,
+  location: p.location ?? undefined,
+  status: p.status ?? 'active',
+  created_at: p.createdAt ?? p.created_at ?? new Date().toISOString(),
+});
+
 interface ProjectDetailDialogProps {
-  project: Project | null;
+  project: DialogProject | null;
   isOpen: boolean;
   onClose: () => void;
 }

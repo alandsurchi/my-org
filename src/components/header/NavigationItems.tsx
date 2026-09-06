@@ -6,7 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 interface NavigationItemsProps {
   activeSection: string;
   getTextStyling: (itemId: string) => string;
-  handleNavigation: (item: any) => void;
+  handleNavigation: (item: { id: string }) => void;
 }
 
 const NavigationItems: React.FC<NavigationItemsProps> = ({

@@ -1,163 +1,131 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const pool = require('../db');
-const { staffValidation, validateRequest } = require('../middleware/validator');
+const { requireAuth, requireSuperAdmin } = require('../middleware/auth');
+const { staffCreateValidation, staffUpdateValidation, validateRequest } = require('../middleware/validator');
+const { isSuperAdmin, isValidRole, normalizeEmail } = require('../config/roles');
 
-const SUPER_ADMINS = process.env.SUPER_ADMINS ? process.env.SUPER_ADMINS.split(',') : [
-  'aland.surchi456@gmail.com',
-  'aland.raed.othman@gmail.com'
-];
+const SELECT_USER_SAFE = 'SELECT id, name, email, role, created_at AS "createdAt", last_login AS "lastLogin"';
 
-const SELECT_USER_SAFE = 'SELECT id, name, email, role, created_at AS "createdAt"';
+const withFlags = (member, requester) => ({
+  ...member,
+  isSuperAdmin: isSuperAdmin(member),
+  canEdit: requester.isSuperAdmin
+});
 
-const verifySuperAdmin = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
-    if (result.rows.length === 0) return res.status(401).json({ success: false, message: 'User not found' });
-    const user = result.rows[0];
-    if (user.role !== 'super_admin' && !SUPER_ADMINS.includes(user.email)) {
-      return res.status(403).json({ success: false, message: 'Access denied. Super admin only.' });
-    }
-    req.user = user;
-    next();
-  } catch (error) {
-    res.status(401).json({ success: false, message: 'Invalid token' });
-  }
+const countSuperAdmins = async () => {
+  const result = await pool.query("SELECT COUNT(*)::int AS count FROM users WHERE role = 'super_admin'");
+  return result.rows[0].count;
 };
 
-const verifyAuth = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
-    if (result.rows.length === 0) return res.status(401).json({ success: false, message: 'User not found' });
-    req.user = result.rows[0];
-    next();
-  } catch (error) {
-    res.status(401).json({ success: false, message: 'Invalid token' });
-  }
-};
-
-const verifyStaffAccess = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
-    if (result.rows.length === 0) return res.status(401).json({ success: false, message: 'User not found' });
-    const user = result.rows[0];
-    if (!['super_admin', 'admin', 'staff'].includes(user.role) && !SUPER_ADMINS.includes(user.email)) {
-      return res.status(403).json({ success: false, message: 'Access denied. Staff access only.' });
-    }
-    req.user = user;
-    next();
-  } catch (error) {
-    res.status(401).json({ success: false, message: 'Invalid token' });
-  }
-};
-
-// GET all staff members
-router.get('/', verifyStaffAccess, async (req, res, next) => {
+// GET /api/staff — any authenticated staff member can see the list
+router.get('/', requireAuth, async (req, res, next) => {
   try {
     const result = await pool.query(`${SELECT_USER_SAFE} FROM users ORDER BY created_at DESC`);
-    const staffWithFlags = result.rows.map(member => ({
-      ...member,
-      isSuperAdmin: SUPER_ADMINS.includes(member.email),
-      canEdit: SUPER_ADMINS.includes(req.user.email)
-    }));
-    res.json({ success: true, data: staffWithFlags });
+    res.json({ success: true, data: result.rows.map((m) => withFlags(m, req.user)) });
   } catch (error) {
     next(error);
   }
 });
 
-// POST create new staff member
-router.post('/', verifySuperAdmin, staffValidation, validateRequest, async (req, res, next) => {
+// GET /api/staff/me
+router.get('/me', requireAuth, (req, res) => {
+  const { tokenExp, ...user } = req.user;
+  res.json({ success: true, data: user });
+});
+
+// POST /api/staff — super admin only
+router.post('/', requireAuth, requireSuperAdmin, staffCreateValidation, validateRequest, async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
-    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
+    const email = normalizeEmail(req.body.email);
+    const { name, password } = req.body;
+    const role = isValidRole(req.body.role) ? req.body.role : 'admin';
+
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
     if (existing.rows.length > 0) {
-      return res.status(400).json({ success: false, message: 'User with this email already exists' });
+      return res.status(409).json({ success: false, message: 'User with this email already exists' });
     }
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    await pool.query(
-      'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)',
-      [name, email.toLowerCase(), hashedPassword, role || 'admin']
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await pool.query(
+      `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)
+       RETURNING id, name, email, role, created_at AS "createdAt", last_login AS "lastLogin"`,
+      [name.trim(), email, hashedPassword, role]
     );
-    const result = await pool.query(`${SELECT_USER_SAFE} FROM users WHERE email = $1`, [email.toLowerCase()]);
-    const user = result.rows[0];
-    user.isSuperAdmin = SUPER_ADMINS.includes(user.email);
-    res.status(201).json({ success: true, data: user });
+    res.status(201).json({ success: true, data: withFlags(result.rows[0], req.user) });
   } catch (error) {
     next(error);
   }
 });
 
-// PUT update staff member
-router.put('/:id', verifySuperAdmin, staffValidation, validateRequest, async (req, res, next) => {
+// PUT /api/staff/:id — super admin only
+router.put('/:id', requireAuth, requireSuperAdmin, staffUpdateValidation, validateRequest, async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id, 10);
+    if (Number.isNaN(userId)) return res.status(400).json({ success: false, message: 'Invalid user id' });
+
     const existing = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
     if (existing.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
-    const user = existing.rows[0];
-    if (SUPER_ADMINS.includes(user.email) && email && email.toLowerCase() !== user.email) {
-      return res.status(403).json({ success: false, message: 'Cannot change email of super admin' });
+    const target = existing.rows[0];
+
+    const { name, password, role } = req.body;
+    const email = req.body.email ? normalizeEmail(req.body.email) : undefined;
+
+    // Nobody may edit another super admin's account; super admins edit their own only.
+    if (isSuperAdmin(target) && target.id !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Super admin accounts can only be edited by their owner' });
     }
+
+    // Never let the last super admin demote themselves.
+    if (role && role !== 'super_admin' && target.role === 'super_admin' && (await countSuperAdmins()) <= 1) {
+      return res.status(403).json({ success: false, message: 'Cannot demote the last super admin' });
+    }
+
+    if (email && email !== target.email) {
+      const clash = await pool.query('SELECT id FROM users WHERE email = $1 AND id <> $2', [email, userId]);
+      if (clash.rows.length > 0) return res.status(409).json({ success: false, message: 'Email already in use' });
+    }
+
     const updates = [];
     const values = [];
-    let paramIndex = 1;
-    if (name) { updates.push(`name = $${paramIndex++}`); values.push(name); }
-    if (email) { updates.push(`email = $${paramIndex++}`); values.push(email.toLowerCase()); }
-    if (role && ['super_admin', 'admin', 'staff'].includes(role)) { updates.push(`role = $${paramIndex++}`); values.push(role); }
-    if (password && password.length >= 6) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      updates.push(`password = $${paramIndex++}`); values.push(hashedPassword);
+    let i = 1;
+    if (name) { updates.push(`name = $${i++}`); values.push(name.trim()); }
+    if (email) { updates.push(`email = $${i++}`); values.push(email); }
+    if (role && isValidRole(role)) { updates.push(`role = $${i++}`); values.push(role); }
+    if (password) { updates.push(`password = $${i++}`); values.push(await bcrypt.hash(password, 10)); }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, message: 'No fields to update' });
     }
-    if (updates.length > 0) {
-      values.push(userId);
-      await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${paramIndex}`, values);
-    }
-    const result = await pool.query(`${SELECT_USER_SAFE} FROM users WHERE id = $1`, [userId]);
-    const updatedUser = result.rows[0];
-    updatedUser.isSuperAdmin = SUPER_ADMINS.includes(updatedUser.email);
-    res.json({ success: true, data: updatedUser });
+
+    values.push(userId);
+    const result = await pool.query(
+      `UPDATE users SET ${updates.join(', ')} WHERE id = $${i}
+       RETURNING id, name, email, role, created_at AS "createdAt", last_login AS "lastLogin"`,
+      values
+    );
+    res.json({ success: true, data: withFlags(result.rows[0], req.user) });
   } catch (error) {
     next(error);
   }
 });
 
-// DELETE staff member
-router.delete('/:id', verifySuperAdmin, async (req, res, next) => {
+// DELETE /api/staff/:id — super admin only
+router.delete('/:id', requireAuth, requireSuperAdmin, async (req, res, next) => {
   try {
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id, 10);
+    if (Number.isNaN(userId)) return res.status(400).json({ success: false, message: 'Invalid user id' });
+
     const result = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
-    const user = result.rows[0];
-    if (SUPER_ADMINS.includes(user.email)) return res.status(403).json({ success: false, message: 'Cannot delete super admin' });
-    if (user.id === req.user.id) return res.status(403).json({ success: false, message: 'Cannot delete your own account' });
+    const target = result.rows[0];
+
+    if (target.id === req.user.id) return res.status(403).json({ success: false, message: 'Cannot delete your own account' });
+    if (isSuperAdmin(target)) return res.status(403).json({ success: false, message: 'Cannot delete a super admin' });
+
     await pool.query('DELETE FROM users WHERE id = $1', [userId]);
     res.json({ success: true, data: { message: 'Staff member deleted successfully' } });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// GET current user info
-router.get('/me', verifyAuth, async (req, res, next) => {
-  try {
-    const userResponse = { ...req.user };
-    delete userResponse.password;
-    userResponse.isSuperAdmin = SUPER_ADMINS.includes(req.user.email);
-    res.json({ success: true, data: userResponse });
   } catch (error) {
     next(error);
   }

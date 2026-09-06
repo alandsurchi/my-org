@@ -3,19 +3,27 @@ const router = express.Router();
 const pool = require('../db');
 const upload = require('../middleware/upload');
 const { saveFile } = require('../utils/storage');
-const { requireStaffAuth } = require('../middleware/staffSecurity');
+const { requireAuth } = require('../middleware/auth');
 const { newsValidation, validateRequest } = require('../middleware/validator');
 
-const SELECT_NEWS = `SELECT id, title, content, category, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt" FROM news`;
+const NEWS_COLUMNS = `id, title, content, category, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"`;
 
-// GET all news
+const parseId = (value) => {
+  const id = parseInt(value, 10);
+  return Number.isNaN(id) ? null : id;
+};
+
+// GET all news (optional ?limit=&category=)
 router.get('/', async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit) || 100;
-    const result = await pool.query(
-      `${SELECT_NEWS} ORDER BY created_at DESC LIMIT $1`,
-      [limit]
-    );
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 500);
+    const params = [limit];
+    let where = '';
+    if (req.query.category) {
+      params.push(req.query.category);
+      where = 'WHERE category = $2';
+    }
+    const result = await pool.query(`SELECT ${NEWS_COLUMNS} FROM news ${where} ORDER BY created_at DESC LIMIT $1`, params);
     res.json({ success: true, data: result.rows });
   } catch (error) {
     next(error);
@@ -25,29 +33,24 @@ router.get('/', async (req, res, next) => {
 // GET single news by ID
 router.get('/:id', async (req, res, next) => {
   try {
-    const result = await pool.query(`${SELECT_NEWS} WHERE id = $1`, [req.params.id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'News not found' });
-    }
+    const id = parseId(req.params.id);
+    if (id === null) return res.status(400).json({ success: false, message: 'Invalid id' });
+    const result = await pool.query(`SELECT ${NEWS_COLUMNS} FROM news WHERE id = $1`, [id]);
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'News not found' });
     res.json({ success: true, data: result.rows[0] });
   } catch (error) {
     next(error);
   }
 });
 
-// POST create new news
-router.post('/', requireStaffAuth, upload.single('image'), newsValidation(false), validateRequest, async (req, res, next) => {
+// POST create news
+router.post('/', requireAuth, upload.single('image'), newsValidation(false), validateRequest, async (req, res, next) => {
   try {
-    let imageUrl = null;
-    if (req.file) {
-      imageUrl = await saveFile(req.file, 'news');
-    }
-    
+    const imageUrl = req.file ? await saveFile(req.file, 'news') : null;
     const result = await pool.query(
-      `INSERT INTO news (title, content, category, image_url) VALUES ($1, $2, $3, $4) RETURNING id, title, content, category, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"`,
-      [req.body.title, req.body.content, req.body.category || null, imageUrl]
+      `INSERT INTO news (title, content, category, image_url) VALUES ($1, $2, $3, $4) RETURNING ${NEWS_COLUMNS}`,
+      [req.body.title, req.body.content || '', req.body.category || null, imageUrl]
     );
-    
     res.status(201).json({ success: true, data: result.rows[0] });
   } catch (error) {
     next(error);
@@ -55,27 +58,25 @@ router.post('/', requireStaffAuth, upload.single('image'), newsValidation(false)
 });
 
 // PUT update news
-router.put('/:id', requireStaffAuth, upload.single('image'), newsValidation(true), validateRequest, async (req, res, next) => {
+router.put('/:id', requireAuth, upload.single('image'), newsValidation(true), validateRequest, async (req, res, next) => {
   try {
+    const id = parseId(req.params.id);
+    if (id === null) return res.status(400).json({ success: false, message: 'Invalid id' });
+
     const imageUrl = req.file ? await saveFile(req.file, 'news') : undefined;
-    
     const updates = [];
     const values = [];
-    let paramIndex = 1;
+    let i = 1;
 
-    if (req.body.title) { updates.push(`title = $${paramIndex++}`); values.push(req.body.title); }
-    if (req.body.content) { updates.push(`content = $${paramIndex++}`); values.push(req.body.content); }
-    if (req.body.category !== undefined) { updates.push(`category = $${paramIndex++}`); values.push(req.body.category || null); }
-    if (imageUrl) { updates.push(`image_url = $${paramIndex++}`); values.push(imageUrl); }
-    updates.push(`updated_at = NOW()`);
+    if (req.body.title) { updates.push(`title = $${i++}`); values.push(req.body.title); }
+    if (req.body.content) { updates.push(`content = $${i++}`); values.push(req.body.content); }
+    if (req.body.category !== undefined) { updates.push(`category = $${i++}`); values.push(req.body.category || null); }
+    if (imageUrl) { updates.push(`image_url = $${i++}`); values.push(imageUrl); }
+    updates.push('updated_at = NOW()');
 
-    values.push(req.params.id);
-    const query = `UPDATE news SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING id, title, content, category, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"`;
-    
-    const result = await pool.query(query, values);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'News not found' });
-    }
+    values.push(id);
+    const result = await pool.query(`UPDATE news SET ${updates.join(', ')} WHERE id = $${i} RETURNING ${NEWS_COLUMNS}`, values);
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'News not found' });
     res.json({ success: true, data: result.rows[0] });
   } catch (error) {
     next(error);
@@ -83,12 +84,12 @@ router.put('/:id', requireStaffAuth, upload.single('image'), newsValidation(true
 });
 
 // DELETE news
-router.delete('/:id', requireStaffAuth, async (req, res, next) => {
+router.delete('/:id', requireAuth, async (req, res, next) => {
   try {
-    const result = await pool.query('DELETE FROM news WHERE id = $1 RETURNING id', [req.params.id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'News not found' });
-    }
+    const id = parseId(req.params.id);
+    if (id === null) return res.status(400).json({ success: false, message: 'Invalid id' });
+    const result = await pool.query('DELETE FROM news WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'News not found' });
     res.json({ success: true, data: { message: 'News deleted successfully' } });
   } catch (error) {
     next(error);

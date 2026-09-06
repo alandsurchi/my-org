@@ -1,192 +1,211 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const pool = require('./db');
 const initDatabase = require('./init-db');
+const seedDatabase = require('./seed');
 const { securityHeaders } = require('./middleware/staffSecurity');
+const { STORAGE_PATH } = require('./utils/storage');
 
-// Add process error handlers
+// ---------------------------------------------------------------------------
+// Startup validation
+// ---------------------------------------------------------------------------
+const REQUIRED_ENV = ['DATABASE_URL', 'JWT_SECRET'];
+const missing = REQUIRED_ENV.filter((k) => !process.env[k]);
+if (missing.length) {
+  console.error(`Missing required environment variables: ${missing.join(', ')}`);
+  process.exit(1);
+}
+if (process.env.NODE_ENV === 'production' && process.env.JWT_SECRET.length < 32) {
+  console.warn('WARNING: JWT_SECRET is shorter than 32 characters. Generate a longer one and update it in Railway.');
+}
+
 process.on('uncaughtException', (err) => {
-  console.error('❌ Uncaught Exception:', err);
+  console.error('Uncaught exception:', err);
   process.exit(1);
 });
-
 process.on('unhandledRejection', (err) => {
-  console.error('❌ Unhandled Rejection:', err);
+  console.error('Unhandled rejection:', err);
   process.exit(1);
 });
 
-console.log('🔧 Environment variables loaded:');
-console.log('  DATABASE_URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
-console.log('  PORT:', process.env.PORT || 'Using default 5000');
-console.log('  JWT_SECRET:', process.env.JWT_SECRET ? 'Set' : 'Not set');
+console.log('Environment:');
+console.log('  NODE_ENV:', process.env.NODE_ENV || 'development');
+console.log('  DATABASE_URL:', process.env.DATABASE_URL ? 'set' : 'NOT SET');
+console.log('  JWT_SECRET:', process.env.JWT_SECRET ? 'set' : 'NOT SET');
+console.log('  STORAGE_TYPE:', process.env.STORAGE_TYPE || 'local');
 
 const app = express();
 
-// Security middleware (apply early)
+// Railway (and most PaaS) sit behind one reverse proxy. Without this,
+// req.ip is the proxy address, so rate limiting would be shared by all users.
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
 app.use(securityHeaders);
 
-// Parse ALLOWED_ORIGINS from environment
+// ---------------------------------------------------------------------------
+// CORS
+// ---------------------------------------------------------------------------
 const rawOrigins = process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || '';
-const parsedOrigins = rawOrigins.split(',').map(o => o.trim()).filter(o => o.length > 0);
-
-// Default development origins
+const configuredOrigins = rawOrigins.split(',').map((o) => o.trim()).filter(Boolean);
 const devOrigins = ['http://localhost:8080', 'http://127.0.0.1:8080', 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'];
+const allowedOrigins = new Set(process.env.NODE_ENV === 'production' ? configuredOrigins : [...devOrigins, ...configuredOrigins]);
 
-// Combine origins - always include devOrigins to facilitate local testing
-const allowedOrigins = [...new Set([...devOrigins, ...parsedOrigins])];
+if (process.env.NODE_ENV === 'production' && allowedOrigins.size === 0) {
+  console.warn('ALLOWED_ORIGINS is empty: browsers will be blocked by CORS. Set it to your frontend URL(s).');
+}
 
-// Enhanced CORS configuration for frontend-backend communication
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+app.use(cors({
+  origin: (origin, callback) => {
+    // Non-browser clients (curl, health checks) send no Origin header.
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    // Disallowed origin: respond without CORS headers instead of a 500.
+    return callback(null, false);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['X-Session-Warning'],
   credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 200
-};
+  optionsSuccessStatus: 204
+}));
 
-// Middleware
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-// Serve uploaded files statically
-const { STORAGE_PATH } = require('./utils/storage');
-app.use('/uploads', express.static(STORAGE_PATH));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Create default admin user
-const createDefaultAdmin = async () => {
-  try {
-    const result = await pool.query(
-      `SELECT id FROM users WHERE email = $1`,
-      ['admin@charity.com']
-    );
-    if (result.rows.length === 0) {
-      const bcrypt = require('bcrypt');
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('REMOVED_PASSWORD', salt);
-      await pool.query(
-        `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)`,
-        ['Default Admin', 'admin@charity.com', hashedPassword, 'admin']
-      );
-      console.log('🔑 Default admin user created:');
-      console.log('   Email: admin@charity.com');
-      console.log('   Password: REMOVED_PASSWORD');
-      console.log('   Role: admin');
-    } else {
-      console.log('✅ Admin user already exists: admin@charity.com');
-    }
-  } catch (error) {
-    console.error('❌ Error creating default admin:', error.message);
+// Uploaded files (local storage on the Railway volume)
+app.use('/uploads', express.static(STORAGE_PATH, { maxAge: '7d', immutable: true }));
+
+// ---------------------------------------------------------------------------
+// Bootstrap: default super admin
+// ---------------------------------------------------------------------------
+const ensureSuperAdmin = async () => {
+  const email = (process.env.DEFAULT_ADMIN_EMAIL || 'admin@charity.com').trim().toLowerCase();
+
+  const superAdmins = await pool.query("SELECT COUNT(*)::int AS count FROM users WHERE role = 'super_admin'");
+  if (superAdmins.rows[0].count > 0) return;
+
+  const existing = await pool.query('SELECT id, email FROM users WHERE email = $1', [email]);
+  if (existing.rows.length > 0) {
+    // Nobody can manage staff yet: promote the default admin account once.
+    await pool.query("UPDATE users SET role = 'super_admin' WHERE id = $1", [existing.rows[0].id]);
+    console.log(`Promoted ${email} to super_admin (no super admin existed).`);
+    return;
+  }
+
+  // Fresh database: create the first super admin. The password comes from
+  // DEFAULT_ADMIN_PASSWORD, or a random one is generated and printed ONCE.
+  const password = process.env.DEFAULT_ADMIN_PASSWORD || crypto.randomBytes(12).toString('base64url');
+  const hashed = await bcrypt.hash(password, 10);
+  await pool.query(
+    "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, 'super_admin')",
+    ['Administrator', email, hashed]
+  );
+  console.log(`Created first super admin: ${email}`);
+  if (!process.env.DEFAULT_ADMIN_PASSWORD) {
+    console.log(`Generated password (shown once, change it after first login): ${password}`);
   }
 };
 
-// Database connection check
+// ---------------------------------------------------------------------------
+// Database availability
+// ---------------------------------------------------------------------------
 let isDbConnected = false;
 
-const checkDatabaseConnection = (req, res, next) => {
-  if (!isDbConnected) {
-    return res.status(503).json({ 
-      error: 'Database connection unavailable',
-      message: 'PostgreSQL connection failed. Please check the database configuration.'
-    });
+const tryReconnect = async () => {
+  try {
+    await pool.query('SELECT 1');
+    if (!isDbConnected) console.log('Database connection restored');
+    isDbConnected = true;
+  } catch (err) {
+    console.error('Database unavailable:', err.message);
+    isDbConnected = false;
   }
-  next();
 };
 
+setInterval(() => { if (!isDbConnected) tryReconnect(); }, 30000).unref();
+
+const dbUnavailable = (res) => res.status(503).json({
+  success: false,
+  error: 'Database connection unavailable',
+  message: 'The database is temporarily unavailable. Please try again shortly.'
+});
+
+const checkDatabaseConnection = async (req, res, next) => {
+  if (isDbConnected) return next();
+  await tryReconnect();
+  return isDbConnected ? next() : dbUnavailable(res);
+};
+
+// ---------------------------------------------------------------------------
 // Routes
+// ---------------------------------------------------------------------------
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Charity Dashboard API Running',
-    version: '1.0.0',
+  res.json({
+    message: 'Charity Dashboard API',
+    version: '1.1.0',
     database: isDbConnected ? 'Connected' : 'Disconnected',
-    endpoints: [
-      '/api/hero',
-      '/api/about',
-      '/api/news', 
-      '/api/projects',
-      '/api/gallery',
-      '/api/auth',
-      '/api/staff'
-    ]
+    endpoints: ['/api/hero', '/api/about', '/api/news', '/api/projects', '/api/gallery', '/api/auth', '/api/staff']
   });
 });
 
-// Health check endpoint (no database required)
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK',
-    message: 'Server is running',
+  res.status(isDbConnected ? 200 : 503).json({
+    status: isDbConnected ? 'OK' : 'DEGRADED',
     database: isDbConnected ? 'Connected' : 'Disconnected',
     timestamp: new Date().toISOString()
   });
 });
 
-// Initialize DB and start server
+app.use('/api', checkDatabaseConnection);
+app.use('/api/hero', require('./routes/hero'));
+app.use('/api/about', require('./routes/about'));
+app.use('/api/news', require('./routes/news'));
+app.use('/api/projects', require('./routes/projects'));
+app.use('/api/gallery', require('./routes/gallery'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/staff', require('./routes/staff'));
+
+// 404
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: 'Route not found' });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  if (err && err.name === 'MulterError') {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+  if (err && err.message === 'Only image files are allowed!') {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+  console.error(err.stack || err);
+  res.status(500).json({ success: false, message: 'Something went wrong!' });
+});
+
+// ---------------------------------------------------------------------------
+// Start
+// ---------------------------------------------------------------------------
 async function startServer() {
   try {
-    // Initialize database schema
     await initDatabase();
-    
-    // Test connection
-    const result = await pool.query('SELECT NOW()');
-    console.log('✅ PostgreSQL connected successfully at:', result.rows[0].now);
+    await pool.query('SELECT 1');
     isDbConnected = true;
-    
-    // Create default admin after DB connection
-    await createDefaultAdmin();
-    
-    // Seed database with migrated data if empty
-    const seedDatabase = require('./seed');
+    console.log('PostgreSQL connected');
+
     await seedDatabase();
+    await ensureSuperAdmin();
   } catch (error) {
-    console.error('❌ PostgreSQL connection error:', error.message);
-    console.log('⚠️ Server will continue running without database connection');
+    console.error('Database initialisation failed:', error.message);
+    console.log('Server will start anyway and keep retrying the database.');
     isDbConnected = false;
   }
 
-  // API Routes with database connection check
-  try {
-    app.use('/api/hero', checkDatabaseConnection, require('./routes/hero'));
-    app.use('/api/about', require('./routes/about'));
-    app.use('/api/news', checkDatabaseConnection, require('./routes/news'));
-    app.use('/api/projects', checkDatabaseConnection, require('./routes/projects'));
-    app.use('/api/gallery', checkDatabaseConnection, require('./routes/gallery'));
-    app.use('/api/auth', checkDatabaseConnection, require('./routes/auth'));
-    app.use('/api/staff', checkDatabaseConnection, require('./routes/staff'));
-    console.log('✅ All routes loaded successfully');
-  } catch (error) {
-    console.error('❌ Error loading routes:', error);
-  }
-
-  // Error handling middleware
-  app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
-  });
-
-  // 404 handler
-  app.use('*', (req, res) => {
-    res.status(404).json({ message: 'Route not found' });
-  });
-
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, '0.0.0.0', (err) => {
-    if (err) {
-      console.error('❌ Server failed to start:', err);
-      process.exit(1);
-    }
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📱 API available at: http://localhost:${PORT}`);
-    console.log(`🌐 Also available at: http://0.0.0.0:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server listening on port ${PORT}`);
   });
 }
 

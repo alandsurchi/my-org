@@ -1,7 +1,7 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Language = 'en' | 'ar' | 'ku';
+export type Language = 'en' | 'ar' | 'ku';
 
 interface LanguageContextType {
   language: Language;
@@ -75,6 +75,7 @@ const translations = {
     
     // News section
     newsTitle: 'Latest News',
+    latestNews: 'The latest updates from our work',
     placesVisited: 'Places Visited',
     visitorsToOrg: 'Visitors to Organization',
     certificatesReceived: 'Certificates Received',
@@ -102,6 +103,7 @@ const translations = {
     
     // Gallery section
     galleryTitle: 'Gallery',
+    galleryDescription: 'Moments from our activities and the communities we serve',
     viewAllImages: 'View All Images',
     
     // Gallery descriptions
@@ -225,6 +227,7 @@ const translations = {
     
     // News section
     newsTitle: 'آخر الأخبار',
+    latestNews: 'آخر المستجدات من عملنا',
     placesVisited: 'الأماكن المزارة',
     visitorsToOrg: 'زوار المنظمة',
     certificatesReceived: 'الشهادات المستلمة',
@@ -252,6 +255,7 @@ const translations = {
     
     // Gallery section
     galleryTitle: 'المعرض',
+    galleryDescription: 'لحظات من أنشطتنا والمجتمعات التي نخدمها',
     viewAllImages: 'عرض جميع الصور',
     
     // Gallery descriptions
@@ -375,6 +379,7 @@ const translations = {
     
     // News section
     newsTitle: 'تازەترین هەواڵ',
+    latestNews: 'نوێترین هەواڵەکانی کارەکانمان',
     placesVisited: 'شوێنە سەردانکراوەکان',
     visitorsToOrg: 'میوانەکانی ڕێکخراوە',
     certificatesReceived: 'بڕوانامە وەرگیراوەکان',
@@ -402,6 +407,7 @@ const translations = {
     
     // Gallery section
     galleryTitle: 'گالەری',
+    galleryDescription: 'ساتەکانی چالاکییەکانمان و ئەو کۆمەڵگایانەی خزمەتیان دەکەین',
     viewAllImages: 'بینینی هەموو وێنەکان',
     
     // Gallery descriptions
@@ -464,8 +470,36 @@ const translations = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const STORAGE_KEY = 'language';
+const RTL_LANGUAGES: Language[] = ['ar', 'ku'];
+
+const readStoredLanguage = (): Language => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === 'en' || stored === 'ar' || stored === 'ku') return stored;
+  } catch {
+    // localStorage unavailable (private mode, etc.)
+  }
+  return 'ku';
+};
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('ku');
+  const [language, setLanguageState] = useState<Language>(readStoredLanguage);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem(STORAGE_KEY, lang);
+    } catch {
+      // ignore
+    }
+  };
+
+  // Keep <html lang dir> in sync so text direction and screen readers are correct.
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = RTL_LANGUAGES.includes(language) ? 'rtl' : 'ltr';
+  }, [language]);
 
   const t = (key: string): string => {
     const translation = translations[language][key as keyof typeof translations['en']];

@@ -1,5 +1,139 @@
 import { config } from '../config/env';
 
+// ---------------------------------------------------------------------------
+// Types shared with the backend API
+// ---------------------------------------------------------------------------
+export type Role = 'super_admin' | 'admin' | 'staff';
+
+export interface ApiResult<T> {
+  data: T | null;
+  error: string | null;
+}
+
+export interface AuthUser {
+  id: number | string;
+  name: string;
+  email: string;
+  role: Role;
+  isSuperAdmin: boolean;
+  createdAt?: string;
+  lastLogin?: string | null;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  token: string;
+  expiresIn: string;
+  user: AuthUser;
+}
+
+export interface StaffMember extends AuthUser {
+  canEdit?: boolean;
+}
+
+export interface ImageAsset {
+  id: number;
+  url: string;
+  originalName: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  dimensions: { width: number; height: number };
+  uploadedBy: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  uploadedAt?: string;
+}
+
+export interface NewsItem {
+  id: number;
+  title: string;
+  content: string;
+  category: string | null;
+  imageUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ProjectStatus = 'active' | 'completed' | 'planned' | 'on-hold';
+
+export interface Project {
+  id: number;
+  title: string;
+  description: string;
+  category: string | null;
+  status: ProjectStatus;
+  imageUrl: string | null;
+  location: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // legacy aliases still returned by the API
+  title_en?: string;
+  description_en?: string;
+  image_url?: string | null;
+  created_at?: string;
+}
+
+export interface GalleryPhotoRaw {
+  id: number;
+  url: string;
+  title: string;
+  description: string;
+  caption: string;
+  uploadedAt: string;
+}
+
+export interface NewsInput {
+  title: string;
+  content?: string;
+  category?: string;
+  image?: File | null;
+}
+
+export interface ProjectInput {
+  title?: string;
+  /** legacy alias for title */
+  title_en?: string;
+  /** legacy alias for description */
+  description_en?: string;
+  description?: string;
+  status?: ProjectStatus | string;
+  category?: string;
+  location?: string;
+  image?: File | null;
+}
+
+export interface StaffInput {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+}
+
+export type StaffUpdate = Partial<StaffInput>;
+
+interface Envelope<T> {
+  success?: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
+const TOKEN_KEYS = ['authToken', 'auth_token'] as const;
+
+export const getStoredToken = (): string | null => {
+  for (const key of TOKEN_KEYS) {
+    const value = localStorage.getItem(key);
+    if (value) return value;
+  }
+  return null;
+};
+
+// ---------------------------------------------------------------------------
+// Client
+// ---------------------------------------------------------------------------
 class APIClient {
   private baseURL: string;
 
@@ -7,381 +141,235 @@ class APIClient {
     this.baseURL = baseURL;
   }
 
-  // Helper method to set auth header
-  private getAuthHeaders(options: RequestInit = {}): HeadersInit {
-    const token = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
+  private authHeaders(isFormData: boolean): Record<string, string> {
+    const token = getStoredToken();
     return {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-      ...options.headers,
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
   }
 
-  // Helper method for FormData requests
-  private getAuthHeadersForFormData(options: RequestInit = {}): HeadersInit {
-    const token = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
-    return {
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-      ...options.headers,
-    };
-  }
+  private async request<T>(endpoint: string, options: RequestInit = {}, isFormData = false): Promise<ApiResult<T>> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-  private async request<T>(
-    endpoint: string, 
-    options: RequestInit = {},
-    isFormData: boolean = false
-  ): Promise<{ data: T | null; error: string | null }> {
     try {
-      const url = `${this.baseURL}${endpoint}`;
-      
-      const headers = isFormData 
-        ? this.getAuthHeadersForFormData(options) 
-        : this.getAuthHeaders(options);
-
-      const response = await fetch(url, {
+      const response = await fetch(`${this.baseURL}${endpoint}`, {
         ...options,
-        headers,
+        headers: { ...this.authHeaders(isFormData), ...(options.headers as Record<string, string> | undefined) },
+        signal: controller.signal,
       });
 
+      const json = (await response.json().catch(() => null)) as Envelope<T> | T | null;
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || errorData.error || `HTTP ${response.status}`);
+        const env = (json ?? {}) as Envelope<T>;
+        throw new Error(env.message || env.error || `HTTP ${response.status}`);
       }
 
-      const json = await response.json();
-      
-      // Standardize the response to unwrap { success: true, data: result }
-      const data = json.success ? json.data : json;
-
+      // Unwrap { success, data } envelopes; pass raw payloads through.
+      const env = json as Envelope<T> | null;
+      const data = env && typeof env === 'object' && 'success' in env ? (env.data as T) : (json as T);
       return { data, error: null };
     } catch (error) {
-      return { 
-        data: null, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      };
+      const isTimeout = error instanceof DOMException && error.name === 'AbortError';
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      return { data: null, error: isTimeout ? 'Request timed out. The server may be starting up.' : message };
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
-  // --- Auth Methods ---
-  async login(email: string, password: string) {
-    const result = await this.request<any>('/auth/login', {
+  private async unwrap<T>(result: ApiResult<T>): Promise<T> {
+    if (result.error) throw new Error(result.error);
+    return result.data as T;
+  }
+
+  // --- Auth ---------------------------------------------------------------
+  async login(email: string, password: string): Promise<ApiResult<LoginResponse>> {
+    const result = await this.request<LoginResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-
     if (result.data?.token) {
       localStorage.setItem('authToken', result.data.token);
-      localStorage.setItem('auth_token', result.data.token);
       localStorage.setItem('user', JSON.stringify(result.data.user));
     }
-
     return result;
   }
 
-  async register(email: string, password: string, role: string = 'staff') {
-    return this.request<any>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, role })
-    });
-  }
-
   logout() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('auth_token');
+    for (const key of TOKEN_KEYS) localStorage.removeItem(key);
     localStorage.removeItem('user');
   }
 
-  getCurrentUser() {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+  getStoredUser(): AuthUser | null {
+    try {
+      const user = localStorage.getItem('user');
+      return user ? (JSON.parse(user) as AuthUser) : null;
+    } catch {
+      return null;
+    }
   }
 
   isAuthenticated() {
-    return !!(localStorage.getItem('authToken') || localStorage.getItem('auth_token'));
+    return !!getStoredToken();
   }
 
-  async verifyToken() {
-    return this.request<any>('/auth/verify');
+  verifyToken() {
+    return this.request<{ user: AuthUser }>('/auth/verify');
   }
 
-  // --- Hero Image Methods ---
-  async getHeroImage() {
-    return this.request<any>('/hero');
+  // --- Hero / About -------------------------------------------------------
+  getHeroImage() {
+    return this.request<ImageAsset>('/hero');
   }
 
-  async uploadHeroImage(imageFile: File) {
+  uploadHeroImage(imageFile: File) {
     const formData = new FormData();
     formData.append('heroImage', imageFile);
-    return this.request<any>('/hero', {
-      method: 'POST',
-      body: formData
-    }, true);
+    return this.request<ImageAsset>('/hero', { method: 'POST', body: formData }, true);
   }
 
-  // --- About Image Methods ---
-  async getAboutImage() {
-    return this.request<any>('/about');
+  getAboutImage() {
+    return this.request<ImageAsset>('/about');
   }
 
-  async uploadAboutImage(imageFile: File) {
+  uploadAboutImage(imageFile: File) {
     const formData = new FormData();
     formData.append('aboutImage', imageFile);
-    return this.request<any>('/about', {
-      method: 'POST',
-      body: formData
-    }, true);
+    return this.request<ImageAsset>('/about', { method: 'POST', body: formData }, true);
   }
 
-  async deleteAboutImage() {
-    return this.request<any>('/about', {
-      method: 'DELETE'
-    });
+  deleteAboutImage() {
+    return this.request<{ message: string }>('/about', { method: 'DELETE' });
   }
 
-  // --- News Methods ---
-  async getNews(params?: { page?: number; limit?: number; category?: string }) {
-    const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.append('page', params.page.toString());
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
-    if (params?.category) searchParams.append('category', params.category);
-    
-    const query = searchParams.toString();
-    return this.request<any>(`/news${query ? `?${query}` : ''}`);
-  }
-  
-  async getAllNews() { // Alias for compatibility
-    const result = await this.getNews();
-    if (result.error) throw new Error(result.error);
-    return result.data;
+  // --- News ---------------------------------------------------------------
+  getNews(params?: { limit?: number; category?: string }) {
+    const search = new URLSearchParams();
+    if (params?.limit) search.set('limit', String(params.limit));
+    if (params?.category) search.set('category', params.category);
+    const query = search.toString();
+    return this.request<NewsItem[]>(`/news${query ? `?${query}` : ''}`);
   }
 
-  async getNewsById(id: string) {
-    return this.request<any>(`/news/${id}`);
+  async getAllNews(): Promise<NewsItem[]> {
+    return (await this.unwrap(await this.getNews())) ?? [];
   }
 
-  // Unified signature for creating news (supports both formats used in hooks)
-  async createNews(titleOrData: any, content?: string, category?: string, imageFile?: File) {
+  async getNewsById(id: string | number): Promise<NewsItem> {
+    return this.unwrap(await this.request<NewsItem>(`/news/${id}`));
+  }
+
+  private newsForm(input: NewsInput) {
     const formData = new FormData();
-    
-    if (typeof titleOrData === 'object' && titleOrData !== null) {
-       // Called from useNews.ts
-       formData.append('title', titleOrData.title_en || titleOrData.title);
-       formData.append('content', titleOrData.description_en || titleOrData.description || titleOrData.content);
-       if (titleOrData.category) formData.append('category', titleOrData.category);
-       if (titleOrData.image) formData.append('image', titleOrData.image);
-    } else {
-       // Called from useNewsAPI.ts
-       formData.append('title', titleOrData);
-       if (content) formData.append('content', content);
-       if (category) formData.append('category', category);
-       if (imageFile) formData.append('image', imageFile);
-    }
-
-    const result = await this.request<any>('/news', {
-      method: 'POST',
-      body: formData
-    }, true);
-
-    if (result.error) throw new Error(result.error);
-    return result.data;
+    formData.append('title', input.title);
+    if (input.content) formData.append('content', input.content);
+    if (input.category) formData.append('category', input.category);
+    if (input.image) formData.append('image', input.image);
+    return formData;
   }
 
-  async updateNews(id: string, titleOrData: any, content?: string, imageFile?: File) {
+  async createNews(input: NewsInput): Promise<NewsItem> {
+    return this.unwrap(await this.request<NewsItem>('/news', { method: 'POST', body: this.newsForm(input) }, true));
+  }
+
+  async updateNews(id: string | number, input: NewsInput): Promise<NewsItem> {
+    return this.unwrap(await this.request<NewsItem>(`/news/${id}`, { method: 'PUT', body: this.newsForm(input) }, true));
+  }
+
+  async deleteNews(id: string | number) {
+    return this.unwrap(await this.request<{ message: string }>(`/news/${id}`, { method: 'DELETE' }));
+  }
+
+  // --- Projects -----------------------------------------------------------
+  getProjects(params?: { status?: string; category?: string; limit?: number }) {
+    const search = new URLSearchParams();
+    if (params?.status) search.set('status', params.status);
+    if (params?.category) search.set('category', params.category);
+    if (params?.limit) search.set('limit', String(params.limit));
+    const query = search.toString();
+    return this.request<Project[]>(`/projects${query ? `?${query}` : ''}`);
+  }
+
+  async getAllProjects(status?: string): Promise<Project[]> {
+    return (await this.unwrap(await this.getProjects({ status }))) ?? [];
+  }
+
+  async getProjectById(id: string | number): Promise<Project> {
+    return this.unwrap(await this.request<Project>(`/projects/${id}`));
+  }
+
+  private projectForm(input: ProjectInput) {
     const formData = new FormData();
-    
-    if (typeof titleOrData === 'object' && titleOrData !== null) {
-       formData.append('title', titleOrData.title_en || titleOrData.title);
-       formData.append('content', titleOrData.description_en || titleOrData.description || titleOrData.content);
-       if (titleOrData.category) formData.append('category', titleOrData.category);
-       if (titleOrData.image) formData.append('image', titleOrData.image);
-    } else {
-       formData.append('title', titleOrData);
-       if (content) formData.append('content', content);
-       if (imageFile) formData.append('image', imageFile);
-    }
-
-    const result = await this.request<any>(`/news/${id}`, {
-      method: 'PUT',
-      body: formData
-    }, true);
-    
-    if (result.error) throw new Error(result.error);
-    return result.data;
+    formData.append('title', input.title || input.title_en || '');
+    const description = input.description || input.description_en;
+    if (description) formData.append('description', description);
+    if (input.status) formData.append('status', input.status);
+    if (input.category) formData.append('category', input.category);
+    if (input.location) formData.append('location', input.location);
+    if (input.image) formData.append('image', input.image);
+    return formData;
   }
 
-  async deleteNews(id: string) {
-    const result = await this.request<any>(`/news/${id}`, { method: 'DELETE' });
-    if (result.error) throw new Error(result.error);
-    return result.data;
+  async createProject(input: ProjectInput): Promise<Project> {
+    return this.unwrap(await this.request<Project>('/projects', { method: 'POST', body: this.projectForm(input) }, true));
   }
 
-  // --- Projects Methods ---
-  async getProjects(paramsOrStatus?: any) {
-    let query = '';
-    if (typeof paramsOrStatus === 'string') {
-        query = `?status=${paramsOrStatus}`;
-    } else if (paramsOrStatus && typeof paramsOrStatus === 'object') {
-        const searchParams = new URLSearchParams();
-        if (paramsOrStatus.page) searchParams.append('page', paramsOrStatus.page.toString());
-        if (paramsOrStatus.limit) searchParams.append('limit', paramsOrStatus.limit.toString());
-        if (paramsOrStatus.category) searchParams.append('category', paramsOrStatus.category);
-        query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    }
-    
-    return this.request<any>(`/projects${query}`);
+  async updateProject(id: string | number, input: ProjectInput): Promise<Project> {
+    return this.unwrap(await this.request<Project>(`/projects/${id}`, { method: 'PUT', body: this.projectForm(input) }, true));
   }
 
-  async getAllProjects(status?: string) { // Alias
-      const result = await this.getProjects(status);
-      if (result.error) throw new Error(result.error);
-      return result.data;
+  async deleteProject(id: string | number) {
+    return this.unwrap(await this.request<{ message: string }>(`/projects/${id}`, { method: 'DELETE' }));
   }
 
-  async getProjectById(id: string) {
-    return this.request<any>(`/projects/${id}`);
+  // --- Gallery ------------------------------------------------------------
+  getGallery() {
+    return this.request<GalleryPhotoRaw[]>('/gallery');
   }
 
-  async createProject(projectData: any) {
-    const formData = new FormData();
-    formData.append('title', projectData.title_en || projectData.title);
-    formData.append('description', projectData.description_en || projectData.description);
-    formData.append('status', projectData.status || 'active');
-    
-    if (projectData.category) formData.append('category', projectData.category);
-    if (projectData.location) formData.append('location', projectData.location);
-    if (projectData.image) formData.append('image', projectData.image);
-    
-    const result = await this.request<any>('/projects', {
-      method: 'POST',
-      body: formData
-    }, true);
-    
-    if (result.error) throw new Error(result.error);
-    return result.data;
+  async getAllGalleryPhotos(): Promise<GalleryPhotoRaw[]> {
+    return (await this.unwrap(await this.getGallery())) ?? [];
   }
 
-  async updateProject(id: string, titleOrData: any, description?: string, status?: string, imageFile?: File) {
-    const formData = new FormData();
-    
-    if (typeof titleOrData === 'object' && titleOrData !== null) {
-      formData.append('title', titleOrData.title_en || titleOrData.title);
-      formData.append('description', titleOrData.description_en || titleOrData.description);
-      formData.append('status', titleOrData.status || 'active');
-      if (titleOrData.category) formData.append('category', titleOrData.category);
-      if (titleOrData.location) formData.append('location', titleOrData.location);
-      if (titleOrData.image) formData.append('image', titleOrData.image);
-    } else {
-      formData.append('title', titleOrData);
-      if (description) formData.append('description', description);
-      if (status) formData.append('status', status);
-      if (imageFile) formData.append('image', imageFile);
-    }
-
-    const result = await this.request<any>(`/projects/${id}`, {
-      method: 'PUT',
-      body: formData
-    }, true);
-    
-    if (result.error) throw new Error(result.error);
-    return result.data;
-  }
-
-  async deleteProject(id: string) {
-    const result = await this.request<any>(`/projects/${id}`, { method: 'DELETE' });
-    if (result.error) throw new Error(result.error);
-    return result.data;
-  }
-
-  // --- Gallery Methods ---
-  async getGallery() {
-    const response = await this.request<any>('/gallery');
-    
-    if (response.data && Array.isArray(response.data)) {
-      response.data = response.data.map((item: any) => ({
-        ...item,
-        id: item._id || item.id,
-        image_url: item.url.startsWith('http') ? item.url : `${config.cdnUrl}${item.url}`,
-        title: item.title || item.caption || 'Untitled',
-        description: item.description || '',
-        created_at: item.uploadedAt,
-        updated_at: item.uploadedAt
-      }));
-    }
-    return response;
-  }
-  
-  async getAllGalleryPhotos() { // Alias
-      const result = await this.getGallery();
-      if (result.error) throw new Error(result.error);
-      return result.data;
-  }
-
-  async uploadGalleryPhoto(photoFile: File, caption: string = '') {
+  async uploadGalleryPhoto(photoFile: File, caption = ''): Promise<GalleryPhotoRaw> {
     const formData = new FormData();
     formData.append('photo', photoFile);
     formData.append('caption', caption);
-    
-    const result = await this.request<any>('/gallery', {
-      method: 'POST',
-      body: formData
-    }, true);
-    if (result.error) throw new Error(result.error);
-    return result.data;
+    return this.unwrap(await this.request<GalleryPhotoRaw>('/gallery', { method: 'POST', body: formData }, true));
   }
 
-  async createGalleryItem(galleryData: any) {
-     return this.uploadGalleryPhoto(galleryData.photo || galleryData.image, galleryData.caption || galleryData.title);
+  async updatePhotoCaption(id: string | number, caption: string): Promise<GalleryPhotoRaw> {
+    return this.unwrap(await this.request<GalleryPhotoRaw>(`/gallery/${id}`, { method: 'PUT', body: JSON.stringify({ caption }) }));
   }
 
-  async updatePhotoCaption(id: string, caption: string) {
-    const result = await this.request<any>(`/gallery/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ caption })
-    });
-    if (result.error) throw new Error(result.error);
-    return result.data;
+  async deletePhoto(id: string | number) {
+    return this.unwrap(await this.request<{ message: string }>(`/gallery/${id}`, { method: 'DELETE' }));
   }
 
-  async deletePhoto(id: string) {
-    const result = await this.request<any>(`/gallery/${id}`, { method: 'DELETE' });
-    if (result.error) throw new Error(result.error);
-    return result.data;
+  // --- Staff --------------------------------------------------------------
+  getStaff() {
+    return this.request<StaffMember[]>('/staff');
   }
 
-  async deleteGalleryItem(id: string) {
-    return this.deletePhoto(id);
+  getCurrentUser() {
+    return this.request<StaffMember>('/staff/me');
   }
 
-  // --- Staff/Users Methods ---
-  async getAllUsers() {
-    return this.request<any>('/auth/users');
+  createStaff(input: StaffInput) {
+    return this.request<StaffMember>('/staff', { method: 'POST', body: JSON.stringify(input) });
   }
 
-  async getStaff() {
-    return this.request<any>('/staff');
+  updateStaff(id: string | number, input: StaffUpdate) {
+    return this.request<StaffMember>(`/staff/${id}`, { method: 'PUT', body: JSON.stringify(input) });
   }
 
-  async createStaff(staffData: any) {
-    return this.request<any>('/staff', {
-      method: 'POST',
-      body: JSON.stringify(staffData)
-    });
-  }
-
-  async updateStaff(id: string, staffData: any) {
-    return this.request<any>(`/staff/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(staffData)
-    });
-  }
-
-  async deleteStaff(id: string) {
-    return this.request<any>(`/staff/${id}`, { method: 'DELETE' });
+  deleteStaff(id: string | number) {
+    return this.request<{ message: string }>(`/staff/${id}`, { method: 'DELETE' });
   }
 }
 
-// Create and export a default instance
 export const apiClient = new APIClient();
-
-// Create default export for compatibility with charityDashboardAPI alias
 export default apiClient;
