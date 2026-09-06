@@ -18,10 +18,11 @@ npm install
 npm run dev                   # http://localhost:5000
 
 # 2. Frontend (new terminal, repo root)
-cp .env.example .env          # VITE_API_URL=http://localhost:5000/api
 npm install
-npm run dev                   # http://localhost:8080
+npm run dev                   # http://localhost:8080, /api proxied to the Railway backend
 ```
+
+To develop against the local backend instead, create `.env` with `BACKEND_URL=http://localhost:5000`.
 
 On Windows, `start-app.ps1` opens both servers once the two `.env` files exist.
 
