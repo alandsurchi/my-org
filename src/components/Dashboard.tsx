@@ -25,6 +25,9 @@ import { useAboutImage, useUploadAboutImage } from '@/hooks/useAboutAPI';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import ImageCropDialog from './ImageCropDialog';
 import ImageCropper from './ImageCropper';
+import PostEditDialog, { type EditablePost } from './admin/PostEditDialog';
+
+const resolveImage = (url?: string | null) => (url ? (url.startsWith('http') ? url : `${config.cdnUrl}${url}`) : null);
 
 interface LegacyNewsInput {
   title?: string;
@@ -177,12 +180,8 @@ const Dashboard = ({ userType, userName }: DashboardProps) => {
 
   // Dynamic News Section state
   const [selectedNewsCategory, setSelectedNewsCategory] = useState('');
-  const [editingNewsItem, setEditingNewsItem] = useState<string | null>(null);
-  const [tempNewsData, setTempNewsData] = useState({
-    date: '',
-    title: '',
-    content: ''
-  });
+  // Project / news post currently open in the edit dialog
+  const [editingPost, setEditingPost] = useState<EditablePost | null>(null);
 
   // Projects section state
   const [showAllProjects, setShowAllProjects] = useState(false);
@@ -1190,54 +1189,6 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
     });
   };
 
-  // Backend news editing handlers
-  const handleCancelEdit = () => {
-    setEditingNewsItem(null);
-    setTempNewsData({ date: '', title: '', content: '' });
-  };
-
-  const handleEditBackendNewsItem = (item: NewsItem) => {
-    if (editingNewsItem) {
-      handleCancelEdit();
-    }
-    
-    const itemId = String(item.id);
-    setEditingNewsItem(itemId);
-    setTempNewsData({
-      date: new Date(item.createdAt).toLocaleDateString(),
-      title: item.title,
-      content: item.content
-    });
-  };
-
-  const handleSaveBackendNewsItem = async (item: NewsItem) => {
-    const itemId = String(item.id);
-    try {
-      // Create a new updated item (since we don't have an update API, we'll create new and delete old)
-      await createNews.mutateAsync({
-        title: tempNewsData.title,
-        content: tempNewsData.content
-      });
-      
-      // Delete the old item
-      await deleteNews.mutateAsync(itemId);
-      
-      setEditingNewsItem(null);
-      setTempNewsData({ date: '', title: '', content: '' });
-      
-      toast({
-        title: "News Updated",
-        description: "The news item has been successfully updated.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error", 
-        description: `Failed to update news item: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive"
-      });
-    }
-  };
-
   // Template and creation handlers
   const resetTemplateFields = (category: string) => {
     setTemplateFields({
@@ -1488,11 +1439,6 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
 
     try {
       await deleteNews.mutateAsync(itemId);
-      
-      if (editingNewsItem === itemId) {
-        setEditingNewsItem(null);
-        setTempNewsData({ date: '', title: '', content: '' });
-      }
 
       toast({
         title: "News Deleted",
@@ -2530,7 +2476,8 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                                 size="sm"
                                 variant="ghost"
                                 className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                                onClick={() => handleEditBackendNewsItem(item)}
+                                onClick={() => setEditingPost({ kind: 'news', item })}
+                                title="Edit this post"
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
@@ -2545,75 +2492,39 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                               </Button>
                             </div>
 
-                            {/* Date Badge */}
-                            <div className="mb-4">
-                              <Badge 
-                                variant="secondary" 
+                            {/* Image */}
+                            {resolveImage(item.imageUrl) && (
+                              <img
+                                src={resolveImage(item.imageUrl) ?? undefined}
+                                alt=""
+                                className="w-full h-40 object-cover rounded-xl mb-4"
+                              />
+                            )}
+
+                            {/* Date + category */}
+                            <div className="mb-4 flex flex-wrap gap-2 pr-16">
+                              <Badge
+                                variant="secondary"
                                 className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium"
                               >
-                                {editingNewsItem === itemId ? (
-                                  <Input
-                                    value={tempNewsData.date || new Date(item.createdAt).toLocaleDateString()}
-                                    onChange={(e) => setTempNewsData({...tempNewsData, date: e.target.value})}
-                                    className="w-full bg-white text-gray-900 text-xs"
-                                    placeholder="Enter date..."
-                                  />
-                                ) : (
-                                  new Date(item.createdAt).toLocaleDateString()
-                                )}
+                                {new Date(item.createdAt).toLocaleDateString()}
                               </Badge>
+                              {item.category && (
+                                <Badge variant="outline" className="text-xs font-medium">{item.category}</Badge>
+                              )}
                             </div>
 
                             {/* Title */}
                             <CardHeader className="p-0 mb-4">
-                              <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2 pr-16">
-                                {editingNewsItem === itemId ? (
-                                  <Input
-                                    value={tempNewsData.title || item.title}
-                                    onChange={(e) => setTempNewsData({...tempNewsData, title: e.target.value})}
-                                    className="w-full text-lg font-bold"
-                                    placeholder="Enter title..."
-                                  />
-                                ) : (
-                                  item.title
-                                )}
+                              <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2">
+                                {item.title}
                               </CardTitle>
                             </CardHeader>
 
                             {/* Content */}
                             <div className="text-gray-700 leading-relaxed">
-                              {editingNewsItem === itemId ? (
-                                <Textarea
-                                  value={tempNewsData.content || item.content}
-                                  onChange={(e) => setTempNewsData({...tempNewsData, content: e.target.value})}
-                                  className="w-full min-h-[120px] resize-none"
-                                  placeholder="Enter content..."
-                                />
-                              ) : (
-                                <pre className="whitespace-pre-line font-sans">{item.content}</pre>
-                              )}
+                              <pre className="whitespace-pre-line font-sans line-clamp-6">{item.content}</pre>
                             </div>
-
-                            {/* Edit Controls */}
-                            {editingNewsItem === itemId && (
-                              <div className="flex gap-2 mt-4">
-                                <Button
-                                  size="sm"
-                                  className="bg-green-600 hover:bg-green-700 text-white"
-                                  onClick={() => handleSaveBackendNewsItem(item)}
-                                  disabled={createNews.isPending}
-                                >
-                                  {createNews.isPending ? 'Saving...' : 'Save'}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={handleCancelEdit}
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
-                            )}
 
                             {/* Category Badge */}
                             <div className="mt-6 pt-4 border-t border-gray-100">
@@ -3110,6 +3021,8 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                                     size="sm"
                                     variant="ghost"
                                     className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                                    onClick={() => setEditingPost({ kind: 'project', item: project })}
+                                    title="Edit this project"
                                   >
                                     <Edit className="w-4 h-4" />
                                   </Button>
@@ -3124,9 +3037,24 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                                   </Button>
                                 </div>
 
+                                {/* Image */}
+                                {resolveImage(project.imageUrl) && (
+                                  <img
+                                    src={resolveImage(project.imageUrl) ?? undefined}
+                                    alt=""
+                                    className="w-full h-40 object-cover rounded-xl mb-4"
+                                  />
+                                )}
+
                                 {/* Status Badge */}
-                                <div className="mb-4">
-                                  <Badge 
+                                <div className="mb-4 flex flex-wrap gap-2 pr-16">
+                                  {project.category && (
+                                    <Badge variant="outline" className="text-xs font-medium">{project.category}</Badge>
+                                  )}
+                                  {project.location && (
+                                    <Badge variant="outline" className="text-xs font-medium">{project.location}</Badge>
+                                  )}
+                                  <Badge
                                     variant="secondary" 
                                     className={`${
                                       project.status === 'completed' 
@@ -3462,6 +3390,8 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
       </Dialog>
 
       {/* Image Crop Dialog */}
+      <PostEditDialog post={editingPost} onClose={() => setEditingPost(null)} />
+
       <ImageCropDialog
         open={cropDialogOpen}
         onClose={() => setCropDialogOpen(false)}

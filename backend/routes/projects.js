@@ -91,6 +91,7 @@ router.put('/:id', requireAuth, upload.single('image'), projectValidation(true),
     if (req.body.category !== undefined) { updates.push(`category = $${i++}`); values.push(req.body.category || null); }
     if (req.body.location !== undefined) { updates.push(`location = $${i++}`); values.push(req.body.location || null); }
     if (imageUrl) { updates.push(`image_url = $${i++}`); values.push(imageUrl); }
+    else if (req.body.removeImage === 'true') { updates.push('image_url = NULL'); }
     updates.push('updated_at = NOW()');
 
     values.push(id);

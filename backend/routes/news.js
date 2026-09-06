@@ -72,6 +72,7 @@ router.put('/:id', requireAuth, upload.single('image'), newsValidation(true), va
     if (req.body.content) { updates.push(`content = $${i++}`); values.push(req.body.content); }
     if (req.body.category !== undefined) { updates.push(`category = $${i++}`); values.push(req.body.category || null); }
     if (imageUrl) { updates.push(`image_url = $${i++}`); values.push(imageUrl); }
+    else if (req.body.removeImage === 'true') { updates.push('image_url = NULL'); }
     updates.push('updated_at = NOW()');
 
     values.push(id);

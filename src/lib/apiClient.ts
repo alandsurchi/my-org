@@ -92,6 +92,8 @@ export interface NewsInput {
   content?: string;
   category?: string;
   image?: File | null;
+  /** true clears the existing image (ignored when a new image is sent) */
+  removeImage?: boolean;
 }
 
 export interface ProjectInput {
@@ -105,6 +107,8 @@ export interface ProjectInput {
   category?: string;
   location?: string;
   image?: File | null;
+  /** true clears the existing image (ignored when a new image is sent) */
+  removeImage?: boolean;
 }
 
 export interface StaffInput {
@@ -270,6 +274,7 @@ class APIClient {
     if (input.content) formData.append('content', input.content);
     if (input.category) formData.append('category', input.category);
     if (input.image) formData.append('image', input.image);
+    else if (input.removeImage) formData.append('removeImage', 'true');
     return formData;
   }
 
@@ -310,8 +315,9 @@ class APIClient {
     if (description) formData.append('description', description);
     if (input.status) formData.append('status', input.status);
     if (input.category) formData.append('category', input.category);
-    if (input.location) formData.append('location', input.location);
+    if (input.location !== undefined) formData.append('location', input.location);
     if (input.image) formData.append('image', input.image);
+    else if (input.removeImage) formData.append('removeImage', 'true');
     return formData;
   }
 
