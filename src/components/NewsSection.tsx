@@ -123,55 +123,73 @@ const NewsSection = () => {
       .slice(0, 3);
 
     return (
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 gap-8">
         {sortedNews.map((item, index) => {
           if (!item) return null;
           
           const imageUrl = getImageSrc(item.imageUrl || item.image_url);
           const IconComponent = getIconComponent(category);
-          
+          const title = item.title || item.title_en || 'Untitled News';
+          const body = item.content || item.description_en || item.description || '';
+          const excerpt = body.length > 150 ? `${body.substring(0, 150)}...` : body;
+          const date = new Date(item.createdAt || item.date || Date.now()).toLocaleDateString();
+
+          // Same card as the Activities section: image (or a branded placeholder
+          // when the post has none), category label, title, excerpt, date + read more.
           return (
             <Card key={item.id ?? index} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
-              {imageUrl && (
-                <div className="relative overflow-hidden">
-                  <img 
-                    src={imageUrl} 
-                    alt={item.title || item.title_en || 'News item'}
-                    className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              <div className="relative overflow-hidden">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={title}
+                    className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                  
-                  <div className="absolute top-4 right-4">
-                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                      <IconComponent className="w-6 h-6 text-white" />
-                    </div>
+                ) : (
+                  <div className="h-56 w-full bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-600 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                    <IconComponent className="w-20 h-20 text-white/70" />
                   </div>
-                  
-                  <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : (item.date ? new Date(item.date).toLocaleDateString() : 'No date')}
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+                <div className="absolute top-4 left-4 flex items-center gap-2">
+                  <span className="text-2xl">{getTabIcon(category)}</span>
+                  <span className="text-sm text-white/90 font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                    {t(category)}
+                  </span>
+                </div>
+
+                <div className="absolute top-4 right-4">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
+                    <IconComponent className="w-6 h-6 text-white" />
                   </div>
                 </div>
-              )}
-              
+              </div>
+
               <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                  {item.title || item.title_en || 'Untitled News'}
+                <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+                  {title}
                 </CardTitle>
-                <CardDescription className="text-gray-600 leading-relaxed line-clamp-3" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                  {item.content || item.description_en || item.description || 'No description available'}
+                <CardDescription className="text-gray-600 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                  {excerpt}
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent className="pt-0">
-                <Button 
-                  variant="ghost" 
-                  className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium group/btn justify-between"
-                  onClick={() => handleReadMore(item)}
-                >
-                  {t('readMore')}
-                  <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-                </Button>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center text-gray-500">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <span className="text-sm font-medium">{date}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-auto font-medium group/btn"
+                    onClick={() => handleReadMore(item)}
+                  >
+                    {t('readMore')}
+                    <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           );
