@@ -201,6 +201,42 @@ test('the last super admin cannot demote themselves or delete themselves', async
   assert.equal(del.status, 403);
 });
 
+test('analytics: public beacon is recorded, summary needs auth and skips staff pages', async () => {
+  const beacon = await api('POST', '/api/analytics/view', { body: { path: '/projects', lang: 'ku', device: 'mobile', referrer: 'https://www.facebook.com/x' } });
+  assert.equal(beacon.status, 204);
+  const staffPage = await api('POST', '/api/analytics/view', { body: { path: '/dashboard', lang: 'en' } });
+  assert.equal(staffPage.status, 204);
+  const bad = await api('POST', '/api/analytics/view', { body: { path: 'javascript:alert(1)' } });
+  assert.equal(bad.status, 204);
+
+  const anon = await api('GET', '/api/analytics/summary');
+  assert.equal(anon.status, 401);
+  const summary = await api('GET', '/api/analytics/summary?days=7', { token: adminToken });
+  assert.equal(summary.status, 200, JSON.stringify(summary.json));
+  assert.ok(summary.json.data.views >= 1);
+  assert.ok(summary.json.data.topPages.some((p) => p.path === '/projects'));
+  assert.ok(!summary.json.data.topPages.some((p) => p.path === '/dashboard'));
+  assert.ok(summary.json.data.referrers.some((r) => r.referrer === 'facebook.com'));
+});
+
+test('backup: super admin gets a zip with data.json and uploads; others are refused', async () => {
+  const info = await api('GET', '/api/backup/info', { token: adminToken });
+  assert.equal(info.status, 200, JSON.stringify(info.json));
+  assert.ok(info.json.data.tables.news >= 0);
+
+  const res = await fetch(`${BASE}/api/backup`, { headers: { Authorization: `Bearer ${adminToken}` } });
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'application/zip');
+  assert.match(res.headers.get('content-disposition') || '', /mrovdostan-backup-.*\.zip/);
+  const buf = Buffer.from(await res.arrayBuffer());
+  assert.ok(buf.length > 200, 'zip should not be empty');
+  assert.equal(buf.toString('ascii', 0, 2), 'PK', 'should be a zip file');
+  assert.ok(buf.includes(Buffer.from('data.json')));
+
+  const anon = await api('GET', '/api/backup');
+  assert.equal(anon.status, 401);
+});
+
 test('unknown routes return JSON 404; any origin is accepted unless ALLOWED_ORIGINS is set', async () => {
   const nf = await api('GET', '/api/nothing-here');
   assert.equal(nf.status, 404);

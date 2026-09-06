@@ -120,6 +120,22 @@ export interface StaffInput {
 
 export type StaffUpdate = Partial<StaffInput>;
 
+export interface AnalyticsSummary {
+  days: number;
+  views: number;
+  visitors: number;
+  byDay: { day: string; views: number; visitors: number }[];
+  topPages: { path: string; views: number }[];
+  referrers: { referrer: string; views: number }[];
+  languages: { lang: string; views: number }[];
+  devices: { device: string; views: number }[];
+}
+
+export interface BackupInfo {
+  tables: Record<string, number>;
+  uploads: { bytes: number; files: number };
+}
+
 interface Envelope<T> {
   success?: boolean;
   data?: T;
@@ -355,6 +371,27 @@ class APIClient {
 
   async deletePhoto(id: string | number) {
     return this.unwrap(await this.request<{ message: string }>(`/gallery/${id}`, { method: 'DELETE' }));
+  }
+
+  // --- Analytics / backup -------------------------------------------------
+  getAnalyticsSummary(days = 30) {
+    return this.request<AnalyticsSummary>(`/analytics/summary?days=${days}`);
+  }
+
+  getBackupInfo() {
+    return this.request<BackupInfo>('/backup/info');
+  }
+
+  /** Downloads the full backup zip (super admin). Returns the Blob and filename. */
+  async downloadBackup(): Promise<{ blob: Blob; filename: string }> {
+    const response = await fetch(`${this.baseURL}/backup`, { headers: this.authHeaders(true) });
+    if (!response.ok) {
+      const env = (await response.json().catch(() => ({}))) as Envelope<unknown>;
+      throw new Error(env.message || env.error || `HTTP ${response.status}`);
+    }
+    const disposition = response.headers.get('content-disposition') || '';
+    const filename = /filename="([^"]+)"/.exec(disposition)?.[1] || 'backup.zip';
+    return { blob: await response.blob(), filename };
   }
 
   // --- Staff --------------------------------------------------------------

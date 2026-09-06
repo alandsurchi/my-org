@@ -73,6 +73,22 @@ VITE_SECRET_STAFF_PATH=<hidden login path>
 
 Do not set `VITE_API_URL` on Railway: the default `/api` goes through the proxy. (Set it only when hosting the frontend somewhere without the proxy, e.g. Vercel.)
 
+### Backups
+
+- **Database**: Railway point-in-time recovery is enabled on the Postgres service (`railway postgres pitr status --service Postgres`).
+- **Everything, downloadable**: Dashboard → Staff tab → **Download backup (.zip)** (super admin). The zip holds `data.json` (all tables) and `uploads/` (all images). Keep it private; it contains staff password hashes.
+- **Uploads off-site (optional)**: set `STORAGE_TYPE=r2` plus `R2_ENDPOINT`, `R2_ACCESS_KEY`, `R2_SECRET_KEY`, `R2_BUCKET`, `R2_PUBLIC_URL` on the backend to store new uploads in Cloudflare R2.
+
+### Monitoring
+
+- Backend health check: `/health` (Railway restarts the service if it fails).
+- Error tracking: create a project at sentry.io and set `SENTRY_DSN` on **both** Railway services. The backend reports server errors; the web service injects the DSN so the browser reports front-end crashes. No rebuild needed.
+- Uptime alerts: add `https://<your-domain>/api/health` to a free monitor such as UptimeRobot or Better Stack.
+
+### Analytics
+
+Built in, first-party and cookie-free: the site sends one beacon per page view to `/api/analytics/view` (path, referrer host, language, device). Visitors are counted with a daily salted hash, never an IP. Staff pages are excluded and Do-Not-Track is honoured. See Dashboard → Home tab → **Website visitors**.
+
 ### Custom domain
 
 1. Railway → frontend web service → Settings → Networking → Custom Domain: add `www.yourdomain.org` and the bare domain. Add the CNAME records Railway shows at your registrar.

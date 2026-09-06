@@ -91,6 +91,21 @@ async function initDatabase() {
       );
     `);
 
+    // First-party analytics (no cookies, no IPs; visitor is a daily salted hash)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS page_views (
+        id BIGSERIAL PRIMARY KEY,
+        day DATE NOT NULL,
+        path VARCHAR(200) NOT NULL,
+        visitor VARCHAR(32) NOT NULL,
+        referrer VARCHAR(255),
+        lang VARCHAR(8),
+        device VARCHAR(10),
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_page_views_day ON page_views(day);`);
+
     // Indexes
     await client.query(`CREATE INDEX IF NOT EXISTS idx_news_created ON news(created_at DESC);`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_news_category ON news(category);`);

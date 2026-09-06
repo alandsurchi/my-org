@@ -27,6 +27,8 @@ import ImageCropDialog from './ImageCropDialog';
 import ImageCropper from './ImageCropper';
 import PostEditDialog, { type EditablePost } from './admin/PostEditDialog';
 import { DayOfWeekSelect, DatePickerField } from './admin/DateFields';
+import AnalyticsCard from './admin/AnalyticsCard';
+import BackupCard from './admin/BackupCard';
 
 const resolveImage = (url?: string | null) => (url ? (url.startsWith('http') ? url : `${config.cdnUrl}${url}`) : null);
 
@@ -1635,6 +1637,7 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
           </TabsList>
 
           <TabsContent value="home" className="space-y-6">
+            <AnalyticsCard />
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -3038,6 +3041,7 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
           </TabsContent>
 
           <TabsContent value="staff" className="space-y-6">
+            {isSuperAdmin && <BackupCard />}
             {isSuperAdmin ? (
               <div className="grid gap-6">
                 <Card>

@@ -170,6 +170,8 @@ async function sendIndex(req, res, pathname) {
     `    <link rel="canonical" href="${origin}${pathname === '/' ? '/' : pathname}" />`,
     `    <meta property="og:url" content="${origin}${pathname}" />`,
     noindex ? '    <meta name="robots" content="noindex, nofollow" />' : '',
+    // Runtime config for the browser (error monitoring turns on when SENTRY_DSN is set)
+    process.env.SENTRY_DSN ? `    <script>window.__SENTRY_DSN__=${JSON.stringify(process.env.SENTRY_DSN)};</script>` : '',
   ].filter(Boolean).join('\n');
   html = html.replace('</head>', `${extra}\n  </head>`);
 

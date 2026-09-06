@@ -37,6 +37,14 @@ console.log('  DATABASE_URL:', process.env.DATABASE_URL ? 'set' : 'NOT SET');
 console.log('  JWT_SECRET:', process.env.JWT_SECRET ? 'set' : 'NOT SET');
 console.log('  STORAGE_TYPE:', process.env.STORAGE_TYPE || 'local');
 
+// Error monitoring: active only when SENTRY_DSN is set (Railway → Variables)
+let Sentry = null;
+if (process.env.SENTRY_DSN) {
+  Sentry = require('@sentry/node');
+  Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.NODE_ENV || 'development', tracesSampleRate: 0.1 });
+  console.log('  Sentry: enabled');
+}
+
 const app = express();
 
 // Railway (and most PaaS) sit behind one reverse proxy. Without this,
@@ -182,11 +190,15 @@ app.use('/api/projects', require('./routes/projects'));
 app.use('/api/gallery', require('./routes/gallery'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/staff', require('./routes/staff'));
+app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/backup', require('./routes/backup'));
 
 // 404
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
+
+if (Sentry) Sentry.setupExpressErrorHandler(app);
 
 // Error handler
 app.use((err, req, res, next) => {
