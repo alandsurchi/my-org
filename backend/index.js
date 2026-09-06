@@ -49,26 +49,25 @@ app.use(securityHeaders);
 // ---------------------------------------------------------------------------
 // CORS
 // ---------------------------------------------------------------------------
-const rawOrigins = process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || '';
-const configuredOrigins = rawOrigins.split(',').map((o) => o.trim()).filter(Boolean);
-const devOrigins = ['http://localhost:8080', 'http://127.0.0.1:8080', 'http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'];
-const allowedOrigins = new Set(process.env.NODE_ENV === 'production' ? configuredOrigins : [...devOrigins, ...configuredOrigins]);
-
-if (process.env.NODE_ENV === 'production' && allowedOrigins.size === 0) {
-  console.warn('ALLOWED_ORIGINS is empty: browsers will be blocked by CORS. Set it to your frontend URL(s).');
-}
+// Auth uses Bearer tokens (no cookies), so accepting any origin is safe: a
+// foreign page cannot read our token. By default every origin is accepted so
+// the frontend can live on any host (Railway, Vercel, localhost). Set
+// ALLOWED_ORIGINS to a comma-separated list to restrict it.
+const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+const restrictOrigins = configuredOrigins.length > 0 && process.env.CORS_ALLOW_ALL !== 'true';
+console.log('  CORS:', restrictOrigins ? `restricted to ${configuredOrigins.join(', ')}` : 'any origin');
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Non-browser clients (curl, health checks) send no Origin header.
-    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
-    // Disallowed origin: respond without CORS headers instead of a 500.
-    return callback(null, false);
+    if (!origin || !restrictOrigins || configuredOrigins.includes(origin)) return callback(null, true);
+    return callback(null, false); // no CORS headers, no 500
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['X-Session-Warning'],
-  credentials: true,
   optionsSuccessStatus: 204
 }));
 
@@ -151,13 +150,15 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/health', (req, res) => {
+const health = (req, res) => {
   res.status(isDbConnected ? 200 : 503).json({
     status: isDbConnected ? 'OK' : 'DEGRADED',
     database: isDbConnected ? 'Connected' : 'Disconnected',
     timestamp: new Date().toISOString()
   });
-});
+};
+app.get('/health', health);
+app.get('/api/health', health); // reachable through the frontend's /api proxy
 
 app.use('/api', checkDatabaseConnection);
 app.use('/api/hero', require('./routes/hero'));

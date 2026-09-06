@@ -182,9 +182,13 @@ test('the last super admin cannot demote themselves or delete themselves', async
   assert.equal(del.status, 403);
 });
 
-test('unknown routes return JSON 404 and disallowed origins get no CORS header', async () => {
+test('unknown routes return JSON 404; any origin is accepted unless ALLOWED_ORIGINS is set', async () => {
   const nf = await api('GET', '/api/nothing-here');
   assert.equal(nf.status, 404);
-  const res = await fetch(`${BASE}/api/news`, { headers: { Origin: 'https://evil.example' } });
-  assert.equal(res.headers.get('access-control-allow-origin'), null);
+  const res = await fetch(`${BASE}/api/news`, { headers: { Origin: 'https://some-frontend.example' } });
+  const allowed = res.headers.get('access-control-allow-origin');
+  if (process.env.ALLOWED_ORIGINS) assert.equal(allowed, null);
+  else assert.equal(allowed, 'https://some-frontend.example');
+  const health = await api('GET', '/api/health');
+  assert.equal(health.status, 200);
 });

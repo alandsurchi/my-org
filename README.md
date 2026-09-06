@@ -56,26 +56,26 @@ Two services in one Railway project, both deploying from this repository:
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 JWT_SECRET=<long random string, 32+ chars>
 NODE_ENV=production
-ALLOWED_ORIGINS=https://<frontend-domain>
 STORAGE_PATH=/data/uploads
 DEFAULT_ADMIN_EMAIL=<your email>
 DEFAULT_ADMIN_PASSWORD=<initial password, remove after first login>
 ```
 
-**Frontend service** — Root directory `/`. Variables:
+`ALLOWED_ORIGINS` is optional. Leave it unset and the API accepts requests from any site (safe: auth is a Bearer token, not a cookie).
+
+**Frontend web service** — Root directory `/`. It builds the site and runs `server.mjs`, which serves the files and proxies `/api` and `/uploads` to the backend, so the browser only talks to one origin. Variables:
 
 ```
-VITE_API_URL=https://<backend-domain>/api
+BACKEND_URL=https://<backend-service-domain>
 VITE_SECRET_STAFF_PATH=<hidden login path>
 ```
 
-Rebuild the frontend whenever `VITE_*` variables change (they are baked in at build time).
+Do not set `VITE_API_URL` on Railway: the default `/api` goes through the proxy. (Set it only when hosting the frontend somewhere without the proxy, e.g. Vercel.)
 
 ### Custom domain
 
-1. Railway → frontend service → Settings → Networking → Custom Domain: add `www.yourdomain.org` (and the bare domain). Add the CNAME records Railway shows at your registrar.
-2. Railway → backend service → Custom Domain: add `api.yourdomain.org`.
-3. Update `ALLOWED_ORIGINS` on the backend and `VITE_API_URL` on the frontend to the new hosts, then redeploy both.
+1. Railway → frontend web service → Settings → Networking → Custom Domain: add `www.yourdomain.org` and the bare domain. Add the CNAME records Railway shows at your registrar.
+2. The backend needs no public domain change; the frontend proxies to it via `BACKEND_URL`.
 
 ## Repository layout
 

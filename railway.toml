@@ -1,11 +1,12 @@
-# Railway service config for the FRONTEND (static site).
-# Set the service's Root Directory to "/" (repo root). The backend service uses backend/railway.toml.
+# Railway service config for the FRONTEND web service.
+# Root Directory of this service must be "/" (repo root). The backend service uses backend/railway.toml.
+# Required variable: BACKEND_URL = the backend service's public URL.
 [build]
 builder = "nixpacks"
 buildCommand = "npm ci && npm run build"
 
 [deploy]
-startCommand = "npm run start"
+startCommand = "npm start"
 healthcheckPath = "/"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3

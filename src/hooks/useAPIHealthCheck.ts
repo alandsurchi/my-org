@@ -20,11 +20,10 @@ export const useAPIHealthCheck = () => {
     try {
       setState(prev => ({ ...prev, isChecking: true, error: null }));
       
-      // Try to fetch the backend health check endpoint
-      const rootUrl = config.apiUrl.replace(/\/api$/, '');
-      const response = await fetch(`${rootUrl}/health`, {
+      // /api/health works both directly and through the frontend's /api proxy
+      const response = await fetch(`${config.apiUrl}/health`, {
         method: 'GET',
-        signal: AbortSignal.timeout(5000), // 5 second timeout
+        signal: AbortSignal.timeout(15000), // allow for a cold start
       });
       
       if (response.ok) {

@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "serve -s dist -l tcp://0.0.0.0:${PORT:-3000}"
+    "start": "node server.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -62,8 +62,7 @@
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.3",
-    "zod": "^3.23.8",
-    "serve": "^14.2.4"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
