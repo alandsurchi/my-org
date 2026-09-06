@@ -41,7 +41,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
           size="sm" 
           className={`lg:hidden transition-all duration-300 hover:scale-105 touch-manipulation p-2 ${getMobileButtonStyling()}`}
         >
-          <Menu className="w-4 h-4" />
+          <Menu className="w-4 h-4" aria-hidden="true" /><span className="sr-only">Menu</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[280px] sm:w-[300px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">

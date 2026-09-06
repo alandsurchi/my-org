@@ -59,7 +59,7 @@ const Index = () => {
   }, [location.pathname, location.hash]);
   
   return (
-    <div className="min-h-screen w-full">
+    <div id="main-content" className="min-h-screen w-full">
       <Header />
       <Suspense fallback={<LoadingSection />}>
         <HeroSection />

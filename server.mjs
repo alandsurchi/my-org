@@ -123,7 +123,7 @@ const ROUTE_META = {
   '/news': { title: 'All News | Mrovdostan', description: 'Stay updated with our latest news, achievements and community impact stories.' },
   '/gallery': { title: 'Gallery | Mrovdostan', description: 'Moments from our activities and the communities we serve.' },
 };
-const NOINDEX_PREFIXES = ['/dashboard', '/staff-login'];
+const NOINDEX_PREFIXES = ['/dashboard', '/staff-login', '/forgot-password', '/reset-password'];
 
 // The social-preview image is the current hero photo (cached for 5 minutes).
 let heroCache = { url: null, at: 0 };

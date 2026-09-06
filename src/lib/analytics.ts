@@ -7,7 +7,7 @@ import { config } from '@/config/env';
  */
 export const trackPageView = (path: string, lang: string) => {
   try {
-    if (path.startsWith('/dashboard') || path.startsWith('/staff-login')) return;
+    if (/^\/(dashboard|staff-login|forgot-password|reset-password)/.test(path)) return;
     if (navigator.doNotTrack === '1') return;
     const payload = JSON.stringify({
       path,

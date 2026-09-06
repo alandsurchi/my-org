@@ -100,4 +100,100 @@ router.get('/users', requireAuth, async (req, res, next) => {
   }
 });
 
+// ---------------------------------------------------------------------------
+// Password reset + change
+// ---------------------------------------------------------------------------
+const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
+const { body } = require('express-validator');
+const { sendMail, isEmailConfigured } = require('../utils/mailer');
+
+const forgotLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false });
+const hashToken = (t) => crypto.createHash('sha256').update(t).digest('hex');
+
+const siteUrl = (req) => {
+  const configured = (process.env.PUBLIC_SITE_URL || process.env.FRONTEND_URL || '').replace(/\/+$/, '');
+  if (configured) return configured;
+  const origin = req.get('origin');
+  return origin || `${req.protocol}://${req.get('host')}`;
+};
+
+// GET /api/auth/features — lets the login page know whether "forgot password" can work
+router.get('/features', (req, res) => {
+  res.json({ success: true, data: { passwordResetEmail: isEmailConfigured() } });
+});
+
+// POST /api/auth/forgot { email } — always 204 so emails cannot be enumerated
+router.post('/forgot', forgotLimiter, body('email').trim().toLowerCase().isEmail(), validateRequest, async (req, res) => {
+  const email = normalizeEmail(req.body.email);
+  try {
+    if (!isEmailConfigured()) {
+      console.warn(`Password reset requested for ${email} but email is not configured`);
+      return res.status(204).end();
+    }
+    const user = (await pool.query('SELECT id, name, email FROM users WHERE email = $1', [email])).rows[0];
+    if (user) {
+      const token = crypto.randomBytes(32).toString('base64url');
+      await pool.query('DELETE FROM password_resets WHERE user_id = $1', [user.id]);
+      await pool.query(
+        "INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES ($1, $2, NOW() + INTERVAL '1 hour')",
+        [user.id, hashToken(token)]
+      );
+      const link = `${siteUrl(req)}/reset-password?token=${token}`;
+      await sendMail({
+        to: user.email,
+        subject: 'Reset your Mrovdostan staff password',
+        text: `Hello ${user.name},\n\nUse this link to choose a new password (valid for 1 hour):\n${link}\n\nIf you did not ask for this, ignore this email.`,
+        html: `<p>Hello ${user.name},</p><p>Use this link to choose a new password (valid for 1 hour):</p><p><a href="${link}">${link}</a></p><p>If you did not ask for this, ignore this email.</p>`,
+      });
+      console.log(`Password reset email sent to ${email}`);
+    }
+  } catch (err) {
+    console.error('Password reset request failed:', err.message);
+  }
+  res.status(204).end();
+});
+
+// POST /api/auth/reset { token, password }
+router.post('/reset',
+  body('token').isString().isLength({ min: 20 }),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+  validateRequest,
+  async (req, res, next) => {
+    try {
+      const row = (await pool.query(
+        'SELECT id, user_id FROM password_resets WHERE token_hash = $1 AND used_at IS NULL AND expires_at > NOW()',
+        [hashToken(req.body.token)]
+      )).rows[0];
+      if (!row) return res.status(400).json({ success: false, message: 'This reset link is invalid or has expired. Request a new one.' });
+
+      const hashed = await bcrypt.hash(req.body.password, 10);
+      await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashed, row.user_id]);
+      await pool.query('UPDATE password_resets SET used_at = NOW() WHERE id = $1', [row.id]);
+      res.json({ success: true, message: 'Password updated. You can log in now.' });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// POST /api/auth/change-password { currentPassword, newPassword } (logged in)
+router.post('/change-password', requireAuth,
+  body('currentPassword').notEmpty(),
+  body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
+  validateRequest,
+  async (req, res, next) => {
+    try {
+      const user = (await pool.query('SELECT password FROM users WHERE id = $1', [req.user.id])).rows[0];
+      const ok = user && (await bcrypt.compare(req.body.currentPassword, user.password));
+      if (!ok) return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+      const hashed = await bcrypt.hash(req.body.newPassword, 10);
+      await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashed, req.user.id]);
+      res.json({ success: true, message: 'Password changed' });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 module.exports = router;

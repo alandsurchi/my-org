@@ -10,6 +10,7 @@ import { ArrowLeft, Shield, LogIn, AlertCircle, Eye, EyeOff, AlertTriangle, Refr
 import { useStaffAuth } from '@/contexts/StaffAuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { apiClient } from '@/lib/apiClient';
 
 interface LoginAttempt {
   timestamp: number;
@@ -37,6 +38,11 @@ const StaffLogin = () => {
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [accessedViaSecret, setAccessedViaSecret] = useState(false);
+  // "Forgot password" only works when the server can send email
+  const [resetAvailable, setResetAvailable] = useState(false);
+  useEffect(() => {
+    apiClient.getAuthFeatures().then((r) => setResetAvailable(!!r.data?.passwordResetEmail));
+  }, []);
 
 
   useEffect(() => {
@@ -349,9 +355,13 @@ const StaffLogin = () => {
             </form>
             
             <div className="text-center mt-4">
-              <a href="#" className="text-sm text-orange-400 hover:text-orange-300 transition-colors">
-                Contact IT for password reset
-              </a>
+              {resetAvailable ? (
+                <Link to="/forgot-password" className="text-sm text-orange-400 hover:text-orange-300 transition-colors">
+                  Forgot your password?
+                </Link>
+              ) : (
+                <span className="text-sm text-gray-400">Forgot your password? Ask a super admin to reset it from the Staff tab.</span>
+              )}
             </div>
 
             <div className="mt-4 text-center text-xs text-gray-500">

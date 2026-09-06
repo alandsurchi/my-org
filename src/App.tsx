@@ -22,6 +22,8 @@ const AllProjects = lazy(() => import("./pages/AllProjects"));
 const AllNewsAPI = lazy(() => import("./pages/AllNewsAPI"));
 const AllGallery = lazy(() => import("./pages/AllGallery"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,7 +48,7 @@ const queryClient = new QueryClient({
 
 // Staff pages (login + dashboard) keep their own fixed look; the public site
 // follows the visitor's light/dark choice (remembered in localStorage).
-const LIGHT_ONLY_PREFIXES = ['/dashboard', '/staff-login'];
+const LIGHT_ONLY_PREFIXES = ['/dashboard', '/staff-login', '/forgot-password', '/reset-password'];
 
 const AppThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const { pathname } = useLocation();
@@ -98,6 +100,8 @@ const App = () => {
                       {/* Secret entry route - redirects to staff-login for proper authentication */}
                       <Route path={`/${import.meta.env.VITE_SECRET_STAFF_PATH || 'log-org'}`} element={<SecretEntryRedirect />} />
                       <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/forgot-password" element={<ForgotPassword />} />
+                      <Route path="/reset-password" element={<ResetPassword />} />
                       <Route path="/projects" element={<AllProjects />} />
                       <Route path="/news" element={<AllNewsAPI />} />
                       <Route path="/gallery" element={<AllGallery />} />

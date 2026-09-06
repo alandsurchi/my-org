@@ -253,6 +253,44 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Keyboard users always see where focus is */
+:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.dark :focus-visible {
+  outline-color: #93c5fd;
+}
+
+/* Skip link: hidden until focused */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -100px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #1e3a8a;
+  color: #fff;
+  font-weight: 600;
+  transition: top 0.15s;
+}
+.skip-link:focus {
+  top: 8px;
+}
+
+/* Visitors who prefer reduced motion get a calm page */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float, .animate-ping, .animate-pulse, .animate-bounce, .animate-spin, .animate-scale-in,
+  .hover-lift, .fade-in-on-scroll, [class*="transition-"] {
+    animation: none !important;
+    transition: none !important;
+  }
+  .fade-in-on-scroll { opacity: 1 !important; transform: none !important; }
+  html { scroll-behavior: auto !important; }
+}
+
 .dark .glass {
   background: rgba(15, 23, 42, 0.35);
   border-color: rgba(255, 255, 255, 0.12);

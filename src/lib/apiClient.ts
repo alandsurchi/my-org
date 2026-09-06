@@ -242,6 +242,30 @@ class APIClient {
     return this.request<{ user: AuthUser }>('/auth/verify');
   }
 
+  getAuthFeatures() {
+    return this.request<{ passwordResetEmail: boolean }>('/auth/features');
+  }
+
+  /** Always resolves; the server never reveals whether the email exists. */
+  async requestPasswordReset(email: string) {
+    await fetch(`${this.baseURL}/auth/forgot`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }).catch(() => undefined);
+  }
+
+  resetPassword(token: string, password: string) {
+    return this.request<{ message: string }>('/auth/reset', { method: 'POST', body: JSON.stringify({ token, password }) });
+  }
+
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.request<{ message: string }>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  }
+
   // --- Hero / About -------------------------------------------------------
   getHeroImage() {
     return this.request<ImageAsset>('/hero');

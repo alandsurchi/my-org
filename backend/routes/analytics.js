@@ -29,7 +29,7 @@ router.post('/view', viewLimiter, async (req, res) => {
   try {
     const { path: p, referrer, lang, device } = req.body || {};
     if (typeof p !== 'string' || !ALLOWED_PATH.test(p)) return res.status(204).end();
-    if (p.startsWith('/dashboard') || p.startsWith('/staff-login')) return res.status(204).end();
+    if (/^\/(dashboard|staff-login|forgot-password|reset-password)/.test(p)) return res.status(204).end();
     const day = new Date().toISOString().slice(0, 10);
     await pool.query(
       `INSERT INTO page_views (day, path, visitor, referrer, lang, device) VALUES ($1, $2, $3, $4, $5, $6)`,

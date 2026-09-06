@@ -85,6 +85,11 @@ Do not set `VITE_API_URL` on Railway: the default `/api` goes through the proxy.
 - Error tracking: create a project at sentry.io and set `SENTRY_DSN` on **both** Railway services. The backend reports server errors; the web service injects the DSN so the browser reports front-end crashes. No rebuild needed.
 - Uptime alerts: add `https://<your-domain>/api/health` to a free monitor such as UptimeRobot or Better Stack.
 
+### Password reset
+
+Staff change their own password in Dashboard → Staff tab → **My password**. A super admin can set anyone's password from the staff list.
+"Forgot your password?" on the login page sends a one-hour reset link by email once an email provider is configured on the backend: either `RESEND_API_KEY`, or `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS`, plus `MAIL_FROM` and `PUBLIC_SITE_URL`. Until then the link is hidden and the page tells staff to ask a super admin.
+
 ### Analytics
 
 Built in, first-party and cookie-free: the site sends one beacon per page view to `/api/analytics/view` (path, referrer host, language, device). Visitors are counted with a daily salted hash, never an IP. Staff pages are excluded and Do-Not-Track is honoured. See Dashboard → Home tab → **Website visitors**.

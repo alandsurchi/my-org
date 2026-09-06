@@ -237,6 +237,29 @@ test('backup: super admin gets a zip with data.json and uploads; others are refu
   assert.equal(anon.status, 401);
 });
 
+test('password reset endpoints: features flag, safe forgot, bad token rejected, self change works', async () => {
+  const features = await api('GET', '/api/auth/features');
+  assert.equal(features.status, 200);
+  assert.equal(typeof features.json.data.passwordResetEmail, 'boolean');
+
+  const forgot = await api('POST', '/api/auth/forgot', { body: { email: 'nobody@example.com' } });
+  assert.equal(forgot.status, 204);
+
+  const badReset = await api('POST', '/api/auth/reset', { body: { token: 'x'.repeat(40), password: 'NewPassword123' } });
+  assert.equal(badReset.status, 400);
+
+  const wrongCurrent = await api('POST', '/api/auth/change-password', { token: adminToken, body: { currentPassword: 'wrong', newPassword: 'NewPassword123' } });
+  assert.equal(wrongCurrent.status, 400);
+
+  const change = await api('POST', '/api/auth/change-password', { token: adminToken, body: { currentPassword: ADMIN_PASSWORD, newPassword: 'TempPassword123' } });
+  assert.equal(change.status, 200, JSON.stringify(change.json));
+  const loginNew = await api('POST', '/api/auth/login', { body: { email: ADMIN_EMAIL, password: 'TempPassword123' } });
+  assert.equal(loginNew.status, 200);
+  // restore the original password so other runs keep working
+  const restore = await api('POST', '/api/auth/change-password', { token: loginNew.json.token, body: { currentPassword: 'TempPassword123', newPassword: ADMIN_PASSWORD } });
+  assert.equal(restore.status, 200);
+});
+
 test('unknown routes return JSON 404; any origin is accepted unless ALLOWED_ORIGINS is set', async () => {
   const nf = await api('GET', '/api/nothing-here');
   assert.equal(nf.status, 404);

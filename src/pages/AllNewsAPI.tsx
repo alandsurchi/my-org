@@ -90,7 +90,7 @@ const AllNews = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <section className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-blue-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950">
+      <section id="main-content" className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-blue-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-4 mb-8">
             <Link to="/">

@@ -117,7 +117,7 @@ const HeroSection = () => {
           
           {/* Enhanced scroll button with multiple effects */}
           <button 
-            onClick={scrollToNext} 
+            onClick={scrollToNext} aria-label={t('discoverMore')}
             className="group relative flex flex-col items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full border-2 border-white/40 backdrop-blur-lg bg-gradient-to-r from-white/15 to-white/5 hover:from-white/25 hover:to-white/10 hover:border-white/60 transition-all duration-500 hover:scale-110 active:scale-95 touch-manipulation shadow-2xl hover:shadow-blue-500/25"
           >
             {/* Multiple pulsing rings */}

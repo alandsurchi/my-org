@@ -82,7 +82,7 @@ const AllProjects = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <section className="py-24 bg-gradient-to-br from-gray-50 dark:from-gray-950 via-blue-50/30 dark:via-gray-950 to-purple-50/20 dark:to-gray-950">
+      <section id="main-content" className="py-24 bg-gradient-to-br from-gray-50 dark:from-gray-950 via-blue-50/30 dark:via-gray-950 to-purple-50/20 dark:to-gray-950">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-4 mb-8">
             <Link to="/">
