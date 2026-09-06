@@ -73,7 +73,7 @@ const ProjectDetailDialog = ({ project, isOpen, onClose }: ProjectDetailDialogPr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900 mb-4">
+          <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             {project.title_en}
           </DialogTitle>
         </DialogHeader>
@@ -105,14 +105,14 @@ const ProjectDetailDialog = ({ project, isOpen, onClose }: ProjectDetailDialogPr
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Details</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Project Details</h3>
                 <div className="space-y-2">
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
                     <Calendar className="w-4 h-4 mr-2" />
                     <span className="text-sm">Started: {new Date(project.created_at).toLocaleDateString()}</span>
                   </div>
                   {project.location && (
-                    <div className="flex items-center text-gray-600">
+                    <div className="flex items-center text-gray-600 dark:text-gray-300">
                       <MapPin className="w-4 h-4 mr-2" />
                       <span className="text-sm">{project.location}</span>
                     </div>
@@ -123,7 +123,7 @@ const ProjectDetailDialog = ({ project, isOpen, onClose }: ProjectDetailDialogPr
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Category</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Category</h3>
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{getCategoryIcon(project.category)}</span>
                   <span className="font-medium">{t(project.category)}</span>
@@ -134,18 +134,18 @@ const ProjectDetailDialog = ({ project, isOpen, onClose }: ProjectDetailDialogPr
 
           {/* Project Description */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">About This Project</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">About This Project</h3>
             <div className="prose max-w-none">
-              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                 {project.description_en}
               </p>
             </div>
           </div>
 
           {/* Additional sections could be added here for more details */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Impact</h3>
-            <p className="text-gray-700">
+          <div className="bg-gradient-to-br from-blue-50 dark:from-gray-950 to-purple-50 dark:to-gray-950 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Project Impact</h3>
+            <p className="text-gray-700 dark:text-gray-300">
               This {t(project.category).toLowerCase()} project is making a meaningful difference in our community. 
               Through dedicated efforts and community support, we continue to work towards our mission of creating positive change.
             </p>

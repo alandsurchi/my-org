@@ -97,7 +97,7 @@ const NewsSection = () => {
     if (filteredNews.length === 0) {
       return (
         <div className="text-center py-12">
-          <div className="text-gray-500 text-lg">
+          <div className="text-gray-500 dark:text-gray-400 text-lg">
             {isLoading ? 'Loading news...' : 'No news available in this category yet.'}
           </div>
         </div>
@@ -128,7 +128,7 @@ const NewsSection = () => {
           // Same card as the Activities section: image (or a branded placeholder
           // when the post has none), category label, title, excerpt, date + read more.
           return (
-            <Card key={item.id ?? index} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+            <Card key={item.id ?? index} className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="relative overflow-hidden">
                 {imageUrl ? (
                   <img
@@ -158,23 +158,23 @@ const NewsSection = () => {
               </div>
 
               <CardHeader className="pb-4">
-                <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+                <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:hover:text-blue-400 dark:text-blue-400 transition-colors duration-300 line-clamp-2" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
                   {title}
                 </CardTitle>
-                <CardDescription className="text-gray-600 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                <CardDescription className="text-gray-600 dark:text-gray-300 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
                   {excerpt}
                 </CardDescription>
               </CardHeader>
 
               <CardContent className="pt-0">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center text-gray-500">
+                  <div className="flex items-center text-gray-500 dark:text-gray-400">
                     <Calendar className="w-4 h-4 mr-2" />
                     <span className="text-sm font-medium">{date}</span>
                   </div>
                   <Button
                     variant="ghost"
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-auto font-medium group/btn"
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-800 dark:bg-blue-950/40 p-0 h-auto font-medium group/btn"
                     onClick={() => handleReadMore(item)}
                   >
                     {t('readMore')}
@@ -192,7 +192,7 @@ const NewsSection = () => {
   // Show error state if there's an error
   if (error) {
     return (
-      <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 via-blue-50/20 to-gray-50 relative overflow-hidden">
+      <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-blue-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
             <div className="text-red-500">Error loading news. Please try again later.</div>
@@ -204,7 +204,7 @@ const NewsSection = () => {
 
   if (isLoading) {
     return (
-      <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 via-blue-50/20 to-gray-50 relative overflow-hidden">
+      <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-blue-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
             <div className="animate-pulse text-lg">Loading news...</div>
@@ -215,7 +215,7 @@ const NewsSection = () => {
   }
 
   return (
-    <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 via-blue-50/20 to-gray-50 relative overflow-hidden">
+    <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-blue-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0">
         <div className="absolute top-32 right-10 w-80 h-80 bg-gradient-to-r from-purple-200/20 to-blue-200/20 rounded-full blur-3xl animate-float"></div>
@@ -228,17 +228,17 @@ const NewsSection = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-purple-600 to-blue-600 mb-8 animate-scale-in shadow-2xl">
             <span className="text-3xl">📰</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
             <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
               {t('newsTitle')}
             </span>
           </h2>
-          <p className="text-lg text-gray-600 mb-4">{t('latestNews')}</p>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">{t('latestNews')}</p>
           <div className="w-32 h-1 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 mx-auto rounded-full"></div>
         </div>
 
         <Tabs defaultValue="placesVisited" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-12 bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl p-2 h-auto">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-12 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-2xl p-2 h-auto">
             {Object.keys(newsData).map((key) => (
               <TabsTrigger 
                 key={key}

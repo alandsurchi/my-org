@@ -9,6 +9,7 @@ import HeaderLogo from './header/HeaderLogo';
 import NavigationItems from './header/NavigationItems';
 import LanguageSelector from './header/LanguageSelector';
 import MobileMenu from './header/MobileMenu';
+import ThemeToggle from './ThemeToggle';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -100,7 +101,7 @@ const Header = () => {
   // Determine header styling based on scroll and hero section
   const getHeaderStyling = () => {
     if (isScrolled && !isInHeroSection) {
-      return 'bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg';
+      return 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/60 shadow-lg';
     } else {
       // Glass effect when in hero section
       return 'glass border-b border-white/20 shadow-lg';
@@ -111,7 +112,7 @@ const Header = () => {
     const isActive = activeSection === itemId;
     if (isScrolled && !isInHeroSection) {
       return isActive 
-        ? 'text-blue-600 font-semibold' 
+        ? 'text-blue-600 dark:text-blue-400 font-semibold' 
         : 'text-gray-700 hover:text-blue-600';
     } else {
       return isActive 
@@ -130,7 +131,7 @@ const Header = () => {
 
   const getSelectStyling = () => {
     if (isScrolled && !isInHeroSection) {
-      return 'border-gray-200 bg-white/80 backdrop-blur-sm';
+      return 'border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm';
     } else {
       return 'border-white/30 bg-white/10 backdrop-blur-sm text-white';
     }
@@ -138,7 +139,7 @@ const Header = () => {
 
   const getMobileButtonStyling = () => {
     if (isScrolled && !isInHeroSection) {
-      return 'border-gray-200 bg-white/80 backdrop-blur-sm';
+      return 'border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm';
     } else {
       return 'border-white/30 bg-white/10 backdrop-blur-sm text-white';
     }
@@ -156,8 +157,9 @@ const Header = () => {
             handleNavigation={handleNavigation}
           />
 
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <LanguageSelector getSelectStyling={getSelectStyling} />
+            <ThemeToggle className={getMobileButtonStyling()} />
 
             <MobileMenu 
               isMobileMenuOpen={isMobileMenuOpen}

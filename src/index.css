@@ -253,6 +253,16 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.dark .glass {
+  background: rgba(15, 23, 42, 0.35);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Smooth colour change when the theme toggles */
+html.dark, html:not(.dark) {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 /* Modern gradients */
 .gradient-blue {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { StaffAuthProvider } from "@/contexts/StaffAuthContext";
 import { ScrollReveal } from "@/hooks/useScrollReveal";
@@ -36,6 +37,20 @@ const queryClient = new QueryClient({
   },
 });
 
+// Staff pages (login + dashboard) keep their own fixed look; the public site
+// follows the visitor's light/dark choice (remembered in localStorage).
+const LIGHT_ONLY_PREFIXES = ['/dashboard', '/staff-login'];
+
+const AppThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const { pathname } = useLocation();
+  const forced = LIGHT_ONLY_PREFIXES.some((p) => pathname.startsWith(p)) ? 'light' : undefined;
+  return (
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme={forced} storageKey="theme">
+      {children}
+    </ThemeProvider>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
@@ -44,18 +59,20 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <ScrollReveal />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/staff-login" element={<StaffLogin />} />
-              {/* Secret entry route - redirects to staff-login for proper authentication */}
-              <Route path={`/${import.meta.env.VITE_SECRET_STAFF_PATH || 'log-org'}`} element={<SecretEntryRedirect />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/projects" element={<AllProjects />} />
-              <Route path="/news" element={<AllNewsAPI />} />
-              <Route path="/gallery" element={<AllGallery />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AppThemeProvider>
+              <ScrollReveal />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/staff-login" element={<StaffLogin />} />
+                {/* Secret entry route - redirects to staff-login for proper authentication */}
+                <Route path={`/${import.meta.env.VITE_SECRET_STAFF_PATH || 'log-org'}`} element={<SecretEntryRedirect />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/projects" element={<AllProjects />} />
+                <Route path="/news" element={<AllNewsAPI />} />
+                <Route path="/gallery" element={<AllGallery />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppThemeProvider>
           </BrowserRouter>
         </TooltipProvider>
       </StaffAuthProvider>

@@ -88,7 +88,7 @@ const AllNews = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <section className="py-24 bg-gradient-to-br from-purple-50/30 via-blue-50/20 to-gray-50">
+      <section className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-blue-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-4 mb-8">
             <Link to="/">
@@ -100,31 +100,31 @@ const AllNews = () => {
           </div>
 
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 All News
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Stay updated with our latest news, achievements, and community impact stories.
             </p>
           </div>
 
           <div className="mb-8">
             <div className="relative max-w-lg mx-auto">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <Input
                 placeholder="Search news..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-12 border-0 bg-white/80 backdrop-blur-sm shadow-lg rounded-xl"
+                className="pl-12 h-12 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-xl"
               />
             </div>
           </div>
 
           {filteredNews.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-gray-500 text-lg">
+              <div className="text-gray-500 dark:text-gray-400 text-lg">
                 {allNews.length === 0 ? 'No news articles available yet.' : 'No news found matching your search.'}
               </div>
             </div>
@@ -134,7 +134,7 @@ const AllNews = () => {
                 const imageUrl = getImageUrl(newsItem.imageUrl);
                 
                 return (
-                  <div key={newsItem.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <div key={newsItem.id} className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                     {imageUrl && (
                       <img 
                         src={imageUrl} 
@@ -144,15 +144,15 @@ const AllNews = () => {
                     )}
                     <div className="p-6">
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-medium">
+                        <span className="text-sm bg-purple-100 dark:bg-purple-950/40 text-purple-800 dark:text-purple-400 px-3 py-1 rounded-full font-medium">
                           News
                         </span>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {new Date(newsItem.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-3">{newsItem.title}</h3>
-                      <p className="text-gray-600 mb-4 line-clamp-3">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">{newsItem.title}</h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
                         {newsItem.content.length > 100 
                           ? `${newsItem.content.substring(0, 100)}...` 
                           : newsItem.content

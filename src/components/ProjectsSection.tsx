@@ -96,7 +96,7 @@ const ProjectsSection = () => {
 
   if (isLoading) {
     return (
-      <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 relative overflow-hidden">
+      <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 dark:from-gray-950 via-blue-50/30 dark:via-gray-950 to-purple-50/20 dark:to-gray-950 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
             <div className="animate-pulse">Loading projects...</div>
@@ -107,7 +107,7 @@ const ProjectsSection = () => {
   }
 
   return (
-    <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 relative overflow-hidden">
+    <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 dark:from-gray-950 via-blue-50/30 dark:via-gray-950 to-purple-50/20 dark:to-gray-950 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0">
         <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-200/20 to-purple-200/20 rounded-full blur-3xl animate-float"></div>
@@ -120,24 +120,24 @@ const ProjectsSection = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-blue-600 to-purple-600 mb-8 animate-scale-in shadow-2xl">
             <span className="text-3xl">🚀</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               {t('projectsTitle')}
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
             {t('projectsDescription')}
           </p>
-          <p className="text-lg text-gray-600 mt-2">Showing latest 3 activities</p>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">Showing latest 3 activities</p>
           <div className="w-32 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mx-auto rounded-full mt-6"></div>
         </div>
 
         <div className="flex justify-center mb-16 fade-in-on-scroll">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full lg:w-64 h-14 border-0 bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl focus:ring-2 focus:ring-blue-500/20">
+            <SelectTrigger className="w-full lg:w-64 h-14 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-2xl focus:ring-2 focus:ring-blue-500/20">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="rounded-2xl border-0 shadow-2xl bg-white/95 backdrop-blur-sm">
+            <SelectContent className="rounded-2xl border-0 shadow-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
               <SelectItem value="all" className="rounded-xl">{t('allCategories')}</SelectItem>
               <SelectItem value="news" className="rounded-xl">📰 News Updates</SelectItem>
               <SelectItem value="water" className="rounded-xl">{t('water')}</SelectItem>
@@ -150,7 +150,7 @@ const ProjectsSection = () => {
 
         {recentActivities.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-500 text-lg">No projects available matching your criteria.</div>
+            <div className="text-gray-500 dark:text-gray-400 text-lg">No projects available matching your criteria.</div>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-8 mb-16">
@@ -158,7 +158,7 @@ const ProjectsSection = () => {
               const imageUrl = getImageSrc(activity.image_url || activity.imageUrl);
               
               return (
-              <Card key={activity.id} className="group bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+              <Card key={activity.id} className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
                 {imageUrl && (
                   <div className="relative overflow-hidden">
                     <img 
@@ -191,10 +191,10 @@ const ProjectsSection = () => {
                 )}
                 
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:hover:text-blue-400 dark:text-blue-400 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
                     {activity.title_en || activity.title}
                   </CardTitle>
-                  <CardDescription className="text-gray-600 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                  <CardDescription className="text-gray-600 dark:text-gray-300 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
                     {(() => {
                       const desc = activity.description_en || activity.description || '';
                       return desc.length > 150 ? `${desc.substring(0, 150)}...` : desc;
@@ -204,7 +204,7 @@ const ProjectsSection = () => {
                 
                 <CardContent className="pt-0">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center text-gray-500">
+                    <div className="flex items-center text-gray-500 dark:text-gray-400">
                       <Calendar className="w-4 h-4 mr-2" />
                       <span className="text-sm font-medium">
                         {new Date(activity.created_at || activity.createdAt || Date.now()).toLocaleDateString()}
@@ -212,7 +212,7 @@ const ProjectsSection = () => {
                     </div>
                     <Button 
                       variant="ghost" 
-                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-0 h-auto font-medium group/btn"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-800 dark:bg-blue-950/40 p-0 h-auto font-medium group/btn"
                       onClick={() => handleReadMore(activity)}
                     >
                       {t('readMore')} 

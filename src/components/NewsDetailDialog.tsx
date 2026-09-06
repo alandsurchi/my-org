@@ -81,7 +81,7 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900 mb-4">
+          <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             {newsItem.title_en}
           </DialogTitle>
         </DialogHeader>
@@ -113,9 +113,9 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">News Details</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">News Details</h3>
                 <div className="space-y-2">
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
                     <Calendar className="w-4 h-4 mr-2" />
                     <span className="text-sm">Published: {new Date(newsItem.date).toLocaleDateString()}</span>
                   </div>
@@ -125,9 +125,9 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Category</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Category</h3>
                 <div className="flex items-center gap-2">
-                  <IconComponent className="w-6 h-6 text-gray-600" />
+                  <IconComponent className="w-6 h-6 text-gray-600 dark:text-gray-300" />
                   <span className="font-medium">{t(newsItem.category)}</span>
                 </div>
               </div>
@@ -136,18 +136,18 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
 
           {/* News Description */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Full Story</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Full Story</h3>
             <div className="prose max-w-none">
-              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                 {newsItem.description_en}
               </p>
             </div>
           </div>
 
           {/* Additional section */}
-          <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">About This News</h3>
-            <p className="text-gray-700">
+          <div className="bg-gradient-to-br from-purple-50 dark:from-gray-950 to-blue-50 dark:to-gray-950 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">About This News</h3>
+            <p className="text-gray-700 dark:text-gray-300">
               This news item showcases our ongoing commitment to transparency and community engagement. 
               Stay updated with our latest developments and achievements as we continue our mission.
             </p>

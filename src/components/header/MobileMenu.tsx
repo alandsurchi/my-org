@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Menu } from 'lucide-react';
-import { Home, Info, Briefcase, Newspaper, Image, Users } from 'lucide-react';
+import { Home, Info, Briefcase, Newspaper, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useNavigate } from 'react-router-dom';
@@ -30,8 +30,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     { id: 'about', labelKey: 'about', icon: Info },
     { id: 'projects', labelKey: 'projects', icon: Briefcase },
     { id: 'news', labelKey: 'news', icon: Newspaper },
-    { id: 'gallery', labelKey: 'gallery', icon: Image },
-    { id: 'staff', labelKey: 'staff', icon: Users }
+    { id: 'gallery', labelKey: 'gallery', icon: Image }
   ];
 
   return (
@@ -45,7 +44,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
           <Menu className="w-4 h-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[280px] sm:w-[300px] bg-white/95 backdrop-blur-md">
+      <SheetContent side="right" className="w-[280px] sm:w-[300px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">
         <div className="flex flex-col space-y-4 mt-8">
           {navigationItems.map((item) => {
             const IconComponent = item.icon;

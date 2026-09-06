@@ -12,7 +12,7 @@ import { useAPIHealthCheck } from '@/hooks/useAPIHealthCheck';
 
 const LoadingSection = ({ name }: { name: string }) => (
   <div className="py-24 flex items-center justify-center">
-    <div className="animate-pulse text-lg text-gray-600">Loading {name}...</div>
+    <div className="animate-pulse text-lg text-gray-600 dark:text-gray-300">Loading {name}...</div>
   </div>
 );
 
@@ -20,8 +20,8 @@ const APILoadingSection = ({ name }: { name: string }) => (
   <div className="py-24 flex items-center justify-center">
     <div className="text-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-      <div className="text-lg text-gray-600">Connecting to server...</div>
-      <div className="text-sm text-gray-500 mt-2">Loading {name}</div>
+      <div className="text-lg text-gray-600 dark:text-gray-300">Connecting to server...</div>
+      <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">Loading {name}</div>
     </div>
   </div>
 );
@@ -82,8 +82,8 @@ const Index = () => {
         <div className="py-24 flex items-center justify-center">
           <div className="text-center">
             <div className="text-red-500 text-lg mb-2">⚠️ Connection Error</div>
-            <div className="text-gray-600">Unable to connect to server</div>
-            <div className="text-sm text-gray-500 mt-2">Please check that the backend server is running</div>
+            <div className="text-gray-600 dark:text-gray-300">Unable to connect to server</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">Please check that the backend server is running</div>
             {error && <div className="text-xs text-red-400 mt-2">{error}</div>}
           </div>
         </div>

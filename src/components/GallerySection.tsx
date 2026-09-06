@@ -12,7 +12,7 @@ const GallerySection = () => {
 
   if (isLoading) {
     return (
-      <section id="gallery" className="py-24 bg-gradient-to-br from-purple-50/30 via-pink-50/20 to-gray-50 relative overflow-hidden">
+      <section id="gallery" className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-pink-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
             <div className="animate-pulse">Loading gallery...</div>
@@ -23,7 +23,7 @@ const GallerySection = () => {
   }
 
   return (
-    <section id="gallery" className="py-24 bg-gradient-to-br from-purple-50/30 via-pink-50/20 to-gray-50 relative overflow-hidden">
+    <section id="gallery" className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-pink-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0">
         <div className="absolute top-32 right-10 w-80 h-80 bg-gradient-to-r from-pink-200/20 to-purple-200/20 rounded-full blur-3xl animate-float"></div>
@@ -36,33 +36,33 @@ const GallerySection = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-pink-600 to-purple-600 mb-8 animate-scale-in shadow-2xl">
             <Camera className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
             <span className="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
               {t('galleryTitle')}
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
             {t('galleryDescription')}
           </p>
           <div className="w-32 h-1 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 mx-auto rounded-full mt-6"></div>
         </div>
 
         {galleryImages.length === 0 ? (
-          <div className="text-center py-12 bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-100">
+          <div className="text-center py-12 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800">
             <div className="flex justify-center mb-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white">
                 <ImageOff className="w-7 h-7" />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('galleryTitle')}</h3>
-            <p className="text-gray-600 mb-6">{t('galleryDescription')}</p>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('galleryTitle')}</h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">{t('galleryDescription')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {galleryImages.slice(0, 6).map((image, index) => (
               <div 
                 key={image.id || index} 
-                className="group relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover-lift fade-in-on-scroll bg-white/80 backdrop-blur-sm"
+                className="group relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover-lift fade-in-on-scroll bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm"
                 style={{ animationDelay: `${index * 0.1}s` }}
                 onMouseEnter={() => setHoveredImage(Number(index))}
                 onMouseLeave={() => setHoveredImage(null)}
