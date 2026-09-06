@@ -56,13 +56,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                   handleNavigation(item);
                   setIsMobileMenuOpen(false);
                 }}
-                className={`text-left transition-all duration-300 font-medium py-3 flex items-center rounded-lg px-3 group touch-manipulation ${
+                className={`text-start transition-all duration-300 font-medium py-3 flex items-center rounded-lg px-3 group touch-manipulation ${
                   isActive 
                     ? 'text-blue-600 bg-blue-50 font-semibold' 
                     : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
                 }`}
               >
-                <IconComponent className="w-5 h-5 mr-3 transition-transform duration-300 group-hover:scale-110" />
+                <IconComponent className="w-5 h-5 me-3 transition-transform duration-300 group-hover:scale-110" />
                 {t(item.labelKey)}
               </button>
             );

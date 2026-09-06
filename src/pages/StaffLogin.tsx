@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -19,6 +20,7 @@ const MAX_ATTEMPTS = parseInt(import.meta.env.VITE_STAFF_LOGIN_ATTEMPTS_LIMIT) |
 const BLOCK_DURATION = 15 * 60 * 1000; // 15 minutes
 
 const StaffLogin = () => {
+  usePageMeta({ title: 'Staff login', noindex: true });
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated } = useStaffAuth();

@@ -115,11 +115,64 @@ function sendText(res, body, type, cacheControl = 'public, max-age=3600') {
   res.end(body);
 }
 
-function sendIndex(req, res, pathname) {
+// Per-route title/description for crawlers and link previews (the app updates
+// them again client-side once it loads).
+const ROUTE_META = {
+  '/': { title: 'Mrovdostan Organization for Humanitarian Aid', description: 'Mrovdostan is a non-profit humanitarian organization in the Kurdistan Region of Iraq, building hope and transforming lives through aid, education and community projects.' },
+  '/projects': { title: 'All Activities | Mrovdostan', description: 'Explore all our activities and initiatives making a difference in our communities.' },
+  '/news': { title: 'All News | Mrovdostan', description: 'Stay updated with our latest news, achievements and community impact stories.' },
+  '/gallery': { title: 'Gallery | Mrovdostan', description: 'Moments from our activities and the communities we serve.' },
+};
+const NOINDEX_PREFIXES = ['/dashboard', '/staff-login'];
+
+// The social-preview image is the current hero photo (cached for 5 minutes).
+let heroCache = { url: null, at: 0 };
+async function heroImageUrl() {
+  if (!backend) return null;
+  if (Date.now() - heroCache.at < 5 * 60 * 1000) return heroCache.url;
+  try {
+    const r = await fetch(`${BACKEND_URL}/api/hero`, { signal: AbortSignal.timeout(3000) });
+    const j = r.ok ? await r.json() : null;
+    heroCache = { url: j?.data?.url || null, at: Date.now() };
+  } catch {
+    heroCache = { url: null, at: Date.now() };
+  }
+  return heroCache.url;
+}
+
+const escapeHtml = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+async function sendIndex(req, res, pathname) {
   const origin = publicOrigin(req);
-  const html = INDEX_HTML
+  const meta = ROUTE_META[pathname] || ROUTE_META['/'];
+  const hero = await heroImageUrl();
+  const noindex = NOINDEX_PREFIXES.some((p) => pathname.startsWith(p));
+
+  let html = INDEX_HTML
+    .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(meta.title)}</title>`)
+    .replace(/(<meta name="description" content=")[^"]*(")/, `$1${escapeHtml(meta.description)}$2`)
+    .replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${escapeHtml(meta.title)}$2`)
+    .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${escapeHtml(meta.description)}$2`)
+    .replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${escapeHtml(meta.title)}$2`)
+    .replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${escapeHtml(meta.description)}$2`)
     .replace(/content="\/(lovable-uploads\/[^"]+)"/g, `content="${origin}/$1"`)
-    .replace('</head>', `    <link rel="canonical" href="${origin}${pathname === '/' ? '/' : pathname}" />\n    <meta property="og:url" content="${origin}${pathname}" />\n  </head>`);
+    .replace(/"url": "https:\/\/[^"]+\/"/, `"url": "${origin}/"`)
+    .replace(/"logo": "https:\/\/[^"]+\/(lovable-uploads\/[^"]+)"/, `"logo": "${origin}/$1"`);
+
+  if (hero) {
+    html = html
+      .replace(/(<meta property="og:image" content=")[^"]*(")/, `$1${escapeHtml(hero)}$2`)
+      .replace(/(<meta name="twitter:image" content=")[^"]*(")/, `$1${escapeHtml(hero)}$2`)
+      .replace('<meta name="twitter:card" content="summary"', '<meta name="twitter:card" content="summary_large_image"');
+  }
+
+  const extra = [
+    `    <link rel="canonical" href="${origin}${pathname === '/' ? '/' : pathname}" />`,
+    `    <meta property="og:url" content="${origin}${pathname}" />`,
+    noindex ? '    <meta name="robots" content="noindex, nofollow" />' : '',
+  ].filter(Boolean).join('\n');
+  html = html.replace('</head>', `${extra}\n  </head>`);
+
   sendText(res, html, 'text/html; charset=utf-8', 'no-cache');
 }
 

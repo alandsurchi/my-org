@@ -131,6 +131,139 @@ const translations = {
     rojinPosition: 'Healthcare Coordinator',
     rojinBio: 'Managing mobile health clinics and medical supply distribution programs.',
     
+    // Added for full coverage
+
+    
+    loading: 'Loading…',
+
+    
+    retry: 'Retry',
+
+    
+    loadingProjects: 'Loading activities…',
+
+    
+    loadingNews: 'Loading news…',
+
+    
+    loadingGallery: 'Loading gallery…',
+
+    
+    errorLoadingProjects: 'Could not load activities',
+
+    
+    errorLoadingNews: 'Could not load news. Please try again later.',
+
+    
+    errorLoadingGallery: 'Could not load the gallery',
+
+    
+    allProjectsTitle: 'All Activities',
+
+    
+    allProjectsDescription: 'Explore all our activities and initiatives making a difference in our communities.',
+
+    
+    allNewsTitle: 'All News',
+
+    
+    allNewsDescription: 'Stay updated with our latest news, achievements and community impact stories.',
+
+    
+    allGalleryDescription: 'Explore our collection of moments and community stories through images.',
+
+    
+    searchImages: 'Search images…',
+
+    
+    newsUpdates: 'News updates',
+
+    
+    showingLatestActivities: 'Showing the latest 3 activities',
+
+    
+    noProjectsFound: 'No activities match your search.',
+
+    
+    noNewsYet: 'No news articles yet.',
+
+    
+    noNewsFound: 'No news matches your search.',
+
+    
+    noNewsInCategory: 'No news in this category yet.',
+
+    
+    noPhotosYet: 'No photos yet',
+
+    
+    noPhotosDescription: 'There are no gallery photos right now.',
+
+    
+    clearSearch: 'Clear search',
+
+    
+    view: 'View',
+
+    
+    like: 'Like',
+
+    
+    untitledNews: 'Untitled',
+
+    
+    projectDetails: 'Activity details',
+
+    
+    started: 'Started',
+
+    
+    category: 'Category',
+
+    
+    aboutThisProject: 'About this activity',
+
+    
+    projectImpact: 'Impact',
+
+    
+    projectImpactText: 'This activity is part of our ongoing work to bring lasting, positive change to the communities we serve.',
+
+    
+    newsDetails: 'Details',
+
+    
+    published: 'Published',
+
+    
+    fullStory: 'Full story',
+
+    
+    aboutThisNews: 'About this news',
+
+    
+    aboutThisNewsText: 'We share our news openly so partners and the community can follow our work and achievements.',
+
+    
+    pageNotFound: 'Oops! Page not found',
+
+    
+    returnHome: 'Return to home',
+
+    
+    connectingToServer: 'Connecting to server…',
+
+    
+    connectionError: 'Connection error',
+
+    
+    unableToConnect: 'We could not reach the server. Please try again in a moment.',
+
+    
+    metaHomeDescription: 'Mrovdostan is a non-profit humanitarian organization in the Kurdistan Region of Iraq, building hope and transforming lives through aid, education and community projects.',
+
+
+    
     // Footer
     footerDescription: 'Building hope for tomorrow through sustainable development, education, and healthcare initiatives.',
     quickLinks: 'Quick Links',
@@ -283,6 +416,139 @@ const translations = {
     rojinPosition: 'منسق الرعاية الصحية',
     rojinBio: 'إدارة العيادات الصحية المتنقلة وبرامج توزيع الإمدادات الطبية.',
     
+    // Added for full coverage
+
+    
+    loading: 'جارٍ التحميل…',
+
+    
+    retry: 'إعادة المحاولة',
+
+    
+    loadingProjects: 'جارٍ تحميل الأنشطة…',
+
+    
+    loadingNews: 'جارٍ تحميل الأخبار…',
+
+    
+    loadingGallery: 'جارٍ تحميل المعرض…',
+
+    
+    errorLoadingProjects: 'تعذّر تحميل الأنشطة',
+
+    
+    errorLoadingNews: 'تعذّر تحميل الأخبار. يرجى المحاولة لاحقاً.',
+
+    
+    errorLoadingGallery: 'تعذّر تحميل المعرض',
+
+    
+    allProjectsTitle: 'جميع الأنشطة',
+
+    
+    allProjectsDescription: 'استعرض جميع أنشطتنا ومبادراتنا التي تُحدث فرقاً في مجتمعاتنا.',
+
+    
+    allNewsTitle: 'جميع الأخبار',
+
+    
+    allNewsDescription: 'تابع آخر أخبارنا وإنجازاتنا وقصص أثرنا في المجتمع.',
+
+    
+    allGalleryDescription: 'استعرض مجموعتنا من اللحظات وقصص المجتمع عبر الصور.',
+
+    
+    searchImages: 'ابحث في الصور…',
+
+    
+    newsUpdates: 'تحديثات الأخبار',
+
+    
+    showingLatestActivities: 'عرض أحدث 3 أنشطة',
+
+    
+    noProjectsFound: 'لا توجد أنشطة مطابقة لبحثك.',
+
+    
+    noNewsYet: 'لا توجد أخبار بعد.',
+
+    
+    noNewsFound: 'لا توجد أخبار مطابقة لبحثك.',
+
+    
+    noNewsInCategory: 'لا توجد أخبار في هذه الفئة بعد.',
+
+    
+    noPhotosYet: 'لا توجد صور بعد',
+
+    
+    noPhotosDescription: 'لا توجد صور في المعرض حالياً.',
+
+    
+    clearSearch: 'مسح البحث',
+
+    
+    view: 'عرض',
+
+    
+    like: 'إعجاب',
+
+    
+    untitledNews: 'بدون عنوان',
+
+    
+    projectDetails: 'تفاصيل النشاط',
+
+    
+    started: 'بدأ في',
+
+    
+    category: 'الفئة',
+
+    
+    aboutThisProject: 'عن هذا النشاط',
+
+    
+    projectImpact: 'الأثر',
+
+    
+    projectImpactText: 'هذا النشاط جزء من عملنا المستمر لإحداث تغيير إيجابي ودائم في المجتمعات التي نخدمها.',
+
+    
+    newsDetails: 'التفاصيل',
+
+    
+    published: 'نُشر في',
+
+    
+    fullStory: 'القصة كاملة',
+
+    
+    aboutThisNews: 'عن هذا الخبر',
+
+    
+    aboutThisNewsText: 'نشارك أخبارنا بشفافية ليتمكن شركاؤنا والمجتمع من متابعة عملنا وإنجازاتنا.',
+
+    
+    pageNotFound: 'عذراً! الصفحة غير موجودة',
+
+    
+    returnHome: 'العودة إلى الرئيسية',
+
+    
+    connectingToServer: 'جارٍ الاتصال بالخادم…',
+
+    
+    connectionError: 'خطأ في الاتصال',
+
+    
+    unableToConnect: 'تعذّر الوصول إلى الخادم. يرجى المحاولة بعد قليل.',
+
+    
+    metaHomeDescription: 'مروڤدوستان منظمة إنسانية غير ربحية في إقليم كردستان العراق، تبني الأمل وتغيّر الحياة من خلال المساعدات والتعليم والمشاريع المجتمعية.',
+
+
+    
     // Footer
     footerDescription: 'بناء الأمل للغد من خلال التنمية المستدامة والتعليم ومبادرات الرعاية الصحية.',
     quickLinks: 'روابط سريعة',
@@ -434,6 +700,139 @@ const translations = {
     rojinName: 'رۆژین خەلیل',
     rojinPosition: 'هەماهەنگکەری چاودێری تەندروستی',
     rojinBio: 'بەڕێوەبردنی نەخۆشخانە گواستراوەکان و پڕۆگرامەکانی دابەشکردنی کەرەستەی پزیشکی.',
+    
+    // Added for full coverage
+
+    
+    loading: 'بارکردن…',
+
+    
+    retry: 'دووبارە هەوڵبدەرەوە',
+
+    
+    loadingProjects: 'چالاکییەکان بار دەکرێن…',
+
+    
+    loadingNews: 'هەواڵەکان بار دەکرێن…',
+
+    
+    loadingGallery: 'گالەری بار دەکرێت…',
+
+    
+    errorLoadingProjects: 'چالاکییەکان بار نەکران',
+
+    
+    errorLoadingNews: 'هەواڵەکان بار نەکران. تکایە دواتر هەوڵبدەرەوە.',
+
+    
+    errorLoadingGallery: 'گالەری بار نەکرا',
+
+    
+    allProjectsTitle: 'هەموو چالاکییەکان',
+
+    
+    allProjectsDescription: 'هەموو چالاکی و دەستپێشخەرییەکانمان ببینە کە جیاوازی لە کۆمەڵگاکانماندا دروست دەکەن.',
+
+    
+    allNewsTitle: 'هەموو هەواڵەکان',
+
+    
+    allNewsDescription: 'لەگەڵ نوێترین هەواڵ و دەستکەوت و چیرۆکەکانی کاریگەریمان لە کۆمەڵگادا بمێنەرەوە.',
+
+    
+    allGalleryDescription: 'کۆکراوەی ساتەکان و چیرۆکەکانی کۆمەڵگامان بە وێنە ببینە.',
+
+    
+    searchImages: 'گەڕان لە وێنەکان…',
+
+    
+    newsUpdates: 'نوێکردنەوەی هەواڵ',
+
+    
+    showingLatestActivities: 'نوێترین ٣ چالاکی نیشان دەدرێن',
+
+    
+    noProjectsFound: 'هیچ چالاکییەک لەگەڵ گەڕانەکەت ناگونجێت.',
+
+    
+    noNewsYet: 'هێشتا هیچ هەواڵێک نییە.',
+
+    
+    noNewsFound: 'هیچ هەواڵێک لەگەڵ گەڕانەکەت ناگونجێت.',
+
+    
+    noNewsInCategory: 'هێشتا هەواڵ لەم بەشەدا نییە.',
+
+    
+    noPhotosYet: 'هێشتا وێنە نییە',
+
+    
+    noPhotosDescription: 'لە ئێستادا هیچ وێنەیەک لە گالەریدا نییە.',
+
+    
+    clearSearch: 'سڕینەوەی گەڕان',
+
+    
+    view: 'بینین',
+
+    
+    like: 'پەسەندکردن',
+
+    
+    untitledNews: 'بێ ناونیشان',
+
+    
+    projectDetails: 'وردەکارییەکانی چالاکی',
+
+    
+    started: 'دەستی پێکردووە',
+
+    
+    category: 'بەش',
+
+    
+    aboutThisProject: 'دەربارەی ئەم چالاکییە',
+
+    
+    projectImpact: 'کاریگەری',
+
+    
+    projectImpactText: 'ئەم چالاکییە بەشێکە لە کاری بەردەوامی ئێمە بۆ هێنانی گۆڕانکاری ئەرێنی و بەردەوام بۆ ئەو کۆمەڵگایانەی خزمەتیان دەکەین.',
+
+    
+    newsDetails: 'وردەکارییەکان',
+
+    
+    published: 'بڵاوکراوەتەوە',
+
+    
+    fullStory: 'چیرۆکی تەواو',
+
+    
+    aboutThisNews: 'دەربارەی ئەم هەواڵە',
+
+    
+    aboutThisNewsText: 'هەواڵەکانمان بە شەفافی بڵاو دەکەینەوە تاکو هاوبەشەکان و کۆمەڵگا کار و دەستکەوتەکانمان بەدواداچوونی بۆ بکەن.',
+
+    
+    pageNotFound: 'ببورە! لاپەڕەکە نەدۆزرایەوە',
+
+    
+    returnHome: 'گەڕانەوە بۆ سەرەتا',
+
+    
+    connectingToServer: 'پەیوەندی بە سێرڤەرەوە دەکرێت…',
+
+    
+    connectionError: 'هەڵەی پەیوەندی',
+
+    
+    unableToConnect: 'نەتوانرا بگەینە سێرڤەر. تکایە دوای کەمێک هەوڵبدەرەوە.',
+
+    
+    metaHomeDescription: 'مرۆڤدۆستان ڕێکخراوێکی مرۆیی قازانج نەویستە لە هەرێمی کوردستانی عێراق، بە یارمەتی و پەروەردە و پرۆژەی کۆمەڵایەتی ئومێد دروست دەکات و ژیان دەگۆڕێت.',
+
+
     
     // Footer
     footerDescription: 'دروستکردنی ئومێد بۆ سبەینێ لە ڕێگەی گەشەسەندنی بەردەوام، پەروەردە و دەستپێشخەری چاودێری تەندروستی.',

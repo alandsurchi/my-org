@@ -1,3 +1,4 @@
+import { usePageMeta } from '@/hooks/usePageMeta';
 
 import React, { useState } from 'react';
 import { Search, ArrowLeft, Camera, Eye, Heart, ImageOff } from 'lucide-react';
@@ -11,6 +12,7 @@ import Footer from '@/components/Footer';
 
 const AllGallery = () => {
   const { t } = useLanguage();
+  usePageMeta({ title: t('galleryTitle'), description: t('allGalleryDescription') });
   const [searchTerm, setSearchTerm] = useState('');
   const [hoveredImage, setHoveredImage] = useState<number | null>(null);
   const { data: galleryImages = [], isLoading, error } = useGallery();
@@ -33,7 +35,7 @@ const AllGallery = () => {
       <div className="min-h-screen">
         <Header />
         <div className="py-24 flex items-center justify-center">
-          <div className="animate-pulse text-lg">Loading gallery...</div>
+          <div className="animate-pulse text-lg">{t('loadingGallery')}</div>
         </div>
         <Footer />
       </div>
@@ -46,13 +48,13 @@ const AllGallery = () => {
         <Header />
         <div className="py-24 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-red-500 text-lg mb-2">Error loading gallery</div>
+            <div className="text-red-500 text-lg mb-2">{t('errorLoadingGallery')}</div>
             <div className="text-gray-500 dark:text-gray-400 text-sm">{error.message}</div>
             <button
               onClick={() => window.location.reload()}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             >
-              Retry
+              {t('retry')}
             </button>
           </div>
         </div>
@@ -69,8 +71,8 @@ const AllGallery = () => {
           <div className="flex items-center gap-4 mb-8">
             <Link to="/">
               <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Home
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                {t('backToHome')}
               </Button>
             </Link>
           </div>
@@ -82,18 +84,18 @@ const AllGallery = () => {
               </span>
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Explore our collection of impactful moments and community stories through images.
+              {t('allGalleryDescription')}
             </p>
           </div>
 
           <div className="mb-8">
             <div className="relative max-w-lg mx-auto">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+              <Search className="absolute start-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <Input
-                placeholder="Search images..."
+                placeholder={t('searchImages')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-12 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-xl"
+                className="ps-12 h-12 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-xl"
               />
             </div>
           </div>
@@ -105,9 +107,9 @@ const AllGallery = () => {
                   <ImageOff className="w-7 h-7" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No photos yet</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">There are no gallery items available right now.</p>
-              <Button variant="outline" onClick={() => setSearchTerm('')}>Clear search</Button>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('noPhotosYet')}</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">{t('noPhotosDescription')}</p>
+              <Button variant="outline" onClick={() => setSearchTerm('')}>{t('clearSearch')}</Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -119,8 +121,7 @@ const AllGallery = () => {
                   onMouseLeave={() => setHoveredImage(null)}
                 >
                   <div className="aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
-                    <img 
-                      src={image.url || '/placeholder.svg'} 
+                    <img loading="lazy" decoding="async" src={image.url || '/placeholder.svg'} 
                       alt={image.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -134,18 +135,18 @@ const AllGallery = () => {
                       <div className="flex items-center gap-4 text-sm">
                         <div className="flex items-center gap-1">
                           <Eye className="w-4 h-4" />
-                          <span>View</span>
+                          <span>{t('view')}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Heart className="w-4 h-4" />
-                          <span>Like</span>
+                          <span>{t('like')}</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Floating action button */}
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute top-4 end-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
                       <Camera className="w-5 h-5" />
                     </button>

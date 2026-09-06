@@ -1,0 +1,12 @@
+{
+  "name": "Mrovdostan Organization for Humanitarian Aid",
+  "short_name": "Mrovdostan",
+  "description": "Humanitarian aid, education and community projects in the Kurdistan Region of Iraq.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    { "src": "/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png", "sizes": "498x498", "type": "image/png", "purpose": "any" }
+  ]
+}

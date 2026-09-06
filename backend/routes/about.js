@@ -29,14 +29,17 @@ router.post('/', requireAuth, upload.single('aboutImage'), fileValidation, valid
   const client = await pool.connect();
   try {
     const imageUrl = await saveFile(req.file, 'about');
-    const dimensions = getDimensions(req.file.buffer);
+    const opt = req.file.optimised || {};
+    const dimensions = opt.width ? { width: opt.width, height: opt.height } : getDimensions(req.file.buffer);
+    const storedSize = opt.size || req.file.size;
+    const storedType = opt.mimetype || req.file.mimetype;
 
     await client.query('BEGIN');
     await client.query('UPDATE about_image SET is_active = false WHERE is_active = true');
     const result = await client.query(
       `INSERT INTO about_image (url, original_name, file_name, file_size, mime_type, dimensions, uploaded_by, is_active)
        VALUES ($1, $2, $3, $4, $5, $6, $7, true) RETURNING ${ABOUT_COLUMNS}`,
-      [imageUrl, req.file.originalname, req.file.originalname, req.file.size, req.file.mimetype, JSON.stringify(dimensions), req.user.email]
+      [imageUrl, req.file.originalname, req.file.originalname, storedSize, storedType, JSON.stringify(dimensions), req.user.email]
     );
     await client.query('COMMIT');
 

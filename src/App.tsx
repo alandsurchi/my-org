@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,13 +9,16 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { StaffAuthProvider } from "@/contexts/StaffAuthContext";
 import { ScrollReveal } from "@/hooks/useScrollReveal";
 import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import StaffLogin from "./pages/StaffLogin";
-import SecretEntryRedirect from "./pages/SecretEntryRedirect";
-import AllProjects from "./pages/AllProjects";
-import AllNewsAPI from "./pages/AllNewsAPI";
-import AllGallery from "./pages/AllGallery";
-import NotFound from "./pages/NotFound";
+
+// Every other page is loaded on demand, so a visitor to the home page never
+// downloads the dashboard or the list pages until they open them.
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const StaffLogin = lazy(() => import("./pages/StaffLogin"));
+const SecretEntryRedirect = lazy(() => import("./pages/SecretEntryRedirect"));
+const AllProjects = lazy(() => import("./pages/AllProjects"));
+const AllNewsAPI = lazy(() => import("./pages/AllNewsAPI"));
+const AllGallery = lazy(() => import("./pages/AllGallery"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +55,12 @@ const AppThemeProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+const PageFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" aria-label="Loading" />
+  </div>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
@@ -61,17 +71,19 @@ const App = () => (
           <BrowserRouter>
             <AppThemeProvider>
               <ScrollReveal />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/staff-login" element={<StaffLogin />} />
-                {/* Secret entry route - redirects to staff-login for proper authentication */}
-                <Route path={`/${import.meta.env.VITE_SECRET_STAFF_PATH || 'log-org'}`} element={<SecretEntryRedirect />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/projects" element={<AllProjects />} />
-                <Route path="/news" element={<AllNewsAPI />} />
-                <Route path="/gallery" element={<AllGallery />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <Suspense fallback={<PageFallback />}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/staff-login" element={<StaffLogin />} />
+                  {/* Secret entry route - redirects to staff-login for proper authentication */}
+                  <Route path={`/${import.meta.env.VITE_SECRET_STAFF_PATH || 'log-org'}`} element={<SecretEntryRedirect />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/projects" element={<AllProjects />} />
+                  <Route path="/news" element={<AllNewsAPI />} />
+                  <Route path="/gallery" element={<AllGallery />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </AppThemeProvider>
           </BrowserRouter>
         </TooltipProvider>

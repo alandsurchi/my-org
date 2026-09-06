@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { usePageMeta } from '@/hooks/usePageMeta';
 import { Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ interface DialogNewsItem {
 
 const AllNews = () => {
   const { t } = useLanguage();
+  usePageMeta({ title: t('allNewsTitle'), description: t('allNewsDescription') });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNewsItem, setSelectedNewsItem] = useState<DialogNewsItem | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
@@ -66,7 +68,7 @@ const AllNews = () => {
       <div className="min-h-screen">
         <Header />
         <div className="py-24 flex items-center justify-center">
-          <div className="animate-pulse text-lg">Loading news...</div>
+          <div className="animate-pulse text-lg">{t('loadingNews')}</div>
         </div>
         <Footer />
       </div>
@@ -93,8 +95,8 @@ const AllNews = () => {
           <div className="flex items-center gap-4 mb-8">
             <Link to="/">
               <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Home
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                {t('backToHome')}
               </Button>
             </Link>
           </div>
@@ -102,22 +104,22 @@ const AllNews = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                All News
+                {t('allNewsTitle')}
               </span>
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Stay updated with our latest news, achievements, and community impact stories.
+              {t('allNewsDescription')}
             </p>
           </div>
 
           <div className="mb-8">
             <div className="relative max-w-lg mx-auto">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+              <Search className="absolute start-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <Input
-                placeholder="Search news..."
+                placeholder={t('searchNews')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-12 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-xl"
+                className="ps-12 h-12 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-xl"
               />
             </div>
           </div>
@@ -125,7 +127,7 @@ const AllNews = () => {
           {filteredNews.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-500 dark:text-gray-400 text-lg">
-                {allNews.length === 0 ? 'No news articles available yet.' : 'No news found matching your search.'}
+                {allNews.length === 0 ? t('noNewsYet') : t('noNewsFound')}
               </div>
             </div>
           ) : (
@@ -136,8 +138,7 @@ const AllNews = () => {
                 return (
                   <div key={newsItem.id} className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                     {imageUrl && (
-                      <img 
-                        src={imageUrl} 
+                      <img loading="lazy" decoding="async" src={imageUrl} 
                         alt={newsItem.title}
                         className="h-48 w-full object-cover"
                       />
@@ -162,7 +163,7 @@ const AllNews = () => {
                         onClick={() => handleReadMore(newsItem)}
                         className="w-full"
                       >
-                        Read More
+                        {t('readMore')}
                       </Button>
                     </div>
                   </div>

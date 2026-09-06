@@ -99,7 +99,7 @@ const ProjectsSection = () => {
       <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 dark:from-gray-950 via-blue-50/30 dark:via-gray-950 to-purple-50/20 dark:to-gray-950 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="animate-pulse">Loading projects...</div>
+            <div className="animate-pulse">{t('loadingProjects')}</div>
           </div>
         </div>
       </section>
@@ -128,7 +128,7 @@ const ProjectsSection = () => {
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
             {t('projectsDescription')}
           </p>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">Showing latest 3 activities</p>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">{t('showingLatestActivities')}</p>
           <div className="w-32 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mx-auto rounded-full mt-6"></div>
         </div>
 
@@ -139,7 +139,7 @@ const ProjectsSection = () => {
             </SelectTrigger>
             <SelectContent className="rounded-2xl border-0 shadow-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
               <SelectItem value="all" className="rounded-xl">{t('allCategories')}</SelectItem>
-              <SelectItem value="news" className="rounded-xl">📰 News Updates</SelectItem>
+              <SelectItem value="news" className="rounded-xl">📰 {t('newsUpdates')}</SelectItem>
               <SelectItem value="water" className="rounded-xl">{t('water')}</SelectItem>
               <SelectItem value="education" className="rounded-xl">{t('education')}</SelectItem>
               <SelectItem value="emergency" className="rounded-xl">{t('emergency')}</SelectItem>
@@ -150,7 +150,7 @@ const ProjectsSection = () => {
 
         {recentActivities.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-500 dark:text-gray-400 text-lg">No projects available matching your criteria.</div>
+            <div className="text-gray-500 dark:text-gray-400 text-lg">{t('noProjectsFound')}</div>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-8 mb-16">
@@ -161,29 +161,28 @@ const ProjectsSection = () => {
               <Card key={activity.id} className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
                 {imageUrl && (
                   <div className="relative overflow-hidden">
-                    <img 
-                      src={imageUrl} 
+                    <img loading="lazy" decoding="async" src={imageUrl} 
                       alt={activity.title_en || activity.title || 'Project'}
                       className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                     
-                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                    <div className="absolute top-4 start-4 flex items-center gap-2">
                       <span className="text-2xl">{getCategoryIcon(activity.category || 'water')}</span>
                       <span className="text-sm text-white/90 font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
                         {getCategoryLabel(activity.category)}
                       </span>
                     </div>
                     
-                    <div className="absolute top-4 right-4">
+                    <div className="absolute top-4 end-4">
                       <span className={`${getBadgeColor(activity.category || 'water')} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
                         {activity.status || 'completed'}
                       </span>
                     </div>
 
                     {activity.location && (
-                      <div className="absolute bottom-4 left-4 flex items-center text-white/90 text-sm">
-                        <MapPin className="w-4 h-4 mr-1" />
+                      <div className="absolute bottom-4 start-4 flex items-center text-white/90 text-sm">
+                        <MapPin className="w-4 h-4 me-1" />
                         {activity.location}
                       </div>
                     )}
@@ -205,7 +204,7 @@ const ProjectsSection = () => {
                 <CardContent className="pt-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center text-gray-500 dark:text-gray-400">
-                      <Calendar className="w-4 h-4 mr-2" />
+                      <Calendar className="w-4 h-4 me-2" />
                       <span className="text-sm font-medium">
                         {new Date(activity.created_at || activity.createdAt || Date.now()).toLocaleDateString()}
                       </span>
@@ -216,7 +215,7 @@ const ProjectsSection = () => {
                       onClick={() => handleReadMore(activity)}
                     >
                       {t('readMore')} 
-                      <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                      <ArrowRight className="w-4 h-4 ms-1 transition-transform duration-300 group-hover/btn:translate-x-1 rtl:rotate-180" />
                     </Button>
                   </div>
                 </CardContent>

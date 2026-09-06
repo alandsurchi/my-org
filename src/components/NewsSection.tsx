@@ -98,7 +98,7 @@ const NewsSection = () => {
       return (
         <div className="text-center py-12">
           <div className="text-gray-500 dark:text-gray-400 text-lg">
-            {isLoading ? 'Loading news...' : 'No news available in this category yet.'}
+            {isLoading ? t('loadingNews') : t('noNewsInCategory')}
           </div>
         </div>
       );
@@ -120,7 +120,7 @@ const NewsSection = () => {
           
           const imageUrl = getImageSrc(item.imageUrl || item.image_url);
           const IconComponent = getIconComponent(category);
-          const title = item.title || item.title_en || 'Untitled News';
+          const title = item.title || item.title_en || t('untitledNews');
           const body = item.content || item.description_en || item.description || '';
           const excerpt = body.length > 150 ? `${body.substring(0, 150)}...` : body;
           const date = new Date(item.createdAt || item.date || Date.now()).toLocaleDateString();
@@ -131,8 +131,7 @@ const NewsSection = () => {
             <Card key={item.id ?? index} className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="relative overflow-hidden">
                 {imageUrl ? (
-                  <img
-                    src={imageUrl}
+                  <img loading="lazy" decoding="async" src={imageUrl}
                     alt={title}
                     className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
@@ -143,14 +142,14 @@ const NewsSection = () => {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
-                <div className="absolute top-4 left-4 flex items-center gap-2">
+                <div className="absolute top-4 start-4 flex items-center gap-2">
                   <span className="text-2xl">{getTabIcon(category)}</span>
                   <span className="text-sm text-white/90 font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
                     {t(category)}
                   </span>
                 </div>
 
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-4 end-4">
                   <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
                     <IconComponent className="w-6 h-6 text-white" />
                   </div>
@@ -169,7 +168,7 @@ const NewsSection = () => {
               <CardContent className="pt-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center text-gray-500 dark:text-gray-400">
-                    <Calendar className="w-4 h-4 mr-2" />
+                    <Calendar className="w-4 h-4 me-2" />
                     <span className="text-sm font-medium">{date}</span>
                   </div>
                   <Button
@@ -178,7 +177,7 @@ const NewsSection = () => {
                     onClick={() => handleReadMore(item)}
                   >
                     {t('readMore')}
-                    <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                    <ArrowRight className="w-4 h-4 ms-1 transition-transform duration-300 group-hover/btn:translate-x-1 rtl:rotate-180" />
                   </Button>
                 </div>
               </CardContent>
@@ -195,7 +194,7 @@ const NewsSection = () => {
       <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-blue-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="text-red-500">Error loading news. Please try again later.</div>
+            <div className="text-red-500">{t('errorLoadingNews')}</div>
           </div>
         </div>
       </section>
@@ -207,7 +206,7 @@ const NewsSection = () => {
       <section id="news" className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-blue-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="animate-pulse text-lg">Loading news...</div>
+            <div className="animate-pulse text-lg">{t('loadingNews')}</div>
           </div>
         </div>
       </section>

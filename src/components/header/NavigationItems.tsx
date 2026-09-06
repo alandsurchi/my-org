@@ -35,7 +35,7 @@ const NavigationItems: React.FC<NavigationItemsProps> = ({
             onClick={() => handleNavigation(item)}
             className={`relative group flex items-center font-medium transition-all duration-300 hover:scale-105 touch-manipulation ${getTextStyling(item.id)}`}
           >
-            <IconComponent className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:scale-110" />
+            <IconComponent className="w-4 h-4 me-2 transition-transform duration-300 group-hover:scale-110" />
             <span className="text-sm xl:text-base">{t(item.labelKey)}</span>
             <span className={`absolute -bottom-2 left-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 rounded-full ${
               isActive ? 'w-full' : 'w-0 group-hover:w-full'

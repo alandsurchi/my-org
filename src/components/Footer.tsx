@@ -102,7 +102,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400">
-            {t('footerCopyright')}
+            {t('footerCopyright').replace(/\b20\d\d\b/, String(new Date().getFullYear()))}
           </p>
         </div>
       </div>

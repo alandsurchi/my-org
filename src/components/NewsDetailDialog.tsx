@@ -95,13 +95,13 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
                 alt={newsItem.title_en}
                 className="w-full h-64 md:h-80 object-cover rounded-lg"
               />
-              <div className="absolute top-4 left-4 flex items-center gap-2">
+              <div className="absolute top-4 start-4 flex items-center gap-2">
                 <span className="text-2xl">{getCategoryIcon(newsItem.category)}</span>
                 <span className="text-sm text-white font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
                   {t(newsItem.category)}
                 </span>
               </div>
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 end-4">
                 <span className={`${getBadgeColor(newsItem.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
                   News
                 </span>
@@ -113,11 +113,11 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">News Details</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('newsDetails')}</h3>
                 <div className="space-y-2">
                   <div className="flex items-center text-gray-600 dark:text-gray-300">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span className="text-sm">Published: {new Date(newsItem.date).toLocaleDateString()}</span>
+                    <Calendar className="w-4 h-4 me-2" />
+                    <span className="text-sm">{t('published')}: {new Date(newsItem.date).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
@@ -125,7 +125,7 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Category</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('category')}</h3>
                 <div className="flex items-center gap-2">
                   <IconComponent className="w-6 h-6 text-gray-600 dark:text-gray-300" />
                   <span className="font-medium">{t(newsItem.category)}</span>
@@ -136,7 +136,7 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
 
           {/* News Description */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Full Story</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('fullStory')}</h3>
             <div className="prose max-w-none">
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                 {newsItem.description_en}
@@ -146,10 +146,9 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
 
           {/* Additional section */}
           <div className="bg-gradient-to-br from-purple-50 dark:from-gray-950 to-blue-50 dark:to-gray-950 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">About This News</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('aboutThisNews')}</h3>
             <p className="text-gray-700 dark:text-gray-300">
-              This news item showcases our ongoing commitment to transparency and community engagement. 
-              Stay updated with our latest developments and achievements as we continue our mission.
+              {t('aboutThisNewsText')}
             </p>
           </div>
         </div>

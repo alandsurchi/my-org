@@ -15,7 +15,7 @@ const GallerySection = () => {
       <section id="gallery" className="py-24 bg-gradient-to-br from-purple-50/30 dark:from-gray-950 via-pink-50/20 dark:via-gray-950 to-gray-50 dark:to-gray-950 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <div className="animate-pulse">Loading gallery...</div>
+            <div className="animate-pulse">{t('loadingGallery')}</div>
           </div>
         </div>
       </section>
@@ -68,15 +68,14 @@ const GallerySection = () => {
                 onMouseLeave={() => setHoveredImage(null)}
               >
                 <div className="aspect-square overflow-hidden">
-                  <img 
-                    src={image.url || '/placeholder.svg'} 
+                  <img loading="lazy" decoding="async" src={image.url || '/placeholder.svg'} 
                     alt={image.title || t('galleryTitle')}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                 </div>
                 
                 {/* Category badge */}
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-4 start-4">
                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-2">
                   <Camera className="w-4 h-4 text-white" />
                   <span className="text-white text-sm font-medium">{t('gallery')}</span>
@@ -90,18 +89,18 @@ const GallerySection = () => {
                     <div className="flex items-center gap-4 text-sm text-white/80">
                       <div className="flex items-center gap-1">
                         <Eye className="w-4 h-4" />
-                        <span>View</span>
+                        <span>{t('view')}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Heart className="w-4 h-4" />
-                        <span>Like</span>
+                        <span>{t('like')}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Floating action button */}
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute top-4 end-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
                     <Camera className="w-5 h-5" />
                   </button>
@@ -114,7 +113,7 @@ const GallerySection = () => {
         <div className="text-center fade-in-on-scroll">
           <Link to="/gallery">
             <Button size="lg" className="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-700 hover:via-purple-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
-              <Camera className="w-5 h-5 mr-2" />
+              <Camera className="w-5 h-5 me-2" />
               {t('viewAllImages')}
             </Button>
           </Link>

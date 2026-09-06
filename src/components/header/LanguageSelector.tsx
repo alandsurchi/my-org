@@ -14,7 +14,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ getSelectStyling })
   return (
     <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
       <SelectTrigger className={`w-auto min-w-[80px] sm:min-w-[100px] transition-all duration-300 hover:scale-105 touch-manipulation ${getSelectStyling()}`}>
-        <Globe className="w-4 h-4 mr-1 sm:mr-2" />
+        <Globe className="w-4 h-4 me-1 sm:me-2" />
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
