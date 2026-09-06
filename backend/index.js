@@ -83,6 +83,20 @@ app.use('/uploads', express.static(STORAGE_PATH, { maxAge: '7d', immutable: true
 const ensureSuperAdmin = async () => {
   const email = (process.env.DEFAULT_ADMIN_EMAIL || 'admin@charity.com').trim().toLowerCase();
 
+  // One-time recovery: DEFAULT_ADMIN_RESET=true forces DEFAULT_ADMIN_EMAIL to
+  // exist as a super admin with DEFAULT_ADMIN_PASSWORD. Remove the variable
+  // afterwards, otherwise every restart resets that password again.
+  if (process.env.DEFAULT_ADMIN_RESET === 'true' && process.env.DEFAULT_ADMIN_PASSWORD) {
+    const hashed = await bcrypt.hash(process.env.DEFAULT_ADMIN_PASSWORD, 10);
+    await pool.query(
+      `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, 'super_admin')
+       ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password, role = 'super_admin'`,
+      ['Administrator', email, hashed]
+    );
+    console.log(`DEFAULT_ADMIN_RESET applied to ${email}. Remove DEFAULT_ADMIN_RESET from the variables now.`);
+    return;
+  }
+
   const superAdmins = await pool.query("SELECT COUNT(*)::int AS count FROM users WHERE role = 'super_admin'");
   if (superAdmins.rows[0].count > 0) return;
 
