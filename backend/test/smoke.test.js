@@ -174,6 +174,25 @@ test('a deleted user loses access immediately', async () => {
   assert.equal(me.status, 401);
 });
 
+test('a super admin can remove another super admin but never themselves', async () => {
+  const email = 'second.super@example.com';
+  const list = await api('GET', '/api/staff', { token: adminToken });
+  const existing = list.json.data.find((u) => u.email === email);
+  if (existing) await api('DELETE', `/api/staff/${existing.id}`, { token: adminToken });
+
+  const created = await api('POST', '/api/staff', { token: adminToken, body: { name: 'Second Super', email, password: 'SuperPass123', role: 'super_admin' } });
+  assert.equal(created.status, 201, JSON.stringify(created.json));
+  assert.equal(created.json.data.isSuperAdmin, true);
+  assert.equal(created.json.data.isProtected, false);
+
+  const me = await api('GET', '/api/staff/me', { token: adminToken });
+  const self = (await api('GET', '/api/staff', { token: adminToken })).json.data.find((u) => u.id === me.json.data.id);
+  assert.equal(self.isProtected, true);
+
+  const del = await api('DELETE', `/api/staff/${created.json.data.id}`, { token: adminToken });
+  assert.equal(del.status, 200, JSON.stringify(del.json));
+});
+
 test('the last super admin cannot demote themselves or delete themselves', async () => {
   const me = await api('GET', '/api/staff/me', { token: adminToken });
   const demote = await api('PUT', `/api/staff/${me.json.data.id}`, { token: adminToken, body: { role: 'staff' } });

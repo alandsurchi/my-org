@@ -3287,18 +3287,18 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {isSuperAdmin && !member.isSuperAdmin && (
+                            {isSuperAdmin && !member.isProtected && (
                               <>
-                                <Button 
-                                  size="sm" 
+                                <Button
+                                  size="sm"
                                   variant="outline"
                                   onClick={() => handleEditStaffMember(member)}
                                 >
                                   <Edit className="w-4 h-4" />
                                 </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="destructive" 
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
                                   onClick={() => handleDeleteStaffMember(member.id)}
                                   disabled={deleteStaffAccount.isPending}
                                 >
@@ -3306,9 +3306,9 @@ ${announcementForm.representativeName} & ${announcementForm.position}`;
                                 </Button>
                               </>
                             )}
-                            {member.isSuperAdmin && (
+                            {member.isProtected && (
                               <Badge variant="outline" className="text-xs text-gray-400">
-                                Protected
+                                {member.email === staffUser?.email ? 'You' : 'Protected'}
                               </Badge>
                             )}
                           </div>

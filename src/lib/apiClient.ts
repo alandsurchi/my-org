@@ -30,6 +30,8 @@ export interface LoginResponse {
 
 export interface StaffMember extends AuthUser {
   canEdit?: boolean;
+  /** Own account or an email pinned in SUPER_ADMINS: cannot be edited or deleted */
+  isProtected?: boolean;
 }
 
 export interface ImageAsset {

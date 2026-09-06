@@ -8,6 +8,7 @@ export interface StaffAccount {
   role: Role;
   is_active: boolean;
   isSuperAdmin: boolean;
+  isProtected: boolean;
   canEdit: boolean;
   createdAt?: string;
   created_at?: string;
@@ -21,6 +22,7 @@ const toAccount = (member: StaffMember): StaffAccount => ({
   role: member.role,
   is_active: true,
   isSuperAdmin: !!member.isSuperAdmin,
+  isProtected: !!member.isProtected,
   canEdit: !!member.canEdit,
   createdAt: member.createdAt,
   created_at: member.createdAt,

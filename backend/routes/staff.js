@@ -4,13 +4,16 @@ const bcrypt = require('bcryptjs');
 const pool = require('../db');
 const { requireAuth, requireSuperAdmin } = require('../middleware/auth');
 const { staffCreateValidation, staffUpdateValidation, validateRequest } = require('../middleware/validator');
-const { isSuperAdmin, isValidRole, normalizeEmail } = require('../config/roles');
+const { isSuperAdmin, isValidRole, normalizeEmail, SUPER_ADMIN_EMAILS } = require('../config/roles');
 
 const SELECT_USER_SAFE = 'SELECT id, name, email, role, created_at AS "createdAt", last_login AS "lastLogin"';
 
+// isProtected: cannot be edited/deleted by the requester (own account, or an
+// email pinned in SUPER_ADMINS). Deleting yourself is never allowed.
 const withFlags = (member, requester) => ({
   ...member,
   isSuperAdmin: isSuperAdmin(member),
+  isProtected: member.id === requester.id || SUPER_ADMIN_EMAILS.includes(member.email),
   canEdit: requester.isSuperAdmin
 });
 
@@ -72,12 +75,12 @@ router.put('/:id', requireAuth, requireSuperAdmin, staffUpdateValidation, valida
     const { name, password, role } = req.body;
     const email = req.body.email ? normalizeEmail(req.body.email) : undefined;
 
-    // Nobody may edit another super admin's account; super admins edit their own only.
-    if (isSuperAdmin(target) && target.id !== req.user.id) {
-      return res.status(403).json({ success: false, message: 'Super admin accounts can only be edited by their owner' });
+    // Accounts listed in SUPER_ADMINS (env) can only be edited by their owner.
+    if (SUPER_ADMIN_EMAILS.includes(target.email) && target.id !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'This account is protected and can only be edited by its owner' });
     }
 
-    // Never let the last super admin demote themselves.
+    // Never demote the last super admin.
     if (role && role !== 'super_admin' && target.role === 'super_admin' && (await countSuperAdmins()) <= 1) {
       return res.status(403).json({ success: false, message: 'Cannot demote the last super admin' });
     }
@@ -122,7 +125,10 @@ router.delete('/:id', requireAuth, requireSuperAdmin, async (req, res, next) => 
     const target = result.rows[0];
 
     if (target.id === req.user.id) return res.status(403).json({ success: false, message: 'Cannot delete your own account' });
-    if (isSuperAdmin(target)) return res.status(403).json({ success: false, message: 'Cannot delete a super admin' });
+    if (SUPER_ADMIN_EMAILS.includes(target.email)) return res.status(403).json({ success: false, message: 'This account is protected' });
+    if (target.role === 'super_admin' && (await countSuperAdmins()) <= 1) {
+      return res.status(403).json({ success: false, message: 'Cannot delete the last super admin' });
+    }
 
     await pool.query('DELETE FROM users WHERE id = $1', [userId]);
     res.json({ success: true, data: { message: 'Staff member deleted successfully' } });
