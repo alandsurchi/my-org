@@ -56,7 +56,11 @@ DATABASE_URL=postgresql://... JWT_SECRET=... DEFAULT_ADMIN_EMAIL=admin@charity.c
 
 Locally it uses the installed Google Chrome. Failures leave screenshots and traces in `test-results/`.
 
-All of the above run in GitHub Actions on every push (`.github/workflows/ci.yml`): typecheck + lint + build, backend tests, then the browser tests with a report uploaded on failure.
+### Automated runs on Railway (no GitHub Actions needed)
+
+The `tests` service in the Railway project builds `Dockerfile.tests` from the repo and runs `e2e/runner.mjs`: it starts a private PostgreSQL inside its own container, runs the backend suite and the browser suite, then shows the result on its public URL (green PASSED / red FAILED, history, log tail) and repeats every `TEST_INTERVAL_HOURS` (default 24). Every push redeploys it, so each change is tested within a few minutes. Production data is never touched.
+
+`.github/workflows/ci.yml` runs the same checks on GitHub Actions when that is available.
 
 ## Deployment (Railway)
 

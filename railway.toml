@@ -1,12 +1,9 @@
-# Railway service config for the FRONTEND web service.
-# Root Directory of this service must be "/" (repo root). The backend service uses backend/railway.toml.
-# Required variable: BACKEND_URL = the backend service's public URL.
-[build]
-builder = "nixpacks"
-buildCommand = "npm ci && npm run build"
-
+# Shared Railway config for services whose Root Directory is "/" (repo root):
+#   - my-org  : the public web site  (Dockerfile)        -> serves "/"
+#   - tests   : the test runner      (Dockerfile.tests, via RAILWAY_DOCKERFILE_PATH) -> serves "/" status page
+# Build and start commands come from the Dockerfiles. The backend service uses backend/railway.toml.
 [deploy]
-startCommand = "npm start"
 healthcheckPath = "/"
+healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3

@@ -1,0 +1,20 @@
+# Test runner service (Railway). Runs the backend suite and the Playwright
+# browser suite against a throwaway PostgreSQL started inside this container,
+# serves a status page with the latest result, and repeats on a schedule.
+FROM mcr.microsoft.com/playwright:v1.63.0-jammy
+
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends postgresql \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY backend/package.json backend/package-lock.json ./backend/
+RUN npm ci && npm ci --prefix backend
+COPY . .
+RUN npm run build
+
+ENV CI=true
+ENV NODE_ENV=test
+EXPOSE 3000
+CMD ["node", "e2e/runner.mjs"]
