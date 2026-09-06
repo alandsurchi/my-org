@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Calendar, ArrowRight, MapPin } from 'lucide-react';
+import { Calendar, ArrowRight, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,7 +11,6 @@ import { config } from '../config/env';
 
 const ProjectsSection = () => {
   const { t } = useLanguage();
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedProject, setSelectedProject] = useState<DialogProject | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
@@ -25,16 +23,11 @@ const ProjectsSection = () => {
     return url;
   };
 
-  const filteredActivities = projects.filter(project => {
-    const title = project.title_en || project.title || '';
-    const description = project.description_en || project.description || '';
-    const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || 
-                           project.category === selectedCategory ||
-                           !project.category; // Include projects without category
-    return matchesSearch && matchesCategory;
-  });
+  const filteredActivities = projects.filter(project =>
+    selectedCategory === 'all' ||
+    project.category === selectedCategory ||
+    !project.category // Include projects without category
+  );
 
   // Sort by creation date (newest first) and limit to 3 items for display
   const recentActivities = filteredActivities
@@ -139,16 +132,7 @@ const ProjectsSection = () => {
           <div className="w-32 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mx-auto rounded-full mt-6"></div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 mb-16 fade-in-on-scroll">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <Input
-              placeholder={t('searchProjects')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-14 border-0 bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            />
-          </div>
+        <div className="flex justify-center mb-16 fade-in-on-scroll">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-full lg:w-64 h-14 border-0 bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl focus:ring-2 focus:ring-blue-500/20">
               <SelectValue />

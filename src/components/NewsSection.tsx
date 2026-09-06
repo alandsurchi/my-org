@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Calendar, ArrowRight, Award, Users, Building, Trophy } from 'lucide-react';
+import { Calendar, ArrowRight, Award, Users, Building, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -14,7 +13,6 @@ import { config } from '../config/env';
 
 const NewsSection = () => {
   const { t } = useLanguage();
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedNewsItem, setSelectedNewsItem] = useState<DialogNewsItem | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: allNews = [], isLoading, error } = useNews();
@@ -60,14 +58,7 @@ const NewsSection = () => {
 
   const filterNews = (newsItems: NewsCard[]) => {
     if (!newsItems || !Array.isArray(newsItems)) return [];
-    
-    return newsItems.filter(item => {
-      if (!item) return false;
-      const title = item.title || '';
-      const content = item.content || '';
-      return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-             content.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    return newsItems.filter(Boolean);
   };
 
   const getTabIcon = (tabValue: string) => {
@@ -244,16 +235,6 @@ const NewsSection = () => {
           </h2>
           <p className="text-lg text-gray-600 mb-4">{t('latestNews')}</p>
           <div className="w-32 h-1 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 mx-auto rounded-full"></div>
-        </div>
-
-        <div className="relative mb-12 fade-in-on-scroll">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <Input
-            placeholder={t('searchNews')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-12 h-14 border-0 bg-white/80 backdrop-blur-sm shadow-lg rounded-2xl max-w-lg mx-auto focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-          />
         </div>
 
         <Tabs defaultValue="placesVisited" className="w-full">
