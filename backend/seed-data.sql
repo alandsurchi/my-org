@@ -1,4 +1,4 @@
--- Seed data from MongoDB migration
+-- Sample content seeded once into an empty database.
 -- Applied only when the news/projects tables are empty (see seed.js).
 
 INSERT INTO news (title, content, category, image_url, created_at, updated_at) VALUES ('سەردانی فەرمی بۆ رێکخراوی تەندروستی', 'لە ڕۆژی دووشەممە، ٢٠٢٥/٠١/١٠، وەفدێکی ڕێکخراوی مرۆڤدۆستان سەردانی رێکخراوی تەندروستی جیهانی کرد بۆ باسکردنی پرۆژەکانی هاوبەش', 'KurdishVisitors', NULL, '2026-05-25T19:28:36.566Z', '2026-05-25T19:28:36.593Z') ON CONFLICT DO NOTHING;

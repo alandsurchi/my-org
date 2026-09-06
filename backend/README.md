@@ -1,137 +1,54 @@
 # Charity Dashboard Backend
 
-A Node.js + Express backend using a managed MongoDB service for charity staff dashboard content.
+Node.js + Express + PostgreSQL API for the Mrovdostan website and staff dashboard. Runs on Railway with a PostgreSQL service and a volume for uploads.
 
-## Features
+## Run locally
 
-- **Hero Image Management**: Upload and update hero banner images
-- **News Management**: Create, read, update, delete news articles with images
-- **Project Management**: Manage charity projects with status tracking
-- **Gallery Management**: Upload and organize photo gallery
-- **User Authentication**: JWT-based login system with role-based access
-- **File Upload**: Image upload support with validation
-
-## Data Models
-
-### Hero Image
-- `url`: Image URL
-- `updatedAt`: Last update timestamp
-
-### News
-- `title`: Article title
-- `content`: Article content
-- `imageUrl`: Featured image URL
-- `createdAt`, `updatedAt`: Timestamps
-
-### Projects
-- `title`: Project title
-- `description`: Project description
-- `status`: active | completed | planned | on-hold
-- `imageUrl`: Project image URL
-- `createdAt`, `updatedAt`: Timestamps
-
-### Gallery Photos
-- `url`: Photo URL
-- `caption`: Photo caption
-- `uploadedAt`: Upload timestamp
-
-### Users
-- `email`: User email (unique)
-- `password`: Hashed password
-- `role`: admin | staff
-- `createdAt`: Registration timestamp
-
-## Installation
-
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Configure your environment variables in Railway or in a secure local `.env` file for development:
-   ```
-   MONGO_URI=your_managed_mongodb_connection_string
-   PORT=5000
-   JWT_SECRET=your_strong_jwt_secret
-   ```
-
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-## API Endpoints
-
-### Hero Image
-- `GET /api/hero` - Get current hero image
-- `POST /api/hero` - Upload new hero image
-- `PUT /api/hero` - Update hero image
-
-### News
-- `GET /api/news` - Get all news
-- `GET /api/news/:id` - Get single news
-- `POST /api/news` - Create news (with image upload)
-- `PUT /api/news/:id` - Update news
-- `DELETE /api/news/:id` - Delete news
-
-### Projects
-- `GET /api/projects` - Get all projects (optional ?status filter)
-- `GET /api/projects/:id` - Get single project
-- `POST /api/projects` - Create project (with image upload)
-- `PUT /api/projects/:id` - Update project
-- `DELETE /api/projects/:id` - Delete project
-
-### Gallery
-- `GET /api/gallery` - Get all photos
-- `GET /api/gallery/:id` - Get single photo
-- `POST /api/gallery` - Upload photo
-- `PUT /api/gallery/:id` - Update photo caption
-- `DELETE /api/gallery/:id` - Delete photo
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - User login
-- `GET /api/auth/verify` - Verify JWT token
-- `GET /api/auth/users` - Get all users (admin only)
-
-## File Upload
-
-Images are uploaded to the `uploads/` directory with the following structure:
-- `uploads/hero/` - Hero images
-- `uploads/news/` - News article images
-- `uploads/projects/` - Project images
-- `uploads/gallery/` - Gallery photos
-
-## Security Features
-
-- Password hashing with bcrypt
-- JWT authentication
-- Role-based access control
-- File type validation for uploads
-- File size limits
-- CORS enabled
-
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| MONGO_URI | Managed MongoDB connection string | Required |
-| PORT | Server port | 5000 |
-| JWT_SECRET | JWT signing secret | Required |
-
-## Development
-
-Start the development server with auto-reload:
 ```bash
-npm run dev
+cp .env.example .env     # set DATABASE_URL and JWT_SECRET
+npm install
+npm run dev              # http://localhost:5000
 ```
 
-Start production server:
+The schema is created automatically on start (`init-db.js`). On an empty database, sample news and projects are seeded once (`seed.js`) and a first super admin is created from `DEFAULT_ADMIN_EMAIL` / `DEFAULT_ADMIN_PASSWORD`.
+
+## Test
+
 ```bash
-npm start
+DATABASE_URL=... JWT_SECRET=... DEFAULT_ADMIN_PASSWORD=... npm test
 ```
+
+Boots the server against the given database and runs the end-to-end smoke test in `test/smoke.test.js`.
+
+## Endpoints
+
+| Route | Public | Notes |
+|---|---|---|
+| `GET /health`, `GET /api/health` | yes | status + database state |
+| `POST /api/auth/login` | yes | rate limited, returns JWT |
+| `GET /api/auth/verify` | token | current user |
+| `POST /api/auth/register` | super admin | create account |
+| `GET /api/staff`, `GET /api/staff/me` | token | list / current user |
+| `POST/PUT/DELETE /api/staff/:id` | super admin | manage accounts |
+| `GET /api/hero`, `GET /api/about` | yes | active image |
+| `POST /api/hero`, `POST /api/about`, `DELETE /api/about` | token | replace / remove image |
+| `GET /api/news`, `GET /api/news/:id` | yes | `?limit=&category=` |
+| `POST/PUT/DELETE /api/news/:id` | token | multipart, field `image` |
+| `GET /api/projects`, `GET /api/projects/:id` | yes | `?status=&category=&limit=` |
+| `POST/PUT/DELETE /api/projects/:id` | token | multipart, field `image` |
+| `GET /api/gallery`, `GET /api/gallery/:id` | yes | |
+| `POST/PUT/DELETE /api/gallery/:id` | token | multipart, field `photo` |
+
+All responses use `{ success, data }` or `{ success: false, message | error, code }`.
+
+## Roles
+
+`staff` and `admin` manage content. `super_admin` also manages accounts. Emails listed in `SUPER_ADMINS` are always treated as super admins.
+
+## Uploads
+
+Images (JPEG, PNG, WebP, GIF, max 5 MB) are stored under `STORAGE_PATH` (`/data/uploads` on the Railway volume) and served from `/uploads/...`. Set `STORAGE_TYPE=r2` plus the `R2_*` variables to store them in Cloudflare R2 instead.
+
+## Environment variables
+
+See `.env.example`. Required: `DATABASE_URL`, `JWT_SECRET`.

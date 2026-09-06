@@ -98,11 +98,46 @@ function sendFile(res, filePath, cacheControl) {
   fs.createReadStream(filePath).pipe(res);
 }
 
+// The public origin is derived from the request, so a custom domain needs no
+// code or variable change: robots.txt, sitemap.xml and social preview tags
+// always point at whatever host the visitor used.
+const PUBLIC_ROUTES = ['/', '/projects', '/news', '/gallery'];
+const INDEX_HTML = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
+
+function publicOrigin(req) {
+  const proto = (req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim();
+  const host = (req.headers['x-forwarded-host'] || req.headers.host || `localhost:${PORT}`).split(',')[0].trim();
+  return `${proto}://${host}`;
+}
+
+function sendText(res, body, type, cacheControl = 'public, max-age=3600') {
+  res.writeHead(200, { 'Content-Type': type, 'Cache-Control': cacheControl, ...SECURITY_HEADERS });
+  res.end(body);
+}
+
+function sendIndex(req, res, pathname) {
+  const origin = publicOrigin(req);
+  const html = INDEX_HTML
+    .replace(/content="\/(lovable-uploads\/[^"]+)"/g, `content="${origin}/$1"`)
+    .replace('</head>', `    <link rel="canonical" href="${origin}${pathname === '/' ? '/' : pathname}" />\n    <meta property="og:url" content="${origin}${pathname}" />\n  </head>`);
+  sendText(res, html, 'text/html; charset=utf-8', 'no-cache');
+}
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const pathname = decodeURIComponent(url.pathname);
 
   if (PROXY_PREFIXES.some((p) => pathname.startsWith(p))) return proxy(req, res);
+
+  if (pathname === '/robots.txt') {
+    return sendText(res, `User-agent: *\nAllow: /\nDisallow: /staff-login\nDisallow: /dashboard\n\nSitemap: ${publicOrigin(req)}/sitemap.xml\n`, 'text/plain; charset=utf-8');
+  }
+  if (pathname === '/sitemap.xml') {
+    const origin = publicOrigin(req);
+    const urls = PUBLIC_ROUTES.map((r) => `  <url><loc>${origin}${r}</loc></url>`).join('\n');
+    return sendText(res, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`, 'application/xml; charset=utf-8');
+  }
+  if (pathname === '/' || pathname === '/index.html') return sendIndex(req, res, '/');
 
   // Static assets (never escape dist)
   const safePath = path.normalize(pathname).replace(/^(\.\.[/\\])+/, '');
@@ -113,7 +148,7 @@ const server = http.createServer((req, res) => {
   }
 
   // SPA fallback
-  sendFile(res, path.join(DIST, 'index.html'), 'no-cache');
+  sendIndex(req, res, pathname);
 });
 
 server.listen(PORT, '0.0.0.0', () => {
