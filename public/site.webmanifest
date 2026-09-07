@@ -4,8 +4,8 @@
   "description": "Humanitarian aid, education and community projects in the Kurdistan Region of Iraq.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#1e3a8a",
+  "background_color": "#FCFBF8",
+  "theme_color": "#0B1F2E",
   "icons": [
     { "src": "/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png", "sizes": "498x498", "type": "image/png", "purpose": "any" }
   ]

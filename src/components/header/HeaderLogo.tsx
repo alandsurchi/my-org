@@ -1,25 +1,26 @@
-
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
+import type { HeaderTone } from './types';
 
 interface HeaderLogoProps {
-  getLogoStyling: () => string;
+  tone: HeaderTone;
 }
 
-const HeaderLogo: React.FC<HeaderLogoProps> = ({ getLogoStyling }) => {
+/** Logo + wordmark. Keeps the `.logo-trigger` class used by the hidden staff shortcut. */
+const HeaderLogo: React.FC<HeaderLogoProps> = ({ tone }) => {
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center space-x-2 md:space-x-3 group logo-trigger cursor-pointer">
-      <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
-        <img 
-          src="/lovable-uploads/eb6198ca-261c-4e22-ba5c-9af9f83d0c52.png" 
-          alt="Mrovdostan for Humanitarian Aid Logo" 
-          className="w-10 h-10 sm:w-12 sm:h-12 object-contain transition-transform duration-300 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-      </div>
-      <span className={`text-lg sm:text-xl font-bold transition-all duration-300 ${getLogoStyling()}`}>
+    <div className="logo-trigger flex cursor-pointer select-none items-center gap-3">
+      <img
+        src="/lovable-uploads/eb6198ca-261c-4e22-ba5c-9af9f83d0c52.png"
+        alt="Mrovdostan for Humanitarian Aid Logo"
+        width={48}
+        height={48}
+        className="h-11 w-11 rounded-full bg-white object-contain p-0.5 shadow-sm sm:h-12 sm:w-12"
+      />
+      <span className={cn('font-display text-lg font-bold tracking-tight sm:text-xl', tone === 'photo' ? 'text-white' : 'text-foreground')}>
         {t('orgName')}
       </span>
     </div>

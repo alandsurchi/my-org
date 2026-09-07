@@ -1,11 +1,14 @@
-
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Calendar, X, Award, Users, Building, Trophy } from 'lucide-react';
+import { Calendar, Newspaper } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { config } from '../config/env';
 import type { NewsItem } from '@/lib/apiClient';
+import { resolveImageUrl } from '@/lib/images';
+import { formatDate } from '@/lib/format';
+import { NEWS_BUCKET_ICONS } from '@/lib/labels';
+import type { NewsBucket } from '@/lib/newsBuckets';
+import Chip from '@/components/site/Chip';
 
 export interface DialogNewsItem {
   id: string;
@@ -37,126 +40,57 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
 
   if (!newsItem) return null;
 
-  const getImageSrc = (url?: string) => {
-    if (!url) return null;
-    if (url.startsWith('/uploads/')) {
-      return `${config.cdnUrl}${url}`;
-    }
-    return url;
-  };
-
-  const getBadgeColor = (category: string) => {
-    const colors = {
-      'placesVisited': 'bg-gradient-to-r from-blue-500 to-blue-600',
-      'visitors': 'bg-gradient-to-r from-green-500 to-emerald-600',
-      'certificatesReceived': 'bg-gradient-to-r from-purple-500 to-purple-600',
-      'certificatesAwarded': 'bg-gradient-to-r from-indigo-500 to-indigo-600'
-    };
-    return colors[category as keyof typeof colors] || 'bg-gradient-to-r from-blue-500 to-blue-600';
-  };
-
-  const getCategoryIcon = (category: string) => {
-    const icons = {
-      'placesVisited': '📍',
-      'visitors': '👥',
-      'certificatesReceived': '🏆',
-      'certificatesAwarded': '🎖️'
-    };
-    return icons[category as keyof typeof icons] || '📰';
-  };
-
-  const getIconComponent = (category: string) => {
-    const iconMap = {
-      'placesVisited': Building,
-      'visitors': Users,
-      'certificatesReceived': Award,
-      'certificatesAwarded': Trophy
-    };
-    return iconMap[category as keyof typeof iconMap] || Building;
-  };
-
-  const IconComponent = getIconComponent(newsItem.category);
+  const imageSrc = resolveImageUrl(newsItem.image_url);
+  const Icon = NEWS_BUCKET_ICONS[newsItem.category as NewsBucket] || Newspaper;
+  const categoryLabel = t(newsItem.category);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            {newsItem.title_en}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* News Image */}
-          {getImageSrc(newsItem.image_url) && (
-            <div className="relative">
-              <img 
-                src={getImageSrc(newsItem.image_url)!} 
-                alt={newsItem.title_en}
-                className="w-full h-64 md:h-80 object-cover rounded-lg"
-              />
-              <div className="absolute top-4 start-4 flex items-center gap-2">
-                <span className="text-2xl">{getCategoryIcon(newsItem.category)}</span>
-                <span className="text-sm text-white font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                  {t(newsItem.category)}
-                </span>
-              </div>
-              <div className="absolute top-4 end-4">
-                <span className={`${getBadgeColor(newsItem.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
-                  News
-                </span>
-              </div>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-h-[90vh] max-w-3xl gap-0 overflow-y-auto p-0">
+        {imageSrc ? (
+          <figure className="relative">
+            <img src={imageSrc} alt={newsItem.title_en} className="aspect-[16/9] w-full object-cover" />
+            <div className="absolute start-4 top-4">
+              <Chip tone="onPhoto" icon={Icon}>{categoryLabel}</Chip>
             </div>
-          )}
-
-          {/* News Info */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('newsDetails')}</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center text-gray-600 dark:text-gray-300">
-                    <Calendar className="w-4 h-4 me-2" />
-                    <span className="text-sm">{t('published')}: {new Date(newsItem.date).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('category')}</h3>
-                <div className="flex items-center gap-2">
-                  <IconComponent className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-                  <span className="font-medium">{t(newsItem.category)}</span>
-                </div>
-              </div>
-            </div>
+          </figure>
+        ) : (
+          <div className="flex h-28 items-center justify-center bg-brand-950 text-brand-200">
+            <Icon className="h-10 w-10" aria-hidden="true" />
           </div>
+        )}
 
-          {/* News Description */}
+        <div className="space-y-6 p-6 md:p-8">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('fullStory')}</h3>
-            <div className="prose max-w-none">
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                {newsItem.description_en}
-              </p>
+            <DialogTitle className="font-display text-h2 text-balance">{newsItem.title_en}</DialogTitle>
+            <DialogDescription className="sr-only">{t('newsDetails')}</DialogDescription>
+            <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="h-4 w-4" aria-hidden="true" />
+                {t('published')}: {formatDate(newsItem.date)}
+              </span>
+              <span className="inline-flex items-center gap-2">
+                {t('category')}:
+                <Chip tone="brand" icon={Icon}>{categoryLabel}</Chip>
+              </span>
             </div>
           </div>
 
-          {/* Additional section */}
-          <div className="bg-gradient-to-br from-purple-50 dark:from-gray-950 to-blue-50 dark:to-gray-950 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('aboutThisNews')}</h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              {t('aboutThisNewsText')}
-            </p>
+          <div>
+            <h3 className="mb-3 font-display text-h3">{t('fullStory')}</h3>
+            <div className="prose prose-neutral max-w-none whitespace-pre-line dark:prose-invert">
+              <p>{newsItem.description_en}</p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex justify-end mt-6">
-          <Button onClick={onClose} className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white">
-            Close
-          </Button>
+          <aside className="rounded-card border-s-4 border-primary bg-muted p-6">
+            <h3 className="font-display text-base font-semibold">{t('aboutThisNews')}</h3>
+            <p className="mt-2 text-muted-foreground">{t('aboutThisNewsText')}</p>
+          </aside>
+
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={onClose}>{t('close')}</Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

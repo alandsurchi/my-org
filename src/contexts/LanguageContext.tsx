@@ -13,7 +13,6 @@ const translations = {
   en: {
     // Organization name
     orgName: 'MROVDOSTAN',
-    
     // Navigation
     home: 'Home',
     about: 'About',
@@ -31,7 +30,6 @@ const translations = {
     donateNow: 'Donate Now',
     learnMore: 'Learn More',
     discoverMore: 'Discover More',
-    
     // About section
     aboutTitle: 'About MROVDOSTAN',
     aboutDescription: 'Our organization is a humanitarian, non-profit institution deeply committed to improving the lives of people in difficult circumstances. Our main mission is to provide emergency aid, educational support, and long-term development for affected and vulnerable communities. We provide humanitarian assistance regardless of religion, race, nationality, or political views. By delivering our aid justly and quickly, we strive to restore hope and dignity to those affected, and we work on sustainable projects to rebuild communities and ensure a better future for all.',
@@ -56,7 +54,6 @@ const translations = {
     searchProjects: 'Search activities...',
     viewAllProjects: 'View All Activities',
     readMore: 'Read More',
-    
     // Project items
     cleanWaterTitle: 'Clean Water Initiative',
     cleanWaterDesc: 'Bringing clean water to rural communities through sustainable well construction and maintenance programs.',
@@ -72,7 +69,6 @@ const translations = {
     sustainable: 'Sustainable',
     response: 'Response',
     bangladesh: 'Bangladesh',
-    
     // News section
     newsTitle: 'Latest News',
     latestNews: 'The latest updates from our work',
@@ -100,7 +96,6 @@ const translations = {
     communityLeaderDesc: 'Awarded to outstanding community leaders',
     volunteerExcellenceTitle: 'Volunteer Excellence Award',
     volunteerExcellenceDesc: 'Recognition for dedicated volunteers',
-    
     // Gallery section
     galleryTitle: 'Gallery',
     galleryDescription: 'Moments from our activities and the communities we serve',
@@ -113,7 +108,6 @@ const translations = {
     agriculturalDevelopment: 'Agricultural development project',
     womenWorkshop: 'Educational workshop for women',
     technologyTraining: 'Technology training session',
-    
     // Staff section
     staffTitle: 'Our Staff',
     
@@ -130,140 +124,66 @@ const translations = {
     rojinName: 'Rojin Khalil',
     rojinPosition: 'Healthcare Coordinator',
     rojinBio: 'Managing mobile health clinics and medical supply distribution programs.',
-    
+    // Redesign (2026-09)
+    heroCtaProjects: 'Explore our activities',
+    aboutImageAlt: 'Mrovdostan volunteers at work in the community',
+    statusActive: 'Active',
+    statusCompleted: 'Completed',
+    statusPlanned: 'Planned',
+    statusOnHold: 'On hold',
+    provision: 'Provision',
+    distribution: 'Distribution',
+    renovation: 'Renovation',
+    building: 'Building',
+    close: 'Close',
+    mainNavigation: 'Main navigation',
+    skipToContent: 'Skip to content',
+    openMenu: 'Open menu',
+    viewPhoto: 'View photo',
     // Added for full coverage
-
-    
     loading: 'Loading…',
-
-    
     retry: 'Retry',
-
-    
     loadingProjects: 'Loading activities…',
-
-    
     loadingNews: 'Loading news…',
-
-    
     loadingGallery: 'Loading gallery…',
-
-    
     errorLoadingProjects: 'Could not load activities',
-
-    
     errorLoadingNews: 'Could not load news. Please try again later.',
-
-    
     errorLoadingGallery: 'Could not load the gallery',
-
-    
     allProjectsTitle: 'All Activities',
-
-    
     allProjectsDescription: 'Explore all our activities and initiatives making a difference in our communities.',
-
-    
     allNewsTitle: 'All News',
-
-    
     allNewsDescription: 'Stay updated with our latest news, achievements and community impact stories.',
-
-    
     allGalleryDescription: 'Explore our collection of moments and community stories through images.',
-
-    
     searchImages: 'Search images…',
-
-    
     newsUpdates: 'News updates',
-
-    
     showingLatestActivities: 'Showing the latest 3 activities',
-
-    
     noProjectsFound: 'No activities match your search.',
-
-    
     noNewsYet: 'No news articles yet.',
-
-    
     noNewsFound: 'No news matches your search.',
-
-    
     noNewsInCategory: 'No news in this category yet.',
-
-    
     noPhotosYet: 'No photos yet',
-
-    
     noPhotosDescription: 'There are no gallery photos right now.',
-
-    
     clearSearch: 'Clear search',
-
-    
     view: 'View',
-
-    
     like: 'Like',
-
-    
     untitledNews: 'Untitled',
-
-    
     projectDetails: 'Activity details',
-
-    
     started: 'Started',
-
-    
     category: 'Category',
-
-    
     aboutThisProject: 'About this activity',
-
-    
     projectImpact: 'Impact',
-
-    
     projectImpactText: 'This activity is part of our ongoing work to bring lasting, positive change to the communities we serve.',
-
-    
     newsDetails: 'Details',
-
-    
     published: 'Published',
-
-    
     fullStory: 'Full story',
-
-    
     aboutThisNews: 'About this news',
-
-    
     aboutThisNewsText: 'We share our news openly so partners and the community can follow our work and achievements.',
-
-    
     pageNotFound: 'Oops! Page not found',
-
-    
     returnHome: 'Return to home',
-
-    
     connectingToServer: 'Connecting to server…',
-
-    
     connectionError: 'Connection error',
-
-    
     unableToConnect: 'We could not reach the server. Please try again in a moment.',
-
-    
     metaHomeDescription: 'Mrovdostan is a non-profit humanitarian organization in the Kurdistan Region of Iraq, building hope and transforming lives through aid, education and community projects.',
-
-
-    
     // Footer
     footerDescription: 'Building hope for tomorrow through sustainable development, education, and healthcare initiatives.',
     quickLinks: 'Quick Links',
@@ -277,7 +197,6 @@ const translations = {
     password: 'Password',
     loginButton: 'Login',
     cancel: 'Cancel',
-    
     // Sign Up page
     backToHome: 'Back to Home',
     joinTitle: 'Join MROVDOSTAN',
@@ -298,7 +217,6 @@ const translations = {
   ar: {
     // Organization name
     orgName: 'مروڤدوستان',
-    
     // Navigation
     home: 'الرئيسية',
     about: 'حول',
@@ -316,7 +234,6 @@ const translations = {
     donateNow: 'تبرع الآن',
     learnMore: 'اعرف أكثر',
     discoverMore: 'اكتشف المزيد',
-    
     // About section
     aboutTitle: 'حول مروڤدوستان',
     aboutDescription: 'منظمتنا هي مؤسسة إنسانية غير ربحية ملتزمة بشدة بتحسين حياة الأشخاص الذين يمرون بظروف صعبة. تتمثل مهمتنا الرئيسية في توفير المساعدات الطارئة، والدعم التعليمي، والتنمية طويلة الأمد للمجتمعات المتضررة والضعيفة. نحن نقدم المساعدة الإنسانية بغض النظر عن الدين أو العرق أو القومية أو الآراء السياسية. من خلال إيصال مساعداتنا بإنصاف وسرعة، نسعى جاهدين لإعادة الأمل والحياة الكريمة للمتضررين، ونعمل على مشاريع مستدامة لإعادة بناء المجتمعات وضمان مستقبل أفضل للجميع.',
@@ -341,7 +258,6 @@ const translations = {
     searchProjects: 'البحث في الأنشطة...',
     viewAllProjects: 'عرض جميع الأنشطة',
     readMore: 'اقرأ المزيد',
-    
     // Project items
     cleanWaterTitle: 'مبادرة المياه النظيفة',
     cleanWaterDesc: 'جلب المياه النظيفة للمجتمعات الريفية من خلال برامج بناء وصيانة الآبار المستدامة.',
@@ -357,7 +273,6 @@ const translations = {
     sustainable: 'مستدام',
     response: 'استجابة',
     bangladesh: 'بنغلاديش',
-    
     // News section
     newsTitle: 'آخر الأخبار',
     latestNews: 'آخر المستجدات من عملنا',
@@ -385,7 +300,6 @@ const translations = {
     communityLeaderDesc: 'تُمنح لقادة المجتمع المتميزين',
     volunteerExcellenceTitle: 'جائزة تميز المتطوعين',
     volunteerExcellenceDesc: 'تقدير للمتطوعين المخلصين',
-    
     // Gallery section
     galleryTitle: 'المعرض',
     galleryDescription: 'لحظات من أنشطتنا والمجتمعات التي نخدمها',
@@ -398,7 +312,6 @@ const translations = {
     agriculturalDevelopment: 'مشروع التنمية الزراعية',
     womenWorkshop: 'ورشة تعليمية للنساء',
     technologyTraining: 'جلسة تدريب التكنولوجيا',
-    
     // Staff section
     staffTitle: 'موظفونا',
     
@@ -415,140 +328,66 @@ const translations = {
     rojinName: 'روژين خليل',
     rojinPosition: 'منسق الرعاية الصحية',
     rojinBio: 'إدارة العيادات الصحية المتنقلة وبرامج توزيع الإمدادات الطبية.',
-    
+    // Redesign (2026-09)
+    heroCtaProjects: 'استكشف أنشطتنا',
+    aboutImageAlt: 'متطوعو مروڤدوستان أثناء العمل في المجتمع',
+    statusActive: 'جارٍ',
+    statusCompleted: 'مكتمل',
+    statusPlanned: 'مخطط',
+    statusOnHold: 'متوقف مؤقتاً',
+    provision: 'توفير',
+    distribution: 'توزيع',
+    renovation: 'ترميم',
+    building: 'بناء',
+    close: 'إغلاق',
+    mainNavigation: 'التنقل الرئيسي',
+    skipToContent: 'الانتقال إلى المحتوى',
+    openMenu: 'فتح القائمة',
+    viewPhoto: 'عرض الصورة',
     // Added for full coverage
-
-    
     loading: 'جارٍ التحميل…',
-
-    
     retry: 'إعادة المحاولة',
-
-    
     loadingProjects: 'جارٍ تحميل الأنشطة…',
-
-    
     loadingNews: 'جارٍ تحميل الأخبار…',
-
-    
     loadingGallery: 'جارٍ تحميل المعرض…',
-
-    
     errorLoadingProjects: 'تعذّر تحميل الأنشطة',
-
-    
     errorLoadingNews: 'تعذّر تحميل الأخبار. يرجى المحاولة لاحقاً.',
-
-    
     errorLoadingGallery: 'تعذّر تحميل المعرض',
-
-    
     allProjectsTitle: 'جميع الأنشطة',
-
-    
     allProjectsDescription: 'استعرض جميع أنشطتنا ومبادراتنا التي تُحدث فرقاً في مجتمعاتنا.',
-
-    
     allNewsTitle: 'جميع الأخبار',
-
-    
     allNewsDescription: 'تابع آخر أخبارنا وإنجازاتنا وقصص أثرنا في المجتمع.',
-
-    
     allGalleryDescription: 'استعرض مجموعتنا من اللحظات وقصص المجتمع عبر الصور.',
-
-    
     searchImages: 'ابحث في الصور…',
-
-    
     newsUpdates: 'تحديثات الأخبار',
-
-    
     showingLatestActivities: 'عرض أحدث 3 أنشطة',
-
-    
     noProjectsFound: 'لا توجد أنشطة مطابقة لبحثك.',
-
-    
     noNewsYet: 'لا توجد أخبار بعد.',
-
-    
     noNewsFound: 'لا توجد أخبار مطابقة لبحثك.',
-
-    
     noNewsInCategory: 'لا توجد أخبار في هذه الفئة بعد.',
-
-    
     noPhotosYet: 'لا توجد صور بعد',
-
-    
     noPhotosDescription: 'لا توجد صور في المعرض حالياً.',
-
-    
     clearSearch: 'مسح البحث',
-
-    
     view: 'عرض',
-
-    
     like: 'إعجاب',
-
-    
     untitledNews: 'بدون عنوان',
-
-    
     projectDetails: 'تفاصيل النشاط',
-
-    
     started: 'بدأ في',
-
-    
     category: 'الفئة',
-
-    
     aboutThisProject: 'عن هذا النشاط',
-
-    
     projectImpact: 'الأثر',
-
-    
     projectImpactText: 'هذا النشاط جزء من عملنا المستمر لإحداث تغيير إيجابي ودائم في المجتمعات التي نخدمها.',
-
-    
     newsDetails: 'التفاصيل',
-
-    
     published: 'نُشر في',
-
-    
     fullStory: 'القصة كاملة',
-
-    
     aboutThisNews: 'عن هذا الخبر',
-
-    
     aboutThisNewsText: 'نشارك أخبارنا بشفافية ليتمكن شركاؤنا والمجتمع من متابعة عملنا وإنجازاتنا.',
-
-    
     pageNotFound: 'عذراً! الصفحة غير موجودة',
-
-    
     returnHome: 'العودة إلى الرئيسية',
-
-    
     connectingToServer: 'جارٍ الاتصال بالخادم…',
-
-    
     connectionError: 'خطأ في الاتصال',
-
-    
     unableToConnect: 'تعذّر الوصول إلى الخادم. يرجى المحاولة بعد قليل.',
-
-    
     metaHomeDescription: 'مروڤدوستان منظمة إنسانية غير ربحية في إقليم كردستان العراق، تبني الأمل وتغيّر الحياة من خلال المساعدات والتعليم والمشاريع المجتمعية.',
-
-
-    
     // Footer
     footerDescription: 'بناء الأمل للغد من خلال التنمية المستدامة والتعليم ومبادرات الرعاية الصحية.',
     quickLinks: 'روابط سريعة',
@@ -562,7 +401,6 @@ const translations = {
     password: 'كلمة المرور',
     loginButton: 'تسجيل الدخول',
     cancel: 'إلغاء',
-    
     // Sign Up page
     backToHome: 'العودة للرئيسية',
     joinTitle: 'انضم إلى مروڤدوستان',
@@ -583,7 +421,6 @@ const translations = {
   ku: {
     // Organization name
     orgName: 'مرۆڤدۆستان',
-    
     // Navigation
     home: 'سەرەتا',
     about: 'دەربارە',
@@ -601,7 +438,6 @@ const translations = {
     donateNow: 'ئێستا بەخشین بکە',
     learnMore: 'زیاتر فێربە',
     discoverMore: 'زیاتر بدۆزەرەوە',
-    
     // About section
     aboutTitle: 'دەربارەی مرۆڤدۆستان',
     aboutDescription: 'ڕێکخراوەکەمان دەزگایەکی مرۆڤدۆستی و قازانج نەویستە کە بەپابەندبوونێکی قووڵەوە کار دەکات بۆ باشترکردنی ژیانی ئەو کەسانەی لە بارودۆخێکی سەختدان. ئەرکی سەرەکی ئێمە دابینکردنی یارمەتی فریاگوزاری، پاڵپشتی پەروەردەیی، و گەشەپێدانی درێژخایەنە بۆ کۆمەڵگا گەورە و لێقەوماوەکان. بەبێ ڕەچاوکردنی ئایین و ڕەگەز و نەتەوە و بیروبۆچوونی سیاسی، هاوکاری مرۆیی پێشکەش دەکات. بە گەیاندنی یارمەتییەکانمان بە شێوەیەکی دادپەروەرانە و خێرا، هەوڵ دەدەین هیوا و ژیانێکی شایستە بۆ زیانلێکەوتووان بگەڕێنینەوە و کار لەسەر پڕۆژەی جێگیر دەکەین بۆ بنیاتنانەوەی کۆمەڵگاکان و دابینکردنی داهاتوویەکی باشتر بۆ هەمووان.',
@@ -626,7 +462,6 @@ const translations = {
     searchProjects: 'گەڕان لە چالاکیەکان...',
     viewAllProjects: 'بینینی هەموو چالاکیەکان',
     readMore: 'زیاتر بخوێنەوە',
-    
     // Project items
     cleanWaterTitle: 'دەستپێشخەری ئاوی پاک',
     cleanWaterDesc: 'هێنانی ئاوی پاک بۆ کۆمەڵگا لادێیەکان لە ڕێگەی بیرەکانی بەردەوام و پڕۆگرامەکانی چاککردنەوە.',
@@ -642,7 +477,6 @@ const translations = {
     sustainable: 'بەردەوام',
     response: 'وەڵام',
     bangladesh: 'بەنگلادیش',
-    
     // News section
     newsTitle: 'تازەترین هەواڵ',
     latestNews: 'نوێترین هەواڵەکانی کارەکانمان',
@@ -670,7 +504,6 @@ const translations = {
     communityLeaderDesc: 'بۆ ڕابەرانی نایابی کۆمەڵگا دەدرێت',
     volunteerExcellenceTitle: 'خەڵاتی باشی خۆبەخش',
     volunteerExcellenceDesc: 'ناسینەوە بۆ خۆبەخشانی خۆشەویست',
-    
     // Gallery section
     galleryTitle: 'گالەری',
     galleryDescription: 'ساتەکانی چالاکییەکانمان و ئەو کۆمەڵگایانەی خزمەتیان دەکەین',
@@ -683,7 +516,6 @@ const translations = {
     agriculturalDevelopment: 'پڕۆژەی گەشەسەندنی کشتوکاڵ',
     womenWorkshop: 'ورشەی پەروەردەیی بۆ ژنان',
     technologyTraining: 'خولی ڕاهێنانی تەکنەلۆژیا',
-    
     // Staff section
     staffTitle: 'کارمەندانمان',
     
@@ -700,140 +532,66 @@ const translations = {
     rojinName: 'رۆژین خەلیل',
     rojinPosition: 'هەماهەنگکەری چاودێری تەندروستی',
     rojinBio: 'بەڕێوەبردنی نەخۆشخانە گواستراوەکان و پڕۆگرامەکانی دابەشکردنی کەرەستەی پزیشکی.',
-    
+    // Redesign (2026-09)
+    heroCtaProjects: 'چالاکییەکانمان ببینە',
+    aboutImageAlt: 'خۆبەخشانی مرۆڤدۆستان لە کاتی کارکردن لە کۆمەڵگادا',
+    statusActive: 'بەردەوام',
+    statusCompleted: 'تەواوبوو',
+    statusPlanned: 'پلانبۆدانراو',
+    statusOnHold: 'ڕاگیراو',
+    provision: 'دابینکردن',
+    distribution: 'دابەشکردن',
+    renovation: 'نۆژەنکردنەوە',
+    building: 'دروستکردن',
+    close: 'داخستن',
+    mainNavigation: 'ناڤیگەیشنی سەرەکی',
+    skipToContent: 'بڕۆ بۆ ناوەڕۆک',
+    openMenu: 'کردنەوەی لیستە',
+    viewPhoto: 'بینینی وێنە',
     // Added for full coverage
-
-    
     loading: 'بارکردن…',
-
-    
     retry: 'دووبارە هەوڵبدەرەوە',
-
-    
     loadingProjects: 'چالاکییەکان بار دەکرێن…',
-
-    
     loadingNews: 'هەواڵەکان بار دەکرێن…',
-
-    
     loadingGallery: 'گالەری بار دەکرێت…',
-
-    
     errorLoadingProjects: 'چالاکییەکان بار نەکران',
-
-    
     errorLoadingNews: 'هەواڵەکان بار نەکران. تکایە دواتر هەوڵبدەرەوە.',
-
-    
     errorLoadingGallery: 'گالەری بار نەکرا',
-
-    
     allProjectsTitle: 'هەموو چالاکییەکان',
-
-    
     allProjectsDescription: 'هەموو چالاکی و دەستپێشخەرییەکانمان ببینە کە جیاوازی لە کۆمەڵگاکانماندا دروست دەکەن.',
-
-    
     allNewsTitle: 'هەموو هەواڵەکان',
-
-    
     allNewsDescription: 'لەگەڵ نوێترین هەواڵ و دەستکەوت و چیرۆکەکانی کاریگەریمان لە کۆمەڵگادا بمێنەرەوە.',
-
-    
     allGalleryDescription: 'کۆکراوەی ساتەکان و چیرۆکەکانی کۆمەڵگامان بە وێنە ببینە.',
-
-    
     searchImages: 'گەڕان لە وێنەکان…',
-
-    
     newsUpdates: 'نوێکردنەوەی هەواڵ',
-
-    
     showingLatestActivities: 'نوێترین ٣ چالاکی نیشان دەدرێن',
-
-    
     noProjectsFound: 'هیچ چالاکییەک لەگەڵ گەڕانەکەت ناگونجێت.',
-
-    
     noNewsYet: 'هێشتا هیچ هەواڵێک نییە.',
-
-    
     noNewsFound: 'هیچ هەواڵێک لەگەڵ گەڕانەکەت ناگونجێت.',
-
-    
     noNewsInCategory: 'هێشتا هەواڵ لەم بەشەدا نییە.',
-
-    
     noPhotosYet: 'هێشتا وێنە نییە',
-
-    
     noPhotosDescription: 'لە ئێستادا هیچ وێنەیەک لە گالەریدا نییە.',
-
-    
     clearSearch: 'سڕینەوەی گەڕان',
-
-    
     view: 'بینین',
-
-    
     like: 'پەسەندکردن',
-
-    
     untitledNews: 'بێ ناونیشان',
-
-    
     projectDetails: 'وردەکارییەکانی چالاکی',
-
-    
     started: 'دەستی پێکردووە',
-
-    
     category: 'بەش',
-
-    
     aboutThisProject: 'دەربارەی ئەم چالاکییە',
-
-    
     projectImpact: 'کاریگەری',
-
-    
     projectImpactText: 'ئەم چالاکییە بەشێکە لە کاری بەردەوامی ئێمە بۆ هێنانی گۆڕانکاری ئەرێنی و بەردەوام بۆ ئەو کۆمەڵگایانەی خزمەتیان دەکەین.',
-
-    
     newsDetails: 'وردەکارییەکان',
-
-    
     published: 'بڵاوکراوەتەوە',
-
-    
     fullStory: 'چیرۆکی تەواو',
-
-    
     aboutThisNews: 'دەربارەی ئەم هەواڵە',
-
-    
     aboutThisNewsText: 'هەواڵەکانمان بە شەفافی بڵاو دەکەینەوە تاکو هاوبەشەکان و کۆمەڵگا کار و دەستکەوتەکانمان بەدواداچوونی بۆ بکەن.',
-
-    
     pageNotFound: 'ببورە! لاپەڕەکە نەدۆزرایەوە',
-
-    
     returnHome: 'گەڕانەوە بۆ سەرەتا',
-
-    
     connectingToServer: 'پەیوەندی بە سێرڤەرەوە دەکرێت…',
-
-    
     connectionError: 'هەڵەی پەیوەندی',
-
-    
     unableToConnect: 'نەتوانرا بگەینە سێرڤەر. تکایە دوای کەمێک هەوڵبدەرەوە.',
-
-    
     metaHomeDescription: 'مرۆڤدۆستان ڕێکخراوێکی مرۆیی قازانج نەویستە لە هەرێمی کوردستانی عێراق، بە یارمەتی و پەروەردە و پرۆژەی کۆمەڵایەتی ئومێد دروست دەکات و ژیان دەگۆڕێت.',
-
-
-    
     // Footer
     footerDescription: 'دروستکردنی ئومێد بۆ سبەینێ لە ڕێگەی گەشەسەندنی بەردەوام، پەروەردە و دەستپێشخەری چاودێری تەندروستی.',
     quickLinks: 'بەستەرە خێراکان',
@@ -847,7 +605,6 @@ const translations = {
     password: 'وشەی نهێنی',
     loginButton: 'چوونەژوور',
     cancel: 'پاشگەزبوونەوە',
-    
     // Sign Up page
     backToHome: 'گەڕانەوە بۆ سەرەتا',
     joinTitle: 'بەشداری مرۆڤدۆستان بکە',

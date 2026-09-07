@@ -1,11 +1,13 @@
-
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Calendar, MapPin, X } from 'lucide-react';
+import { Calendar, MapPin } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { config } from '../config/env';
 import type { Project } from '@/lib/apiClient';
+import { resolveImageUrl } from '@/lib/images';
+import { formatDate } from '@/lib/format';
+import { projectCategoryIcon, projectCategoryLabel, projectStatusLabel } from '@/lib/labels';
+import Chip, { STATUS_TONE } from '@/components/site/Chip';
 
 export interface DialogProject {
   id: string;
@@ -41,120 +43,63 @@ const ProjectDetailDialog = ({ project, isOpen, onClose }: ProjectDetailDialogPr
 
   if (!project) return null;
 
-  const getImageSrc = (url?: string) => {
-    if (!url) return null;
-    if (url.startsWith('/uploads/')) {
-      return `${config.cdnUrl}${url}`;
-    }
-    return url;
-  };
-
-  const getBadgeColor = (category: string) => {
-    const colors = {
-      'water': 'bg-gradient-to-r from-blue-500 to-blue-600',
-      'education': 'bg-gradient-to-r from-green-500 to-emerald-600',
-      'emergency': 'bg-gradient-to-r from-purple-500 to-purple-600',
-      'healthcare': 'bg-gradient-to-r from-indigo-500 to-indigo-600'
-    };
-    return colors[category as keyof typeof colors] || 'bg-gradient-to-r from-blue-500 to-blue-600';
-  };
-
-  const getCategoryIcon = (category: string) => {
-    const icons = {
-      'water': '💧',
-      'education': '📚',
-      'emergency': '🚨',
-      'healthcare': '🏥'
-    };
-    return icons[category as keyof typeof icons] || '🌟';
-  };
+  const imageSrc = resolveImageUrl(project.image_url);
+  const CategoryIcon = projectCategoryIcon(project.category);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            {project.title_en}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Project Image */}
-          {getImageSrc(project.image_url) && (
-            <div className="relative">
-              <img 
-                src={getImageSrc(project.image_url)!} 
-                alt={project.title_en}
-                className="w-full h-64 md:h-80 object-cover rounded-lg"
-              />
-              <div className="absolute top-4 start-4 flex items-center gap-2">
-                <span className="text-2xl">{getCategoryIcon(project.category)}</span>
-                <span className="text-sm text-white font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                  {t(project.category)}
-                </span>
-              </div>
-              <div className="absolute top-4 end-4">
-                <span className={`${getBadgeColor(project.category)} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
-                  {project.status}
-                </span>
-              </div>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-h-[90vh] max-w-3xl gap-0 overflow-y-auto p-0">
+        {imageSrc ? (
+          <figure className="relative">
+            <img src={imageSrc} alt={project.title_en} className="aspect-[16/9] w-full object-cover" />
+            <div className="absolute start-4 top-4 flex flex-wrap gap-2">
+              <Chip tone="onPhoto" icon={CategoryIcon}>{projectCategoryLabel(project.category, t)}</Chip>
+              <Chip tone={STATUS_TONE[project.status] || 'brand'}>{projectStatusLabel(project.status, t)}</Chip>
             </div>
-          )}
-
-          {/* Project Info */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('projectDetails')}</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center text-gray-600 dark:text-gray-300">
-                    <Calendar className="w-4 h-4 me-2" />
-                    <span className="text-sm">{t('started')}: {new Date(project.created_at).toLocaleDateString()}</span>
-                  </div>
-                  {project.location && (
-                    <div className="flex items-center text-gray-600 dark:text-gray-300">
-                      <MapPin className="w-4 h-4 me-2" />
-                      <span className="text-sm">{project.location}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('category')}</h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{getCategoryIcon(project.category)}</span>
-                  <span className="font-medium">{t(project.category)}</span>
-                </div>
-              </div>
-            </div>
+          </figure>
+        ) : (
+          <div className="flex h-28 items-center justify-center bg-brand-950 text-brand-200">
+            <CategoryIcon className="h-10 w-10" aria-hidden="true" />
           </div>
+        )}
 
-          {/* Project Description */}
+        <div className="space-y-6 p-6 md:p-8">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('aboutThisProject')}</h3>
-            <div className="prose max-w-none">
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                {project.description_en}
-              </p>
+            <DialogTitle className="font-display text-h2 text-balance">{project.title_en}</DialogTitle>
+            <DialogDescription className="sr-only">{t('projectDetails')}</DialogDescription>
+            <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="h-4 w-4" aria-hidden="true" />
+                {t('started')}: {formatDate(project.created_at)}
+              </span>
+              {project.location && (
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" aria-hidden="true" />
+                  {project.location}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-2">
+                {t('category')}:
+                <Chip tone="brand" icon={CategoryIcon}>{projectCategoryLabel(project.category, t)}</Chip>
+              </span>
             </div>
           </div>
 
-          {/* Additional sections could be added here for more details */}
-          <div className="bg-gradient-to-br from-blue-50 dark:from-gray-950 to-purple-50 dark:to-gray-950 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('projectImpact')}</h3>
-            <p className="text-gray-700 dark:text-gray-300">
-              {t('projectImpactText')}
-            </p>
+          <div>
+            <h3 className="mb-3 font-display text-h3">{t('aboutThisProject')}</h3>
+            <div className="prose prose-neutral max-w-none whitespace-pre-line dark:prose-invert">
+              <p>{project.description_en}</p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex justify-end mt-6">
-          <Button onClick={onClose} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
-            Close
-          </Button>
+          <aside className="rounded-card border-s-4 border-primary bg-muted p-6">
+            <h3 className="font-display text-base font-semibold">{t('projectImpact')}</h3>
+            <p className="mt-2 text-muted-foreground">{t('projectImpactText')}</p>
+          </aside>
+
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={onClose}>{t('close')}</Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

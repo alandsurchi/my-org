@@ -1,8 +1,13 @@
-
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Facebook, Instagram, Mail, MapPin, Youtube } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Facebook, Instagram, Youtube } from 'lucide-react';
+
+const SOCIALS = [
+  { label: 'Facebook', href: 'https://www.facebook.com/mrovdostanorganization', icon: Facebook },
+  { label: 'Instagram', href: 'https://www.instagram.com/mrov.dostan?igsh=Mmk0a3Mzb2d5MTdr', icon: Instagram },
+  { label: 'YouTube', href: 'https://www.youtube.com/@mrovdostanorganization174', icon: Youtube },
+];
 
 const Footer = () => {
   const { t } = useLanguage();
@@ -25,85 +30,84 @@ const Footer = () => {
       navigate('/');
     }
 
-    const targetHash = `#${sectionId}`;
-    window.history.replaceState(null, '', targetHash);
+    window.history.replaceState(null, '', `#${sectionId}`);
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   };
 
+  const quickLinks = ['about', 'projects', 'news', 'gallery'] as const;
+
   return (
-    <footer className="bg-gray-900 text-white py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-8">
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <img 
-                src="/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png" 
-                alt="MROVDOSTAN Logo" 
-                className="w-10 h-10 rounded-lg object-cover"
+    <footer className="border-t border-brand-800 bg-brand-950 text-brand-100">
+      <div className="container-site py-16">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <div className="flex items-center gap-3">
+              <img
+                src="/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png"
+                alt="MROVDOSTAN Logo"
+                width={48}
+                height={48}
+                className="h-12 w-12 rounded-full bg-white object-contain p-0.5"
               />
-              <span className="text-xl font-bold">MROVDOSTAN</span>
+              <span className="font-display text-xl font-bold text-white">{t('orgName')}</span>
             </div>
-            <p className="text-gray-400 leading-relaxed">
-              {t('footerDescription')}
-            </p>
+            <p className="mt-5 max-w-md leading-relaxed text-brand-200">{t('footerDescription')}</p>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4">{t('quickLinks')}</h3>
-            <ul className="space-y-2">
-              <li><a href="#about" onClick={(event) => handleSectionClick(event, 'about')} className="text-gray-400 hover:text-white transition-colors">{t('about')}</a></li>
-              <li><a href="#projects" onClick={(event) => handleSectionClick(event, 'projects')} className="text-gray-400 hover:text-white transition-colors">{t('projects')}</a></li>
-              <li><a href="#news" onClick={(event) => handleSectionClick(event, 'news')} className="text-gray-400 hover:text-white transition-colors">{t('news')}</a></li>
-              <li><a href="#gallery" onClick={(event) => handleSectionClick(event, 'gallery')} className="text-gray-400 hover:text-white transition-colors">{t('gallery')}</a></li>
+          <div className="lg:col-span-2">
+            <h3 className="mb-4 font-display text-base font-semibold text-white">{t('quickLinks')}</h3>
+            <ul className="space-y-2.5">
+              {quickLinks.map((id) => (
+                <li key={id}>
+                  <a
+                    href={`#${id}`}
+                    onClick={(event) => handleSectionClick(event, id)}
+                    className="text-brand-200 underline-offset-4 transition-colors hover:text-white hover:underline"
+                  >
+                    {t(id)}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4">{t('contactInfo')}</h3>
-            <ul className="space-y-2 text-gray-400">
-              <li>📧 ohumanism@gmail.com</li>
-              <li>📍 Kurdistan Region, Iraq</li>
+          <div className="lg:col-span-3">
+            <h3 className="mb-4 font-display text-base font-semibold text-white">{t('contactInfo')}</h3>
+            <ul className="space-y-3 text-brand-200">
+              <li>
+                <a href="mailto:ohumanism@gmail.com" className="inline-flex items-center gap-2.5 transition-colors hover:text-white">
+                  <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  ohumanism@gmail.com
+                </a>
+              </li>
+              <li className="inline-flex items-center gap-2.5">
+                <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
+                Kurdistan Region, Iraq
+              </li>
             </ul>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4">{t('followUs')}</h3>
-            <div className="flex space-x-4">
-              <a 
-                href="https://www.facebook.com/mrovdostanorganization" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5 text-white" />
-              </a>
-              <a 
-                href="https://www.instagram.com/mrov.dostan?igsh=Mmk0a3Mzb2d5MTdr" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-600 transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5 text-white" />
-              </a>
-              <a 
-                href="https://www.youtube.com/@mrovdostanorganization174" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition-colors"
-                aria-label="YouTube"
-              >
-                <Youtube className="w-5 h-5 text-white" />
-              </a>
+          <div className="lg:col-span-2">
+            <h3 className="mb-4 font-display text-base font-semibold text-white">{t('followUs')}</h3>
+            <div className="flex gap-3">
+              {SOCIALS.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-700 text-brand-100 transition-colors hover:bg-brand-800 hover:text-white"
+                >
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </a>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-400">
-            {t('footerCopyright').replace(/\b20\d\d\b/, String(new Date().getFullYear()))}
-          </p>
+        <div className="mt-12 border-t border-brand-800 pt-8 text-center text-sm text-brand-300">
+          {t('footerCopyright').replace(/\b20\d\d\b/, String(new Date().getFullYear()))}
         </div>
       </div>
     </footer>

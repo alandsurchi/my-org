@@ -1,8 +1,9 @@
-import { useLanguage } from '@/contexts/LanguageContext';
-import { usePageMeta } from '@/hooks/usePageMeta';
-
 import React, { Suspense, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { WifiOff } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { usePageMeta } from '@/hooks/usePageMeta';
+import { useAPIHealthCheck } from '@/hooks/useAPIHealthCheck';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
@@ -10,28 +11,9 @@ import ProjectsSection from '@/components/ProjectsSection';
 import NewsSection from '@/components/NewsSection';
 import GallerySection from '@/components/GallerySection';
 import Footer from '@/components/Footer';
-import { useAPIHealthCheck } from '@/hooks/useAPIHealthCheck';
-
-const LoadingSection = () => {
-  const { t } = useLanguage();
-  return (
-    <div className="py-24 flex items-center justify-center">
-      <div className="animate-pulse text-lg text-gray-600 dark:text-gray-300">{t('loading')}</div>
-    </div>
-  );
-};
-
-const APILoadingSection = () => {
-  const { t } = useLanguage();
-  return (
-    <div className="py-24 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-        <div className="text-lg text-gray-600 dark:text-gray-300">{t('connectingToServer')}</div>
-      </div>
-    </div>
-  );
-};
+import Section from '@/components/site/Section';
+import SectionSkeleton from '@/components/site/SectionSkeleton';
+import ErrorState from '@/components/site/ErrorState';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -57,47 +39,42 @@ const Index = () => {
     window.addEventListener('hashchange', handleHashNavigation);
     return () => window.removeEventListener('hashchange', handleHashNavigation);
   }, [location.pathname, location.hash]);
-  
+
   return (
-    <div id="main-content" className="min-h-screen w-full">
+    <div id="main-content" className="min-h-screen w-full overflow-x-clip">
       <Header />
-      <Suspense fallback={<LoadingSection />}>
-        <HeroSection />
-      </Suspense>
-      <Suspense fallback={<LoadingSection />}>
+      {/* The hero must stay the first <section> in the document (the header measures it). */}
+      <HeroSection />
+      <Suspense fallback={<SectionSkeleton cards={0} />}>
         <AboutSection />
       </Suspense>
-      
-      {/* Only render data-dependent sections when API is healthy */}
+
+      {/* Data-dependent sections render only when the API answers */}
       {isHealthy ? (
         <>
-          <Suspense fallback={<LoadingSection />}>
+          <Suspense fallback={<SectionSkeleton tone="muted" />}>
             <ProjectsSection />
           </Suspense>
-          <Suspense fallback={<LoadingSection />}>
+          <Suspense fallback={<SectionSkeleton />}>
             <NewsSection />
           </Suspense>
-          <Suspense fallback={<LoadingSection />}>
+          <Suspense fallback={<SectionSkeleton tone="muted" />}>
             <GallerySection />
           </Suspense>
         </>
       ) : isChecking ? (
         <>
-          <APILoadingSection />
-          <APILoadingSection />
-          <APILoadingSection />
+          <SectionSkeleton tone="muted" />
+          <p role="status" aria-live="polite" className="sr-only">{t('connectingToServer')}</p>
         </>
       ) : (
-        <div className="py-24 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-red-500 text-lg mb-2">⚠️ {t('connectionError')}</div>
-            <div className="text-gray-600 dark:text-gray-300">{t('unableToConnect')}</div>
-            
-            {error && <div className="text-xs text-red-400 mt-2">{error}</div>}
+        <Section tone="muted">
+          <div className="container-site max-w-2xl">
+            <ErrorState icon={WifiOff} title={t('connectionError')} detail={error ? `${t('unableToConnect')} (${error})` : t('unableToConnect')} />
           </div>
-        </div>
+        </Section>
       )}
-      
+
       <Footer />
     </div>
   );

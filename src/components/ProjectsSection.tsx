@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { Calendar, ArrowRight, MapPin } from 'lucide-react';
+import { ArrowRight, FolderOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useProjects, type Project } from '@/hooks/useProjectsAPI';
 import ProjectDetailDialog, { toDialogProject, type DialogProject } from './ProjectDetailDialog';
-import { Link } from 'react-router-dom';
-import { config } from '../config/env';
+import Section from '@/components/site/Section';
+import SectionHeading from '@/components/site/SectionHeading';
+import PostCard from '@/components/site/PostCard';
+import PostCardSkeleton from '@/components/site/PostCardSkeleton';
+import EmptyState from '@/components/site/EmptyState';
+import { resolveImageUrl } from '@/lib/images';
+import { excerpt, formatDate, getSortTime } from '@/lib/format';
+import { PROJECT_FILTER_CATEGORIES, projectCategoryIcon, projectCategoryLabel, projectStatusLabel } from '@/lib/labels';
 
 const ProjectsSection = () => {
   const { t } = useLanguage();
@@ -16,73 +22,11 @@ const ProjectsSection = () => {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: projects = [], isLoading } = useProjects();
 
-
-  const getImageSrc = (url?: string) => {
-    if (!url) return null;
-    if (url.startsWith('/uploads/')) return `${config.cdnUrl}${url}`;
-    return url;
-  };
-
-  const filteredActivities = projects.filter(project =>
-    selectedCategory === 'all' ||
-    project.category === selectedCategory ||
-    !project.category // Include projects without category
-  );
-
-  // Sort by creation date (newest first) and limit to 3 items for display
-  const recentActivities = filteredActivities
-    .sort((a, b) => {
-      const dateA = new Date(a.created_at || a.createdAt || 0);
-      const dateB = new Date(b.created_at || b.createdAt || 0);
-      return dateB.getTime() - dateA.getTime();
-    })
+  // Same rules as before: category filter (uncategorised items always show), newest first, latest 3.
+  const recentActivities = projects
+    .filter((p) => selectedCategory === 'all' || p.category === selectedCategory || !p.category)
+    .sort((a, b) => getSortTime(b) - getSortTime(a))
     .slice(0, 3);
-
-  const getBadgeColor = (category: string) => {
-    const colors = {
-      'water': 'bg-gradient-to-r from-blue-500 to-blue-600',
-      'education': 'bg-gradient-to-r from-green-500 to-emerald-600',
-      'emergency': 'bg-gradient-to-r from-purple-500 to-purple-600',
-      'healthcare': 'bg-gradient-to-r from-indigo-500 to-indigo-600',
-      'news': 'bg-gradient-to-r from-yellow-500 to-orange-600', // News projects get special styling
-      'provision': 'bg-gradient-to-r from-teal-500 to-emerald-600',
-      'distribution': 'bg-gradient-to-r from-rose-500 to-pink-600',
-      'renovation': 'bg-gradient-to-r from-amber-500 to-orange-600',
-      'building': 'bg-gradient-to-r from-sky-500 to-blue-600'
-    };
-    return colors[category as keyof typeof colors] || 'bg-gradient-to-r from-blue-500 to-blue-600';
-  };
-
-  const getCategoryIcon = (category: string) => {
-    const icons = {
-      'water': '💧',
-      'education': '📚',
-      'emergency': '🚨',
-      'healthcare': '🏥',
-      'news': '📰', // News projects get news icon
-      'provision': '🛒',
-      'distribution': '📦',
-      'renovation': '🧱',
-      'building': '🏗️'
-    };
-    return icons[category as keyof typeof icons] || '🌟';
-  };
-
-  const getCategoryLabel = (category?: string) => {
-    if (!category) return 'دابینکردن';
-    const labels: Record<string, string> = {
-      provision: 'دابینکردن',
-      distribution: 'دابەشکردن',
-      renovation: 'نۆژەنکردنەوە',
-      building: 'دروستکردن',
-      news: 'News Update',
-      water: t('water'),
-      education: t('education'),
-      emergency: t('emergency'),
-      healthcare: t('healthcare')
-    };
-    return labels[category] || category.charAt(0).toUpperCase() + category.slice(1);
-  };
 
   const handleReadMore = (project: Project) => {
     setSelectedProject(toDialogProject(project));
@@ -94,151 +38,71 @@ const ProjectsSection = () => {
     setSelectedProject(null);
   };
 
-  if (isLoading) {
-    return (
-      <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 dark:from-gray-950 via-blue-50/30 dark:via-gray-950 to-purple-50/20 dark:to-gray-950 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center">
-            <div className="animate-pulse">{t('loadingProjects')}</div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section id="projects" className="py-24 bg-gradient-to-br from-gray-50 dark:from-gray-950 via-blue-50/30 dark:via-gray-950 to-purple-50/20 dark:to-gray-950 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-200/20 to-purple-200/20 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-green-200/20 to-blue-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-gradient-to-r from-purple-200/20 to-pink-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }}></div>
-      </div>
+    <Section id="projects" tone="muted">
+      <div className="container-site">
+        <SectionHeading
+          eyebrow={t('projects')}
+          title={t('projectsTitle')}
+          description={t('projectsDescription')}
+          actions={
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger aria-label={t('category')} className="h-11 w-full rounded-pill border-border bg-card shadow-sm md:w-56">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('allCategories')}</SelectItem>
+                {PROJECT_FILTER_CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>{c === 'news' ? t('newsUpdates') : t(c)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          }
+        />
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-20 fade-in-on-scroll">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-blue-600 to-purple-600 mb-8 animate-scale-in shadow-2xl">
-            <span className="text-3xl">🚀</span>
+        {isLoading ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+            <PostCardSkeleton count={3} />
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.1)' }}>
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              {t('projectsTitle')}
-            </span>
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-            {t('projectsDescription')}
-          </p>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">{t('showingLatestActivities')}</p>
-          <div className="w-32 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mx-auto rounded-full mt-6"></div>
-        </div>
-
-        <div className="flex justify-center mb-16 fade-in-on-scroll">
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger aria-label={t('category')} className="w-full lg:w-64 h-14 border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg rounded-2xl focus:ring-2 focus:ring-blue-500/20">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="rounded-2xl border-0 shadow-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
-              <SelectItem value="all" className="rounded-xl">{t('allCategories')}</SelectItem>
-              <SelectItem value="news" className="rounded-xl">📰 {t('newsUpdates')}</SelectItem>
-              <SelectItem value="water" className="rounded-xl">{t('water')}</SelectItem>
-              <SelectItem value="education" className="rounded-xl">{t('education')}</SelectItem>
-              <SelectItem value="emergency" className="rounded-xl">{t('emergency')}</SelectItem>
-              <SelectItem value="healthcare" className="rounded-xl">{t('healthcare')}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {recentActivities.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-500 dark:text-gray-400 text-lg">{t('noProjectsFound')}</div>
-          </div>
+        ) : recentActivities.length === 0 ? (
+          <EmptyState icon={FolderOpen} title={t('noProjectsFound')} />
         ) : (
-          <div className="grid md:grid-cols-2 gap-8 mb-16">
-            {recentActivities.map((activity, index) => {
-              const imageUrl = getImageSrc(activity.image_url || activity.imageUrl);
-              
-              return (
-              <Card key={activity.id} className="group bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden rounded-3xl hover-lift fade-in-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
-                {imageUrl && (
-                  <div className="relative overflow-hidden">
-                    <img loading="lazy" decoding="async" src={imageUrl} 
-                      alt={activity.title_en || activity.title || 'Project'}
-                      className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    
-                    <div className="absolute top-4 start-4 flex items-center gap-2">
-                      <span className="text-2xl">{getCategoryIcon(activity.category || 'water')}</span>
-                      <span className="text-sm text-white/90 font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                        {getCategoryLabel(activity.category)}
-                      </span>
-                    </div>
-                    
-                    <div className="absolute top-4 end-4">
-                      <span className={`${getBadgeColor(activity.category || 'water')} text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg`}>
-                        {activity.status || 'completed'}
-                      </span>
-                    </div>
-
-                    {activity.location && (
-                      <div className="absolute bottom-4 start-4 flex items-center text-white/90 text-sm">
-                        <MapPin className="w-4 h-4 me-1" />
-                        {activity.location}
-                      </div>
-                    )}
-                  </div>
-                )}
-                
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:hover:text-blue-400 dark:text-blue-400 transition-colors duration-300" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.05)' }}>
-                    {activity.title_en || activity.title}
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-300 leading-relaxed text-base" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
-                    {(() => {
-                      const desc = activity.description_en || activity.description || '';
-                      return desc.length > 150 ? `${desc.substring(0, 150)}...` : desc;
-                    })()}
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-gray-500 dark:text-gray-400">
-                      <Calendar className="w-4 h-4 me-2" />
-                      <span className="text-sm font-medium">
-                        {new Date(activity.created_at || activity.createdAt || Date.now()).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-800 dark:bg-blue-950/40 p-0 h-auto font-medium group/btn"
-                      onClick={() => handleReadMore(activity)}
-                    >
-                      {t('readMore')} 
-                      <ArrowRight className="w-4 h-4 ms-1 transition-transform duration-300 group-hover/btn:translate-x-1 rtl:rotate-180" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )})}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {recentActivities.map((p, index) => (
+              <PostCard
+                key={p.id}
+                index={index}
+                title={p.title_en || p.title}
+                excerpt={excerpt(p.description_en || p.description, 160)}
+                imageUrl={resolveImageUrl(p.image_url || p.imageUrl)}
+                imageAlt={p.title_en || p.title}
+                categoryLabel={projectCategoryLabel(p.category, t)}
+                categoryIcon={projectCategoryIcon(p.category)}
+                statusLabel={projectStatusLabel(p.status || 'completed', t)}
+                statusKey={p.status || 'completed'}
+                date={formatDate(p.created_at || p.createdAt)}
+                location={p.location}
+                readMoreLabel={t('readMore')}
+                onOpen={() => handleReadMore(p)}
+              />
+            ))}
           </div>
         )}
 
-        <div className="text-center fade-in-on-scroll">
-          <Link to="/projects">
-            <Button size="lg" className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-medium px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
+        <p className="mt-6 text-sm text-muted-foreground">{t('showingLatestActivities')}</p>
+
+        <div className="fade-in-on-scroll mt-10 text-center">
+          <Button asChild variant="outline" size="lg" className="rounded-pill">
+            <Link to="/projects">
               {t('viewAllProjects')}
-            </Button>
-          </Link>
+              <ArrowRight className="rtl:rotate-180" aria-hidden="true" />
+            </Link>
+          </Button>
         </div>
       </div>
 
-      <ProjectDetailDialog 
-        project={selectedProject}
-        isOpen={isDetailDialogOpen}
-        onClose={closeDetailDialog}
-      />
-    </section>
+      <ProjectDetailDialog project={selectedProject} isOpen={isDetailDialogOpen} onClose={closeDetailDialog} />
+    </Section>
   );
 };
 
