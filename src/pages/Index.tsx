@@ -10,6 +10,7 @@ import AboutSection from '@/components/AboutSection';
 import ProjectsSection from '@/components/ProjectsSection';
 import NewsSection from '@/components/NewsSection';
 import GallerySection from '@/components/GallerySection';
+import FAQSection from '@/components/FAQSection';
 import Footer from '@/components/Footer';
 import Section from '@/components/site/Section';
 import SectionSkeleton from '@/components/site/SectionSkeleton';
@@ -74,6 +75,11 @@ const Index = () => {
           </div>
         </Section>
       )}
+
+
+      {/* Static content, so it sits outside the health gate above and still
+          renders when the API is unreachable. */}
+      <FAQSection />
 
       <Footer />
     </div>
