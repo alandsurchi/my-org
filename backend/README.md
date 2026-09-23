@@ -45,6 +45,35 @@ All responses use `{ success, data }` or `{ success: false, message | error, cod
 
 `staff` and `admin` manage content. `super_admin` also manages accounts. Emails listed in `SUPER_ADMINS` are always treated as super admins.
 
+## Managing accounts without the website
+
+The dashboard can only manage staff once you are already signed in, and the
+"forgot password" email is disabled while no mail service is configured. So if
+the only super admin forgets their password, nobody can get back in through the
+website. `scripts/admin.js` is the way in, and the way to add people.
+
+The database is only reachable from inside the Railway project, so run it there:
+
+```bash
+railway ssh --service charity-backend "node scripts/admin.js list"
+railway ssh --service charity-backend "node scripts/admin.js reset you@example.org"
+railway ssh --service charity-backend "node scripts/admin.js create colleague@example.org --name 'Full Name' --role admin"
+railway ssh --service charity-backend "node scripts/admin.js role colleague@example.org super_admin"
+railway ssh --service charity-backend "node scripts/admin.js delete colleague@example.org --yes"
+```
+
+Locally (with `backend/.env` pointing at a database) the same commands work as
+`npm run admin -- list`.
+
+Without `--password` a strong one is generated and printed **once** — it is
+hashed with bcrypt before storage and never logged anywhere else. Two guards
+prevent locking everyone out: the last `super_admin` cannot be demoted or
+deleted, and `delete` requires `--yes`.
+
+This replaces the older `DEFAULT_ADMIN_RESET=true` recovery variable for
+day-to-day use. That still works, but it resets the password on **every**
+restart until you remove the variable again, which is easy to forget.
+
 ## Uploads
 
 Images (JPEG, PNG, WebP, GIF, max 5 MB) are stored under `STORAGE_PATH` (`/data/uploads` on the Railway volume) and served from `/uploads/...`. Set `STORAGE_TYPE=r2` plus the `R2_*` variables to store them in Cloudflare R2 instead.
