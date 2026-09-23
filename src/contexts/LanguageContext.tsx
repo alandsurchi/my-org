@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { uiStrings } from '@/content/uiStrings';
 
 export type Language = 'en' | 'ar' | 'ku';
 
@@ -9,7 +10,7 @@ interface LanguageContextType {
   t: (key: string) => string;
 }
 
-const translations = {
+const baseTranslations = {
   en: {
     // Organization name
     orgName: 'MROVDOSTAN',
@@ -622,6 +623,18 @@ const translations = {
     and: 'و',
     privacyPolicy: 'سیاسەتی تایبەتی'
   }
+};
+
+/**
+ * Strings added after the block above live in src/content/uiStrings.ts, where
+ * `Record<Lang, Record<UiStringKey, string>>` makes a missing translation a
+ * compile error. In the literal above a missing key is silent: `t()` falls back
+ * to returning the key name, which then renders into the page.
+ */
+const translations = {
+  en: { ...baseTranslations.en, ...uiStrings.en },
+  ar: { ...baseTranslations.ar, ...uiStrings.ar },
+  ku: { ...baseTranslations.ku, ...uiStrings.ku },
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
