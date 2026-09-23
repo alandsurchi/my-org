@@ -1,6 +1,8 @@
 # Test runner service (Railway). Runs the backend suite and the Playwright
 # browser suite against a throwaway PostgreSQL started inside this container,
-# serves a status page with the latest result, and repeats on a schedule.
+# serves a status page while it works, then EXITS. Railway bills only for the
+# minute the tests take. A push to the repo triggers a build + run, which is
+# the CI; `railway redeploy -s tests` runs it on demand.
 FROM mcr.microsoft.com/playwright:v1.63.0-jammy
 
 RUN apt-get update \
@@ -16,5 +18,8 @@ RUN npm run build
 
 ENV CI=true
 ENV NODE_ENV=test
+# Exit after a single run instead of staying resident. Set RUN_ONCE=false to
+# restore the old always-on runner that repeats every TEST_INTERVAL_HOURS.
+ENV RUN_ONCE=true
 EXPOSE 3000
 CMD ["node", "e2e/runner.mjs"]

@@ -4,9 +4,12 @@
  * 1. Starts a private PostgreSQL inside the container (nothing touches production).
  * 2. Runs the backend suite (backend/npm test) and the browser suite (Playwright).
  * 3. Serves a status page on $PORT with the latest result and log tail.
- * 4. Repeats every TEST_INTERVAL_HOURS (default 24). Every deploy (push) also runs it.
+ * 4. Exits after one run (RUN_ONCE, the default in Dockerfile.tests) so the
+ *    container is not billed while idle, or repeats every TEST_INTERVAL_HOURS
+ *    when RUN_ONCE is off. Every deploy (push) triggers a run, which is the CI.
  *
- * Env: JWT_SECRET (any long string), DEFAULT_ADMIN_PASSWORD (any), TEST_INTERVAL_HOURS (optional)
+ * Env: JWT_SECRET (any long string), DEFAULT_ADMIN_PASSWORD (any),
+ *      RUN_ONCE ("false" keeps the old resident behaviour), TEST_INTERVAL_HOURS
  */
 import http from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
@@ -16,6 +19,9 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT) || 3000;
 const INTERVAL_MS = (Number(process.env.TEST_INTERVAL_HOURS) || 24) * 3600 * 1000;
+// On-demand by default: run the suites once, report, exit. Railway then bills
+// only for the minute the tests take instead of keeping the container resident.
+const RUN_ONCE = process.env.RUN_ONCE !== 'false';
 const PG_DIR = '/tmp/pgdata';
 const PG_PORT = '5432';
 
@@ -54,14 +60,14 @@ const page = () => {
 table{border-collapse:collapse;width:100%;margin-top:16px}td,th{border-bottom:1px solid #e2e8f0;padding:8px;text-align:left;font-size:14px}
 pre{background:#0f172a;color:#e2e8f0;padding:16px;border-radius:8px;overflow:auto;font-size:12px;max-height:480px}</style></head><body>
 <h1>Mrovdostan automated tests</h1>
-<p><span class="badge">${escape(state.status.toUpperCase())}</span> &nbsp; runner up since ${state.startedAt}, repeats every ${INTERVAL_MS / 3600000} h</p>
+<p><span class="badge">${escape(state.status.toUpperCase())}</span> &nbsp; started ${state.startedAt}, ${RUN_ONCE ? 'single run (on demand)' : `repeats every ${INTERVAL_MS / 3600000} h`}</p>
 ${last ? `<p>Last run finished ${last.finishedAt}: backend <b>${escape(last.backend)}</b>, browser <b>${escape(last.e2e)}</b></p>` : '<p>First run in progress…</p>'}
 <table><tr><th>Finished</th><th>Result</th><th>Backend</th><th>Browser</th><th>Duration</th></tr>${rows}</table>
 ${last ? `<h2>Log tail</h2><pre>${escape(last.logTail)}</pre>` : ''}
 </body></html>`;
 };
 
-http.createServer((req, res) => {
+const statusServer = http.createServer((req, res) => {
   if (req.url === '/status.json') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ status: state.status, lastRun: state.lastRun && { ...state.lastRun, logTail: undefined }, runs: state.runs.slice(-20) }));
@@ -130,9 +136,19 @@ async function runSuite() {
 }
 
 (async () => {
+  await runSuite();
+
+  if (RUN_ONCE) {
+    // Exit code carries the result: Railway shows the deployment as crashed when
+    // the suites fail, so a red deployment means a real failure.
+    console.log('RUN_ONCE: single run finished, shutting down');
+    statusServer.close();
+    process.exit(state.lastRun && state.lastRun.ok ? 0 : 1);
+  }
+
   for (;;) {
-    await runSuite();
     console.log(`next run in ${INTERVAL_MS / 3600000} h`);
     await new Promise((r) => setTimeout(r, INTERVAL_MS));
+    await runSuite();
   }
 })();
