@@ -104,6 +104,23 @@ function sendFile(res, filePath, cacheControl) {
 const PUBLIC_ROUTES = ['/', '/projects', '/news', '/gallery'];
 const INDEX_HTML = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
 
+// One canonical hostname: "www." is redirected away permanently so search engines
+// index a single address. Host-based, not domain-specific, so localhost, the
+// Railway URL and the e2e stack are all left alone.
+function canonicalHostRedirect(req, res) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return false;
+  const host = (req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+  if (!host.toLowerCase().startsWith('www.')) return false;
+  const proto = (req.headers['x-forwarded-proto'] || 'https').split(',')[0].trim();
+  res.writeHead(301, {
+    Location: `${proto}://${host.slice(4)}${req.url}`,
+    'Cache-Control': 'public, max-age=3600',
+    ...SECURITY_HEADERS
+  });
+  res.end();
+  return true;
+}
+
 function publicOrigin(req) {
   const proto = (req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim();
   const host = (req.headers['x-forwarded-host'] || req.headers.host || `localhost:${PORT}`).split(',')[0].trim();
@@ -183,6 +200,10 @@ const server = http.createServer((req, res) => {
   const pathname = decodeURIComponent(url.pathname);
 
   if (PROXY_PREFIXES.some((p) => pathname.startsWith(p))) return proxy(req, res);
+
+  // Page requests only: /api and /uploads above are never redirected, so a request
+  // method or body can never be lost to a 301.
+  if (canonicalHostRedirect(req, res)) return;
 
   if (pathname === '/robots.txt') {
     return sendText(res, `User-agent: *\nAllow: /\nDisallow: /staff-login\nDisallow: /dashboard\n\nSitemap: ${publicOrigin(req)}/sitemap.xml\n`, 'text/plain; charset=utf-8');
