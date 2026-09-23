@@ -18,22 +18,48 @@
     <meta property="og:title" content="Mrovdostan Organization for Humanitarian Aid" />
     <meta property="og:description" content="Building hope, transforming lives. Humanitarian aid, education and community projects in the Kurdistan Region of Iraq." />
     <meta property="og:image" content="/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png" />
+    <meta property="og:image:alt" content="The Mrovdostan Organization for Humanitarian Aid emblem" />
+    <meta property="og:image:width" content="498" />
+    <meta property="og:image:height" content="498" />
+    <!-- The served title and description are English (see ROUTE_META in server.mjs),
+         so en_US is the honest primary locale even though the UI defaults to Kurdish. -->
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="ar_AR" />
+    <meta property="og:locale:alternate" content="ku_TR" />
 
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Mrovdostan Organization for Humanitarian Aid" />
     <meta name="twitter:description" content="Building hope, transforming lives. Humanitarian aid, education and community projects in the Kurdistan Region of Iraq." />
     <meta name="twitter:image" content="/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png" />
+    <meta name="twitter:image:alt" content="The Mrovdostan Organization for Humanitarian Aid emblem" />
     <link rel="manifest" href="/site.webmanifest" />
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "NGO",
+      "@id": "https://mrovdostan.org/#organization",
       "name": "Mrovdostan Organization for Humanitarian Aid",
       "alternateName": "MROVDOSTAN",
-      "url": "https://my-org-production.up.railway.app/",
-      "logo": "https://my-org-production.up.railway.app/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png",
+      "description": "Mrovdostan is a non-profit humanitarian organization in the Kurdistan Region of Iraq, building hope and transforming lives through aid, education and community projects.",
+      "url": "https://mrovdostan.org/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://mrovdostan.org/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png",
+        "width": 498,
+        "height": 498
+      },
       "email": "ohumanism@gmail.com",
-      "areaServed": "Kurdistan Region, Iraq",
+      "areaServed": {
+        "@type": "AdministrativeArea",
+        "name": "Kurdistan Region, Iraq"
+      },
+      "knowsLanguage": ["en", "ar", "ckb"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "general enquiries",
+        "email": "ohumanism@gmail.com",
+        "availableLanguage": ["English", "Arabic", "Kurdish"]
+      },
       "sameAs": [
         "https://www.facebook.com/mrovdostanorganization",
         "https://www.instagram.com/mrov.dostan",
