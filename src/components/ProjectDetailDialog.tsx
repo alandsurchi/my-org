@@ -51,7 +51,7 @@ const ProjectDetailDialog = ({ project, isOpen, onClose }: ProjectDetailDialogPr
       <DialogContent className="max-h-[90vh] max-w-3xl gap-0 overflow-y-auto p-0">
         {imageSrc ? (
           <figure className="relative">
-            <img src={imageSrc} alt={project.title_en} className="aspect-[16/9] w-full object-cover" />
+            <img src={imageSrc} alt={project.title_en || t('projectImageAlt')} className="aspect-[16/9] w-full object-cover" />
             <div className="absolute start-4 top-4 flex flex-wrap gap-2">
               <Chip tone="onPhoto" icon={CategoryIcon}>{projectCategoryLabel(project.category, t)}</Chip>
               <Chip tone={STATUS_TONE[project.status] || 'brand'}>{projectStatusLabel(project.status, t)}</Chip>

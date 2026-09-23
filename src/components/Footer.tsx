@@ -44,7 +44,8 @@ const Footer = () => {
             <div className="flex items-center gap-3">
               <img
                 src="/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png"
-                alt="MROVDOSTAN Logo"
+                /* Decorative: the wordmark beside it already names the organisation. */
+                  alt=""
                 width={48}
                 height={48}
                 className="h-12 w-12 rounded-full bg-white object-contain p-0.5"

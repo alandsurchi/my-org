@@ -24,7 +24,7 @@ const AllGallery = () => {
     ...item,
     id: item.id || String(index),
     url: item.url || '',
-    title: item.title || 'Gallery photo',
+    title: item.title || '',
     description: item.description || item.caption || '',
   }));
 

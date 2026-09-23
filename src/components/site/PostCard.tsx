@@ -46,7 +46,9 @@ const PostCard = ({
         {imageUrl ? (
           <img
             src={imageUrl}
-            alt={imageAlt ?? ''}
+            // Fall back to the card's own title: this is a meaningful photo, and
+            // an empty alt would silently reclassify it as decorative.
+            alt={(imageAlt || title || '').trim()}
             loading="lazy"
             decoding="async"
             className="img-hover h-full w-full object-cover"

@@ -15,7 +15,8 @@ const HeaderLogo: React.FC<HeaderLogoProps> = ({ tone }) => {
     <div className="logo-trigger flex cursor-pointer select-none items-center gap-3">
       <img
         src="/lovable-uploads/eb6198ca-261c-4e22-ba5c-9af9f83d0c52.png"
-        alt="Mrovdostan for Humanitarian Aid Logo"
+        /* Decorative: the {t('orgName')} wordmark beside it already names the organisation. */
+        alt=""
         width={48}
         height={48}
         className="h-11 w-11 rounded-full bg-white object-contain p-0.5 shadow-sm sm:h-12 sm:w-12"

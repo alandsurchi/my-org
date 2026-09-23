@@ -25,7 +25,9 @@ export const useGallery = () => {
       return data.map((item, index) => ({
         id: String(item.id ?? item.url ?? `gallery-item-${index}`),
         url: buildImageUrl(item.url),
-        title: item.title || item.caption || 'Gallery photo',
+        // No English fallback here: the components translate it (an alt of
+        // 'Gallery photo' reached Kurdish and Arabic visitors untranslated).
+        title: item.title || item.caption || '',
         description: item.description || item.caption || '',
         caption: item.caption || '',
         uploadedAt: item.uploadedAt,

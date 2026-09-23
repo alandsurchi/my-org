@@ -49,7 +49,7 @@ const NewsDetailDialog = ({ newsItem, isOpen, onClose }: NewsDetailDialogProps) 
       <DialogContent className="max-h-[90vh] max-w-3xl gap-0 overflow-y-auto p-0">
         {imageSrc ? (
           <figure className="relative">
-            <img src={imageSrc} alt={newsItem.title_en} className="aspect-[16/9] w-full object-cover" />
+            <img src={imageSrc} alt={newsItem.title_en || t('newsImageAlt')} className="aspect-[16/9] w-full object-cover" />
             <div className="absolute start-4 top-4">
               <Chip tone="onPhoto" icon={Icon}>{categoryLabel}</Chip>
             </div>
