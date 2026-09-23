@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useNews, type NewsItem } from '@/hooks/useNewsAPI';
-import NewsDetailDialog, { toDialogNewsItem, type DialogNewsItem } from './NewsDetailDialog';
+import { useNews } from '@/hooks/useNewsAPI';
 import Section from '@/components/site/Section';
 import SectionHeading from '@/components/site/SectionHeading';
 import PostCard from '@/components/site/PostCard';
@@ -19,21 +18,9 @@ import { NEWS_BUCKETS, bucketNews, type NewsBucket } from '@/lib/newsBuckets';
 
 const NewsSection = () => {
   const { t } = useLanguage();
-  const [selectedNewsItem, setSelectedNewsItem] = useState<DialogNewsItem | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: allNews = [], isLoading, error } = useNews();
 
   const buckets = bucketNews(allNews);
-
-  const handleReadMore = (item: NewsItem) => {
-    setSelectedNewsItem(toDialogNewsItem(item));
-    setIsDetailDialogOpen(true);
-  };
-
-  const closeDetailDialog = () => {
-    setIsDetailDialogOpen(false);
-    setSelectedNewsItem(null);
-  };
 
   const renderBucket = (bucket: NewsBucket) => {
     const items = [...buckets[bucket]]
@@ -66,7 +53,7 @@ const NewsSection = () => {
             categoryIcon={Icon}
             date={formatDate(item.createdAt)}
             readMoreLabel={t('readMore')}
-            onOpen={() => handleReadMore(item)}
+            href={`/news/${item.id}`}
           />
         ))}
       </div>
@@ -115,7 +102,6 @@ const NewsSection = () => {
         </div>
       </div>
 
-      <NewsDetailDialog newsItem={selectedNewsItem} isOpen={isDetailDialogOpen} onClose={closeDetailDialog} />
     </Section>
   );
 };

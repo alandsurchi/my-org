@@ -171,10 +171,73 @@ async function heroImage() {
 
 const escapeHtml = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
-// Inline JSON needs "<" neutralised so a value can never close the script tag.
+/** Small TTL cache so a crawler sweeping 50 posts does not hammer the backend. */
+const jsonCache = new Map();
+async function cachedJson(apiPath, ttlMs) {
+  if (!backend) return null;
+  const hit = jsonCache.get(apiPath);
+  if (hit && Date.now() - hit.at < ttlMs) return hit.value;
+  let value = null;
+  try {
+    const r = await fetch(`${BACKEND_URL}${apiPath}`, { signal: AbortSignal.timeout(3000) });
+    value = r.ok ? (await r.json())?.data ?? null : null;
+  } catch {
+    value = null;
+  }
+  jsonCache.set(apiPath, { value, at: Date.now() });
+  // The map is bounded by the number of posts; trim if a site ever grows large.
+  if (jsonCache.size > 500) jsonCache.clear();
+  return value;
+}
+
+// Each post has its own address, so each needs its own title, description and
+// preview image — otherwise every one of them ships the home page's metadata and
+// search engines treat them as duplicates.
+const POST_ROUTES = [
+  { re: /^\/projects\/(\d+)$/, api: 'projects', parent: '/projects', parentName: 'All Activities' },
+  { re: /^\/news\/(\d+)$/, api: 'news', parent: '/news', parentName: 'All News' },
+];
+
+async function postForPath(pathname) {
+  for (const route of POST_ROUTES) {
+    const id = pathname.match(route.re)?.[1];
+    if (!id) continue;
+    const data = await cachedJson(`/api/${route.api}/${id}`, 60 * 1000);
+    if (!data) return null;
+    const title = data.title || data.title_en || '';
+    const body = data.description || data.content || '';
+    if (!title) return null;
+    return {
+      title,
+      body,
+      image: data.image_url || data.imageUrl || null,
+      createdAt: data.createdAt || data.created_at || null,
+      updatedAt: data.updatedAt || data.updated_at || null,
+      parent: route.parent,
+      parentName: route.parentName,
+      isArticle: route.api === 'news',
+    };
+  }
+  return null;
+}
+
+/** Sitemap URLs are XML text: five predefined entities, no HTML rules. */
+const escapeXml = (s) =>
+  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+
+/** One line of plain text, trimmed to a length search engines actually show. */
+const metaText = (text, max = 160) => {
+  const flat = String(text || '').replace(/\s+/g, ' ').trim();
+  return flat.length <= max ? flat : `${flat.slice(0, max - 1).trimEnd()}…`;
+};
+
+// Inline JSON must have "<" neutralised so a value can never close the script
+// tag. The replacement has to be the six characters <, NOT the character
+// they denote: written as a plain escape it substitutes "<" for "<" and does
+// nothing. Post titles come from the database, so this one is load-bearing.
 // escapeHtml is for attribute values and would corrupt the JSON.
 const ldScript = (obj) =>
-  `    <script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\u003c')}</script>`;
+  `    <script type="application/ld+json">${JSON.stringify(obj).replace(/</g, String.fromCharCode(92) + "u003c")}</script>`;
 
 // English, to match the English titles ROUTE_META serves to crawlers.
 const BREADCRUMB_LEAF = {
@@ -184,13 +247,16 @@ const BREADCRUMB_LEAF = {
   '/privacy': 'Privacy Policy',
 };
 
-const breadcrumbLd = (origin, pathname) => ({
+/** crumbs: [{ name, path }], root first. */
+const breadcrumbLd = (origin, crumbs) => ({
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
-    { '@type': 'ListItem', position: 2, name: BREADCRUMB_LEAF[pathname], item: `${origin}${pathname}` },
-  ],
+  itemListElement: crumbs.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.name,
+    item: `${origin}${c.path}`,
+  })),
 });
 
 // Mirrors the English faqQ1..faqA5 strings in src/content/uiStrings.ts. This file
@@ -214,11 +280,43 @@ const faqLd = () => ({
   })),
 });
 
+/** News posts are Articles; activities are ongoing work, so they are not. */
+const articleLd = (origin, pathname, post) => {
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': post.isArticle ? 'NewsArticle' : 'CreativeWork',
+    headline: post.title,
+    description: metaText(post.body),
+    mainEntityOfPage: `${origin}${pathname}`,
+    // Must use the live origin, not CANONICAL_ORIGIN: the literal swap only runs
+    // over INDEX_HTML, and this block is appended after it. Pointing at a
+    // different host than the NGO block's @id would break the entity link.
+    author: { '@id': `${origin}/#organization` },
+    publisher: { '@id': `${origin}/#organization` },
+  };
+  if (post.image) ld.image = post.image.startsWith('http') ? post.image : `${origin}${post.image}`;
+  if (post.createdAt) ld.datePublished = post.createdAt;
+  if (post.updatedAt) ld.dateModified = post.updatedAt;
+  return ld;
+};
+
 async function sendIndex(req, res, pathname) {
   const origin = publicOrigin(req);
-  const meta = ROUTE_META[pathname] || ROUTE_META['/'];
+  const post = await postForPath(pathname);
+  const meta = post
+    ? { title: `${post.title} | Mrovdostan`, description: metaText(post.body) }
+    : ROUTE_META[pathname] || ROUTE_META['/'];
   const hero = await heroImage();
-  const noindex = NOINDEX_PREFIXES.some((p) => pathname.startsWith(p));
+  // A post URL that resolves to nothing is a soft 404: the app renders a "not
+  // found" state, so keep it out of the index rather than letting Google collect
+  // /news/99999 and friends.
+  const missingPost = !post && POST_ROUTES.some((r) => r.re.test(pathname));
+  const noindex = missingPost || NOINDEX_PREFIXES.some((p) => pathname.startsWith(p));
+
+  // A post's own photo is a far better link preview than the site-wide hero.
+  const preview = post?.image
+    ? { url: post.image, width: null, height: null, alt: post.title }
+    : hero && { ...hero, alt: 'A photograph from the work of Mrovdostan Organization for Humanitarian Aid' };
 
   let html = INDEX_HTML
     .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(meta.title)}</title>`)
@@ -233,20 +331,19 @@ async function sendIndex(req, res, pathname) {
     // so adding a nested "url" to the JSON-LD would have rewritten the wrong one.
     .replaceAll(CANONICAL_ORIGIN, origin);
 
-  if (hero) {
-    // The hero photo previews better than the emblem, but the emblem's
-    // dimensions do not describe it. Use the real ones, or drop the tags —
-    // a wrong og:image:width makes the preview render cropped.
-    const url = hero.url.startsWith('http') ? hero.url : `${origin}${hero.url}`;
-    const dims = hero.width && hero.height
-      ? `<meta property="og:image:width" content="${hero.width}" />\n    <meta property="og:image:height" content="${hero.height}" />`
+  if (preview) {
+    // A photo previews better than the emblem, but the emblem's dimensions do
+    // not describe it. Use the real ones, or drop the tags — a wrong
+    // og:image:width makes the preview render cropped.
+    const url = preview.url.startsWith('http') ? preview.url : `${origin}${preview.url}`;
+    const dims = preview.width && preview.height
+      ? `<meta property="og:image:width" content="${preview.width}" />\n    <meta property="og:image:height" content="${preview.height}" />`
       : '';
-    const photoAlt = 'A photograph from the work of Mrovdostan Organization for Humanitarian Aid';
     html = html
       .replace(/(<meta property="og:image" content=")[^"]*(")/, `$1${escapeHtml(url)}$2`)
       .replace(/(<meta name="twitter:image" content=")[^"]*(")/, `$1${escapeHtml(url)}$2`)
-      .replace(/(<meta property="og:image:alt" content=")[^"]*(")/, `$1${photoAlt}$2`)
-      .replace(/(<meta name="twitter:image:alt" content=")[^"]*(")/, `$1${photoAlt}$2`)
+      .replace(/(<meta property="og:image:alt" content=")[^"]*(")/, `$1${escapeHtml(preview.alt)}$2`)
+      .replace(/(<meta name="twitter:image:alt" content=")[^"]*(")/, `$1${escapeHtml(preview.alt)}$2`)
       .replace(/<meta property="og:image:width"[^>]*\/>\s*<meta property="og:image:height"[^>]*\/>/, dims)
       .replace('<meta name="twitter:card" content="summary"', '<meta name="twitter:card" content="summary_large_image"');
   }
@@ -257,7 +354,19 @@ async function sendIndex(req, res, pathname) {
     `    <link rel="canonical" href="${origin}${pathname === '/' ? '/' : pathname}" />`,
     `    <meta property="og:url" content="${origin}${pathname}" />`,
     noindex ? '    <meta name="robots" content="noindex, nofollow" />' : '',
-    BREADCRUMB_LEAF[pathname] ? ldScript(breadcrumbLd(origin, pathname)) : '',
+    post
+      ? ldScript(breadcrumbLd(origin, [
+          { name: 'Home', path: '/' },
+          { name: post.parentName, path: post.parent },
+          { name: post.title, path: pathname },
+        ]))
+      : BREADCRUMB_LEAF[pathname]
+        ? ldScript(breadcrumbLd(origin, [
+            { name: 'Home', path: '/' },
+            { name: BREADCRUMB_LEAF[pathname], path: pathname },
+          ]))
+        : '',
+    post ? ldScript(articleLd(origin, pathname, post)) : '',
     pathname === '/' ? ldScript(faqLd()) : '',
     // Runtime config for the browser (error monitoring turns on when SENTRY_DSN is set)
     process.env.SENTRY_DSN ? `    <script>window.__SENTRY_DSN__=${JSON.stringify(process.env.SENTRY_DSN)};</script>` : '',
@@ -267,6 +376,42 @@ async function sendIndex(req, res, pathname) {
   html = html.replace('</head>', `${extra}\n  </head>`);
 
   sendText(res, html, 'text/html; charset=utf-8', 'no-cache');
+}
+
+/**
+ * The sitemap is built from live content, not a fixed list: every activity and
+ * news post has its own address now, and a sitemap that listed only the four
+ * static pages would hide all of them from search engines.
+ *
+ * If the backend is unreachable we still serve the static routes rather than an
+ * error, so a brief outage cannot make the whole sitemap disappear.
+ */
+async function sendSitemap(req, res) {
+  const origin = publicOrigin(req);
+  const entries = PUBLIC_ROUTES.map((r) => ({ loc: `${origin}${r}` }));
+
+  const [projects, news] = await Promise.all([
+    cachedJson('/api/projects', 5 * 60 * 1000),
+    cachedJson('/api/news', 5 * 60 * 1000),
+  ]);
+  for (const [list, prefix] of [[projects, '/projects'], [news, '/news']]) {
+    for (const item of Array.isArray(list) ? list : []) {
+      if (item?.id === undefined || item?.id === null) continue;
+      entries.push({
+        loc: `${origin}${prefix}/${item.id}`,
+        lastmod: (item.updatedAt || item.updated_at || item.createdAt || item.created_at || '').slice(0, 10) || null,
+      });
+    }
+  }
+
+  const xml = entries
+    .map((e) => `  <url><loc>${escapeXml(e.loc)}</loc>${e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : ''}</url>`)
+    .join('\n');
+  sendText(
+    res,
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${xml}\n</urlset>\n`,
+    'application/xml; charset=utf-8',
+  );
 }
 
 const server = http.createServer((req, res) => {
@@ -293,11 +438,7 @@ const server = http.createServer((req, res) => {
     ].join('\n');
     return sendText(res, body, 'text/plain; charset=utf-8');
   }
-  if (pathname === '/sitemap.xml') {
-    const origin = publicOrigin(req);
-    const urls = PUBLIC_ROUTES.map((r) => `  <url><loc>${origin}${r}</loc></url>`).join('\n');
-    return sendText(res, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`, 'application/xml; charset=utf-8');
-  }
+  if (pathname === '/sitemap.xml') return sendSitemap(req, res);
   if (pathname === '/' || pathname === '/index.html') return sendIndex(req, res, '/');
 
   // Static assets (never escape dist)

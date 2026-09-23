@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useProjects, type Project } from '@/hooks/useProjectsAPI';
-import ProjectDetailDialog, { toDialogProject, type DialogProject } from '@/components/ProjectDetailDialog';
+import { useProjects } from '@/hooks/useProjectsAPI';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/site/PageHero';
@@ -24,8 +23,6 @@ const AllProjects = () => {
   usePageMeta({ title: t('allProjectsTitle'), description: t('allProjectsDescription') });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedProject, setSelectedProject] = useState<DialogProject | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: projects = [], isLoading, error } = useProjects();
 
   const term = searchTerm.toLowerCase();
@@ -35,16 +32,6 @@ const AllProjects = () => {
     const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-
-  const handleReadMore = (project: Project) => {
-    setSelectedProject(toDialogProject(project));
-    setIsDetailDialogOpen(true);
-  };
-
-  const closeDetailDialog = () => {
-    setIsDetailDialogOpen(false);
-    setSelectedProject(null);
-  };
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
@@ -118,7 +105,7 @@ const AllProjects = () => {
                   date={formatDate(p.createdAt || p.created_at)}
                   location={p.location}
                   readMoreLabel={t('readMore')}
-                  onOpen={() => handleReadMore(p)}
+                  href={`/projects/${p.id}`}
                 />
               ))}
             </div>
@@ -128,7 +115,6 @@ const AllProjects = () => {
 
       <Footer />
 
-      <ProjectDetailDialog project={selectedProject} isOpen={isDetailDialogOpen} onClose={closeDetailDialog} />
     </div>
   );
 };

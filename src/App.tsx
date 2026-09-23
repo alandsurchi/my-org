@@ -23,6 +23,8 @@ const AllProjects = lazy(() => import("./pages/AllProjects"));
 const AllNewsAPI = lazy(() => import("./pages/AllNewsAPI"));
 const AllGallery = lazy(() => import("./pages/AllGallery"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+const NewsDetail = lazy(() => import("./pages/NewsDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -105,7 +107,9 @@ const App = () => {
                       <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/reset-password" element={<ResetPassword />} />
                       <Route path="/projects" element={<AllProjects />} />
+                      <Route path="/projects/:id" element={<ProjectDetail />} />
                       <Route path="/news" element={<AllNewsAPI />} />
+                      <Route path="/news/:id" element={<NewsDetail />} />
                       <Route path="/gallery" element={<AllGallery />} />
                       <Route path="/privacy" element={<Privacy />} />
                       <Route path="*" element={<NotFound />} />

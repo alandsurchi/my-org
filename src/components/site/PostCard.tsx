@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, MapPin, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Chip, { STATUS_TONE, type ChipTone } from './Chip';
@@ -17,30 +18,36 @@ export interface PostCardProps {
   date?: string;
   location?: string | null;
   readMoreLabel: string;
-  onOpen: () => void;
+  /** The post's own page. A real address, so it can be shared, linked and indexed. */
+  href: string;
   index?: number;
   className?: string;
 }
 
 /**
  * The one card used for activities and news, on the home page and the list
- * pages. The whole card is clickable; the title and the "read more" link are
- * the real keyboard controls.
+ * pages.
+ *
+ * Exactly one link per card: the title, stretched over the whole card by
+ * `after:absolute after:inset-0`. That keeps the entire surface clickable while
+ * giving screen readers and keyboard users a single, properly named target —
+ * and, unlike the click handler it replaced, it can be opened in a new tab,
+ * copied, bookmarked and followed by a crawler.
  */
 const PostCard = ({
   title, excerpt, imageUrl, imageAlt, placeholderIcon: Placeholder, categoryLabel, categoryIcon,
-  statusLabel, statusKey, date, location, readMoreLabel, onOpen, index = 0, className,
+  statusLabel, statusKey, date, location, readMoreLabel, href, index = 0, className,
 }: PostCardProps) => {
   const statusTone: ChipTone = STATUS_TONE[statusKey || ''] || 'brand';
   return (
     <article
       className={cn(
-        'group card-surface fade-in-on-scroll flex h-full cursor-pointer flex-col overflow-hidden',
+        'group card-surface fade-in-on-scroll relative flex h-full flex-col overflow-hidden',
         'motion-safe:transition-[box-shadow,transform] motion-safe:duration-base motion-safe:ease-out hover:-translate-y-0.5 hover:shadow-card-hover',
+        'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
         className,
       )}
       style={{ transitionDelay: `${Math.min(index, 5) * 40}ms` }}
-      onClick={onOpen}
     >
       <figure className="relative aspect-[16/10] overflow-hidden bg-muted">
         {imageUrl ? (
@@ -72,13 +79,12 @@ const PostCard = ({
 
       <div className="flex flex-1 flex-col gap-3 p-5 md:p-6">
         <h3 className="font-display text-h3 text-foreground">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onOpen(); }}
-            className="line-clamp-2 text-start transition-colors group-hover:text-primary"
+          <Link
+            to={href}
+            className="line-clamp-2 text-start transition-colors after:absolute after:inset-0 after:content-[''] group-hover:text-primary focus:outline-none"
           >
             {title}
-          </button>
+          </Link>
         </h3>
         {excerpt && <p className="line-clamp-3 text-muted-foreground">{excerpt}</p>}
 
@@ -97,14 +103,13 @@ const PostCard = ({
               </span>
             )}
           </div>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onOpen(); }}
-            className="inline-flex shrink-0 items-center gap-1 font-semibold text-primary hover:underline"
-          >
+          {/* Visual affordance only — the stretched title link already covers the
+              card, and a second link to the same place would just be noise for
+              screen readers. */}
+          <span aria-hidden="true" className="inline-flex shrink-0 items-center gap-1 font-semibold text-primary group-hover:underline">
             {readMoreLabel}
             <ArrowRight className="h-4 w-4 rtl:rotate-180 motion-safe:transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
-          </button>
+          </span>
         </div>
       </div>
     </article>

@@ -4,8 +4,7 @@ import { usePageMeta } from '@/hooks/usePageMeta';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useNews, type NewsItem } from '@/hooks/useNewsAPI';
-import NewsDetailDialog, { toDialogNewsItem, type DialogNewsItem } from '@/components/NewsDetailDialog';
+import { useNews } from '@/hooks/useNewsAPI';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/site/PageHero';
@@ -21,25 +20,12 @@ const AllNews = () => {
   const { t } = useLanguage();
   usePageMeta({ title: t('allNewsTitle'), description: t('allNewsDescription') });
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedNewsItem, setSelectedNewsItem] = useState<DialogNewsItem | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: allNews = [], isLoading, error } = useNews();
 
   const term = searchTerm.toLowerCase();
   const filteredNews = allNews.filter((item) =>
     !!item && ((item.title || '').toLowerCase().includes(term) || (item.content || '').toLowerCase().includes(term))
   );
-
-  const handleReadMore = (newsItem: NewsItem) => {
-    // Same as before: the list page shows every post under the generic "News" label
-    setSelectedNewsItem({ ...toDialogNewsItem(newsItem), category: 'News' });
-    setIsDetailDialogOpen(true);
-  };
-
-  const closeDetailDialog = () => {
-    setIsDetailDialogOpen(false);
-    setSelectedNewsItem(null);
-  };
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
@@ -98,7 +84,7 @@ const AllNews = () => {
                   categoryIcon={Newspaper}
                   date={formatDate(item.createdAt)}
                   readMoreLabel={t('readMore')}
-                  onOpen={() => handleReadMore(item)}
+                  href={`/news/${item.id}`}
                 />
               ))}
             </div>
@@ -108,7 +94,6 @@ const AllNews = () => {
 
       <Footer />
 
-      <NewsDetailDialog newsItem={selectedNewsItem} isOpen={isDetailDialogOpen} onClose={closeDetailDialog} />
     </div>
   );
 };

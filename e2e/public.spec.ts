@@ -130,6 +130,41 @@ test.describe('public site', () => {
     expect(projects).not.toContain('"@type":"FAQPage"');
   });
 
+  test('every post has its own page, title and structured data', async ({ page, request }) => {
+    // The sitemap is built from live content, so it tells us what exists.
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    const postUrl = sitemap.match(/<loc>[^<]*(\/(?:news|projects)\/\d+)<\/loc>/)?.[1];
+    expect(postUrl, 'sitemap should list individual posts, not just the static pages').toBeTruthy();
+
+    const html = await (await request.get(postUrl!)).text();
+    const title = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? '';
+    // Its own title, not the home page's — the whole point of giving posts URLs.
+    expect(title).toMatch(/\| Mrovdostan$/);
+    expect(title).not.toBe('Mrovdostan Organization for Humanitarian Aid');
+    expect(html).toContain('"@type":"BreadcrumbList"');
+    expect(html).toMatch(/"@type":"(NewsArticle|CreativeWork)"/);
+    expect(html).toContain('"position":3');
+
+    await page.goto(postUrl!);
+    await expect(page.locator('section#main-content')).toBeVisible();
+    await expect(page.locator('article')).toHaveCount(1);
+  });
+
+  test('a post that does not exist is kept out of the index', async ({ request }) => {
+    const html = await (await request.get('/news/99999999')).text();
+    expect(html).toContain('noindex');
+  });
+
+  test('cards link to real addresses instead of opening dialogs', async ({ page }) => {
+    await page.goto('/projects');
+    await page.waitForTimeout(500);
+    const first = page.locator('article a[href^="/projects/"]').first();
+    await expect(first).toHaveCount(1);
+    const href = await first.getAttribute('href');
+    await first.click();
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+  });
+
   test('the FAQ markup and its structured data stay in step', async ({ page, request }) => {
     // server.mjs cannot import from src/ (the image ships only dist/ and
     // server.mjs), so its copy of the questions is duplicated on purpose. This

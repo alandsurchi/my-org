@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useProjects, type Project } from '@/hooks/useProjectsAPI';
-import ProjectDetailDialog, { toDialogProject, type DialogProject } from './ProjectDetailDialog';
+import { useProjects } from '@/hooks/useProjectsAPI';
 import Section from '@/components/site/Section';
 import SectionHeading from '@/components/site/SectionHeading';
 import PostCard from '@/components/site/PostCard';
@@ -18,8 +17,6 @@ import { PROJECT_FILTER_CATEGORIES, projectCategoryIcon, projectCategoryLabel, p
 const ProjectsSection = () => {
   const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedProject, setSelectedProject] = useState<DialogProject | null>(null);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const { data: projects = [], isLoading } = useProjects();
 
   // Same rules as before: category filter (uncategorised items always show), newest first, latest 3.
@@ -27,16 +24,6 @@ const ProjectsSection = () => {
     .filter((p) => selectedCategory === 'all' || p.category === selectedCategory || !p.category)
     .sort((a, b) => getSortTime(b) - getSortTime(a))
     .slice(0, 3);
-
-  const handleReadMore = (project: Project) => {
-    setSelectedProject(toDialogProject(project));
-    setIsDetailDialogOpen(true);
-  };
-
-  const closeDetailDialog = () => {
-    setIsDetailDialogOpen(false);
-    setSelectedProject(null);
-  };
 
   return (
     <Section id="projects" tone="muted">
@@ -83,7 +70,7 @@ const ProjectsSection = () => {
                 date={formatDate(p.created_at || p.createdAt)}
                 location={p.location}
                 readMoreLabel={t('readMore')}
-                onOpen={() => handleReadMore(p)}
+                href={`/projects/${p.id}`}
               />
             ))}
           </div>
@@ -101,7 +88,6 @@ const ProjectsSection = () => {
         </div>
       </div>
 
-      <ProjectDetailDialog project={selectedProject} isOpen={isDetailDialogOpen} onClose={closeDetailDialog} />
     </Section>
   );
 };
