@@ -66,13 +66,12 @@ export const privacyContent: Record<Lang, PrivacyDoc> = {
         id: 'other-services',
         heading: 'Other services involved',
         paragraphs: [
-          'Delivering a website always involves a few other companies. These are the ones that can see a request from you:',
+          'Delivering a website always involves a few other companies. These are the ones that can see a request from you. The typefaces are served from our own servers, so no font request reaches anyone else:',
         ],
         bullets: [
           'Railway hosts the website and its database. Their servers keep short-term technical logs.',
           'Cloudflare sits in front of the site to make it faster and to block attacks. They see the requests passing through and keep security logs.',
-          'Cloudflare Web Analytics may be used to count visits. It sets no cookies and does not track people across websites. It is only active when we have switched it on.',
-          'Google Fonts supplies the typefaces the site is set in. Your browser fetches these files from Google, which means Google can see your IP address when a page loads.',
+          'Cloudflare Web Analytics counts visits for us. It sets no cookies, stores no personal data, and does not follow people across other websites.',
           'Sentry receives automatic reports when a page breaks, so we can fix it. These reports describe the error, not you, and are only sent when error reporting is switched on.',
         ],
       },
@@ -153,13 +152,12 @@ export const privacyContent: Record<Lang, PrivacyDoc> = {
         id: 'other-services',
         heading: 'خدمات أخرى مشارِكة',
         paragraphs: [
-          'تقديم أي موقع إلكتروني يتطلّب دائماً مشاركة بعض الشركات الأخرى. وهذه هي الجهات التي يمكنها رؤية طلب قادم منك:',
+          'تقديم أي موقع إلكتروني يتطلّب دائماً مشاركة بعض الشركات الأخرى. وهذه هي الجهات التي يمكنها رؤية طلب قادم منك. أمّا الخطوط فتُقدَّم من خوادمنا نحن، فلا يصل أي طلب خطوط إلى جهة أخرى:',
         ],
         bullets: [
           'Railway تستضيف الموقع وقاعدة بياناته، وتحتفظ خوادمها بسجلات تقنية قصيرة الأمد.',
           'Cloudflare تقف أمام الموقع لتسريعه وصدّ الهجمات، وترى الطلبات المارّة وتحتفظ بسجلات أمنية.',
-          'Cloudflare Web Analytics قد تُستخدم لعدّ الزيارات. لا تضع ملفات تعريف ارتباط ولا تتتبّع الأشخاص عبر المواقع، وهي تعمل فقط عندما نقوم بتفعيلها.',
-          'Google Fonts توفّر الخطوط المستخدمة في الموقع. يجلب متصفحك هذه الملفات من Google، ما يعني أن Google يمكنها رؤية عنوان الـ IP الخاص بك عند تحميل الصفحة.',
+          'Cloudflare Web Analytics تحصي الزيارات لنا. لا تضع ملفات تعريف ارتباط، ولا تخزّن بيانات شخصية، ولا تتتبّع الأشخاص عبر المواقع الأخرى.',
           'Sentry تتلقّى تقارير تلقائية عند حدوث عطل في صفحة ما حتى نتمكّن من إصلاحه. تصف هذه التقارير الخطأ لا شخصك، وتُرسل فقط عند تفعيل الإبلاغ عن الأخطاء.',
         ],
       },
@@ -240,13 +238,12 @@ export const privacyContent: Record<Lang, PrivacyDoc> = {
         id: 'other-services',
         heading: 'خزمەتگوزارییە ترەکانی بەشدار',
         paragraphs: [
-          'پێشکەشکردنی هەر ماڵپەڕێک هەمیشە چەند کۆمپانیایەکی تر لەخۆدەگرێت. ئەمانە ئەو لایەنانەن کە دەتوانن داواکارییەکی تۆ ببینن:',
+          'پێشکەشکردنی هەر ماڵپەڕێک هەمیشە چەند کۆمپانیایەکی تر لەخۆدەگرێت. ئەمانە ئەو لایەنانەن کە دەتوانن داواکارییەکی تۆ ببینن. فۆنتەکانیش لە ڕاژەکانی خۆمانەوە پێشکەش دەکرێن، بۆیە هیچ داواکارییەکی فۆنت ناگاتە لایەنێکی تر:',
         ],
         bullets: [
           'Railway ماڵپەڕەکە و بنکەدراوەکەی هەڵدەگرێت، و ڕاژەکانیان تۆماری تەکنیکی کورت‌خایەن هەڵدەگرن.',
           'Cloudflare لە پێش ماڵپەڕەکەوەیە بۆ خێراترکردنی و ڕێگری لە هێرشەکان، داواکارییە تێپەڕیوەکان دەبینێت و تۆماری ئاسایشی هەڵدەگرێت.',
-          'Cloudflare Web Analytics لەوانەیە بۆ ژماردنی سەردانەکان بەکاربهێنرێت. هیچ کوکییەک دانانێت و بەسەر ماڵپەڕەکاندا بەدوای کەسانەوە ناگەڕێت، و تەنها کاتێک کار دەکات کە ئێمە چالاکمان کردبێت.',
-          'Google Fonts ئەو فۆنتانە دابین دەکات کە ماڵپەڕەکە پێی نووسراوە. وێبگەڕەکەت ئەم فایلانە لە Google وەردەگرێت، واتە Google دەتوانێت لە کاتی بارکردنی لاپەڕەدا ناونیشانی IP-ی تۆ ببینێت.',
+          'Cloudflare Web Analytics سەردانەکان بۆمان دەژمێرێت. هیچ کوکییەک دانانێت، هیچ داتایەکی کەسی هەڵناگرێت، و بەسەر ماڵپەڕەکانی تردا بەدوای کەسانەوە ناگەڕێت.',
           'Sentry ڕاپۆرتی خۆکار وەردەگرێت کاتێک لاپەڕەیەک تێکدەچێت، تاکو بتوانین چاکی بکەینەوە. ئەم ڕاپۆرتانە هەڵەکە باس دەکەن نەک تۆ، و تەنها کاتێک دەنێردرێن کە ڕاپۆرتکردنی هەڵە چالاک بێت.',
         ],
       },
