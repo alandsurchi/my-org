@@ -53,8 +53,7 @@ const AllProjects = () => {
         eyebrow={t('projects')}
         title={t('allProjectsTitle')}
         description={t('allProjectsDescription')}
-        backTo="/"
-        backLabel={t('backToHome')}
+        breadcrumbs={[{ label: t('home'), to: '/' }, { label: t('allProjectsTitle') }]}
       />
 
       <section className="pb-20 md:pb-28">

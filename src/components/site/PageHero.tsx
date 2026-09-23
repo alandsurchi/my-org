@@ -1,12 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import Breadcrumbs, { type Crumb } from './Breadcrumbs';
 
 interface PageHeroProps {
   title: string;
   description?: string;
   eyebrow?: string;
+  /** Preferred over backTo/backLabel: the first crumb is the back link, with more context. */
+  breadcrumbs?: Crumb[];
+  /** @deprecated superseded by `breadcrumbs`. */
   backTo?: string;
+  /** @deprecated superseded by `breadcrumbs`. */
   backLabel?: string;
   children?: React.ReactNode;
 }
@@ -16,10 +21,14 @@ interface PageHeroProps {
  * id="main-content" (skip-link target) and is the first <section> in the DOM,
  * which keeps the header in its on-photo tone.
  */
-const PageHero = ({ title, description, eyebrow, backTo, backLabel, children }: PageHeroProps) => (
+const PageHero = ({ title, description, eyebrow, breadcrumbs, backTo, backLabel, children }: PageHeroProps) => (
   <section id="main-content" className="relative bg-brand-950 pb-28 pt-28 text-white md:pb-36 md:pt-36">
     <div className="container-site">
-      {backTo && backLabel && (
+      {/* Rendered inside this <section>, never before it: PageHero must stay the
+          first <section> in the DOM (useHeaderState measures it) and carries the
+          skip-link target. */}
+      {breadcrumbs && breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
+      {!breadcrumbs && backTo && backLabel && (
         <Link to={backTo} className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-brand-200 hover:text-white">
           <ArrowLeft className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
           {backLabel}

@@ -40,8 +40,7 @@ const AllGallery = () => {
         eyebrow={t('gallery')}
         title={t('galleryTitle')}
         description={t('allGalleryDescription')}
-        backTo="/"
-        backLabel={t('backToHome')}
+        breadcrumbs={[{ label: t('home'), to: '/' }, { label: t('galleryTitle') }]}
       />
 
       <section className="pb-20 md:pb-28">

@@ -48,8 +48,7 @@ const AllNews = () => {
         eyebrow={t('news')}
         title={t('allNewsTitle')}
         description={t('allNewsDescription')}
-        backTo="/"
-        backLabel={t('backToHome')}
+        breadcrumbs={[{ label: t('home'), to: '/' }, { label: t('allNewsTitle') }]}
       />
 
       <section className="pb-20 md:pb-28">
