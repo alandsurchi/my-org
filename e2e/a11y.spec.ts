@@ -4,7 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 // Serious and critical WCAG issues fail the build; minor ones are reported only.
 const FAIL_ON = ['serious', 'critical'];
 
-for (const path of ['/', '/projects', '/news', '/gallery', '/staff-login']) {
+for (const path of ['/', '/projects', '/news', '/gallery', '/privacy', '/staff-login']) {
   test(`no serious accessibility violations on ${path}`, async ({ page }) => {
     await page.goto(path);
     await page.waitForTimeout(500);
@@ -20,3 +20,14 @@ for (const path of ['/', '/projects', '/news', '/gallery', '/staff-login']) {
     expect(serious, serious.map((v) => `${v.id}: ${v.help} -> ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`).join('\n')).toEqual([]);
   });
 }
+
+test('no serious accessibility violations in an opened FAQ answer', async ({ page }) => {
+  // Radix keeps collapsed AccordionContent hidden, so the run above gives the
+  // answer text zero coverage. Open one first.
+  await page.goto('/');
+  await page.locator('#faq button[data-state="closed"]').first().click();
+  await page.waitForTimeout(500);
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).include('#faq').analyze();
+  const serious = results.violations.filter((v) => FAIL_ON.includes(v.impact || ''));
+  expect(serious, serious.map((v) => `${v.id}: ${v.help}`).join('\n')).toEqual([]);
+});

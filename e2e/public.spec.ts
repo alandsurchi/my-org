@@ -51,12 +51,49 @@ test.describe('public site', () => {
       await expect(page).toHaveTitle(/\| Mrovdostan$/);
       await expect(page.locator('section#main-content')).toBeVisible();
       await expect(page.getByText(/Could not load/i)).toHaveCount(0);
+
+      // One breadcrumb trail, first crumb home, last crumb the current page.
+      const crumbs = page.locator('nav[aria-label] ol').first();
+      await expect(crumbs).toHaveCount(1);
+      await expect(crumbs.locator('a[href="/"]')).toHaveCount(1);
+      await expect(crumbs.locator('[aria-current="page"]')).toHaveCount(1);
+    });
+
+    test(`${path} images all carry alt text`, async ({ page }) => {
+      await page.goto(path);
+      await page.waitForTimeout(500);
+      // axe's image-alt rule only fires on a MISSING alt attribute, never an
+      // empty one, so an empty alt on a real photo is invisible to it.
+      const bare = await page
+        .locator('section img[alt=""]')
+        .evaluateAll((els) => els.filter((el) => !el.closest('[aria-hidden="true"]')).length);
+      expect(bare).toBe(0);
     });
   }
 
-  test('unknown page shows the 404 view', async ({ page }) => {
+  test('the privacy policy is reachable and readable', async ({ page }) => {
+    await page.goto('/privacy');
+    await expect(page).toHaveTitle(/\| Mrovdostan$/);
+    await expect(page.locator('section#main-content')).toBeVisible();
+    // Nine policy sections, in whichever language is active.
+    expect(await page.locator('h2').count()).toBeGreaterThanOrEqual(6);
+  });
+
+  test('the footer links to the privacy policy on every page', async ({ page }) => {
+    await page.goto('/');
+    // Located by href, not by name: the default language is Kurdish.
+    const link = page.getByRole('contentinfo').locator('a[href="/privacy"]');
+    await expect(link).toHaveCount(1);
+    await link.click();
+    await expect(page).toHaveURL(/\/privacy$/);
+  });
+
+  test('unknown page shows the 404 view and offers a way onward', async ({ page }) => {
     await page.goto('/this-page-does-not-exist');
     await expect(page.getByRole('heading', { name: '404' })).toBeVisible();
+    for (const href of ['/projects', '/news', '/gallery']) {
+      await expect(page.locator(`a[href="${href}"]`).first()).toHaveCount(1);
+    }
   });
 
   test('crawler metadata is served per route', async ({ request }) => {
@@ -65,7 +102,42 @@ test.describe('public site', () => {
     expect(html).toMatch(/<link rel="canonical" href="http:\/\/127\.0\.0\.1:\d+\/news"/);
     const robots = await (await request.get('/robots.txt')).text();
     expect(robots).toContain('Sitemap:');
+    expect(robots).toContain('Disallow: /forgot-password');
+    expect(robots).toContain('Disallow: /reset-password');
+    // robots.txt is world-readable, so it must never name the secret staff path.
+    expect(robots).not.toContain(process.env.VITE_SECRET_STAFF_PATH || 'log-org');
     const sitemap = await (await request.get('/sitemap.xml')).text();
     expect(sitemap).toContain('<loc>');
+    expect(sitemap).toContain('/privacy');
+    const privacy = await (await request.get('/privacy')).text();
+    expect(privacy).toContain('<title>Privacy Policy | Mrovdostan</title>');
+  });
+
+  test('structured data is scoped to the right routes', async ({ request }) => {
+    const home = await (await request.get('/')).text();
+    expect(home).toContain('"@type":"FAQPage"');
+    // A page is not its own ancestor: no breadcrumb trail on the home page.
+    expect(home).not.toContain('"@type":"BreadcrumbList"');
+    // Proves the literal origin swap ran; a broken swap is otherwise invisible.
+    expect(home).not.toContain('https://mrovdostan.org');
+    expect(home).toContain('og:image:alt');
+    expect(home).toContain('og:locale');
+    expect((home.match(/og:locale:alternate/g) || []).length).toBe(2);
+
+    const projects = await (await request.get('/projects')).text();
+    expect(projects).toContain('"@type":"BreadcrumbList"');
+    expect(projects).toContain('"position":2');
+    expect(projects).not.toContain('"@type":"FAQPage"');
+  });
+
+  test('the FAQ markup and its structured data stay in step', async ({ page, request }) => {
+    // server.mjs cannot import from src/ (the image ships only dist/ and
+    // server.mjs), so its copy of the questions is duplicated on purpose. This
+    // catches the day someone adds a sixth question to only one of them.
+    const html = await (await request.get('/')).text();
+    const inSchema = (html.match(/"@type":"Question"/g) || []).length;
+    expect(inSchema).toBe(5);
+    await page.goto('/');
+    await expect(page.locator('#faq button[data-state]')).toHaveCount(inSchema);
   });
 });

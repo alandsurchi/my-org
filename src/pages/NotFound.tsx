@@ -25,6 +25,25 @@ const NotFound = () => {
           <Button asChild variant="accent" size="xl" className="mt-8">
             <Link to="/">{t('returnHome')}</Link>
           </Button>
+
+          {/* A dead end is a wasted visit: offer the places people were probably heading. */}
+          <div className="mt-12 border-t border-brand-800 pt-8">
+            <h2 className="font-display text-base font-semibold text-brand-100">{t('exploreMore')}</h2>
+            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+              {[
+                { to: '/projects', label: t('projects') },
+                { to: '/news', label: t('news') },
+                { to: '/gallery', label: t('gallery') },
+                { to: '/privacy', label: t('privacyPolicy') },
+              ].map((link) => (
+                <li key={link.to}>
+                  <Link to={link.to} className="text-brand-200 underline-offset-4 hover:text-white hover:underline">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
       <Footer />

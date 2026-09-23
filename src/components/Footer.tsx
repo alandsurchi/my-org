@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Facebook, Instagram, Mail, MapPin, Youtube } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -107,8 +107,14 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-brand-800 pt-8 text-center text-sm text-brand-300">
-          {t('footerCopyright').replace(/\b20\d\d\b/, String(new Date().getFullYear()))}
+        <div className="mt-12 flex flex-col items-center gap-3 border-t border-brand-800 pt-8 text-center text-sm text-brand-300 sm:flex-row sm:justify-center sm:gap-4">
+          <span>{t('footerCopyright').replace(/\b20\d\d\b/, String(new Date().getFullYear()))}</span>
+          <span aria-hidden="true" className="hidden sm:inline">&middot;</span>
+          {/* A real route link, so it cannot live in quickLinks above — that list's
+              handleSectionClick calls preventDefault and scrolls to a hash instead. */}
+          <Link to="/privacy" className="underline-offset-4 transition-colors hover:text-white hover:underline">
+            {t('privacyPolicy')}
+          </Link>
         </div>
       </div>
     </footer>

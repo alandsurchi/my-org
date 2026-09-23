@@ -10,6 +10,7 @@ import { StaffAuthProvider } from "@/contexts/StaffAuthContext";
 import { ScrollReveal } from "@/hooks/useScrollReveal";
 import { trackPageView } from "@/lib/analytics";
 import { initMonitoring } from "@/lib/monitoring";
+import { initWebAnalytics } from "@/lib/webAnalytics";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 
@@ -21,6 +22,7 @@ const SecretEntryRedirect = lazy(() => import("./pages/SecretEntryRedirect"));
 const AllProjects = lazy(() => import("./pages/AllProjects"));
 const AllNewsAPI = lazy(() => import("./pages/AllNewsAPI"));
 const AllGallery = lazy(() => import("./pages/AllGallery"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -79,7 +81,7 @@ const PageFallback = () => (
 );
 
 const App = () => {
-  useEffect(() => { void initMonitoring(); }, []);
+  useEffect(() => { void initMonitoring(); initWebAnalytics(); }, []);
 
   return (
     <ErrorBoundary>
@@ -105,6 +107,7 @@ const App = () => {
                       <Route path="/projects" element={<AllProjects />} />
                       <Route path="/news" element={<AllNewsAPI />} />
                       <Route path="/gallery" element={<AllGallery />} />
+                      <Route path="/privacy" element={<Privacy />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>
