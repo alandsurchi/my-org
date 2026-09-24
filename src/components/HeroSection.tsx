@@ -21,8 +21,13 @@ const HeroSection = () => {
 
   useEffect(() => { setLoaded(false); }, [src]);
 
+  // z-10 on the section is load-bearing, not decoration. The ledger card below
+  // deliberately hangs ~80px past the bottom of the hero, and `isolate` traps
+  // that card's own z-index inside the hero's stacking context. Without a
+  // z-index here the hero paints beneath the next positioned sibling, so the
+  // About section covered the overhang and sliced the CTA buttons in half.
   return (
-    <section id="home" className="relative isolate flex min-h-[100svh] flex-col justify-end bg-brand-950 text-white">
+    <section id="home" className="relative isolate z-10 flex min-h-[100svh] flex-col justify-end bg-brand-950 text-white">
       <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
         {src && (
           <img
@@ -44,7 +49,7 @@ const HeroSection = () => {
           {t('orgName')}
         </h1>
 
-        <div className="card-surface relative z-10 -mb-16 mt-10 grid max-w-3xl gap-6 p-6 md:-mb-20 md:grid-cols-[1fr_auto] md:items-center md:p-8">
+        <div className="card-surface rise-in relative z-10 -mb-16 mt-10 grid max-w-3xl gap-6 p-6 md:-mb-20 md:grid-cols-[1fr_auto] md:items-center md:p-8">
           <p className="text-lead font-medium text-foreground">{t('heroTitle')}</p>
           <div className="flex flex-col gap-3 sm:flex-row md:flex-col lg:flex-row">
             <Button asChild variant="accent" size="xl">

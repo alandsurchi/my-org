@@ -237,6 +237,29 @@
 }
 
 /* Scroll reveal (driven by src/hooks/useScrollReveal.ts). Stagger with inline transitionDelay. */
+/*
+  One-shot entrance for the hero's ledger card.
+
+  Deliberately NOT applied to the h1 above it: that heading is the page's
+  largest-contentful-paint element, and starting it at opacity 0 would delay the
+  measured LCP by the length of the animation. The card is the visual payoff and
+  costs nothing to animate.
+*/
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise-in {
+  animation: rise-in var(--dur-slow) var(--ease-out) 80ms both;
+}
+
 .fade-in-on-scroll {
   opacity: 0;
   transform: translateY(12px);
@@ -253,12 +276,14 @@
   .animate-pulse,
   .animate-bounce,
   .animate-spin,
+  .rise-in,
   .fade-in-on-scroll,
   [class*='transition-'] {
     animation: none !important;
     transition: none !important;
   }
-  .fade-in-on-scroll {
+  .fade-in-on-scroll,
+  .rise-in {
     opacity: 1 !important;
     transform: none !important;
   }

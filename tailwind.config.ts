@@ -3,6 +3,10 @@ import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 
 export default {
+	// Every `hover:` utility compiles inside @media (hover: hover). Without it a
+	// tap on a phone fires the hover state and it STICKS until you tap elsewhere,
+	// so cards stayed lifted and images stayed zoomed after being tapped.
+	future: { hoverOnlyWhenSupported: true },
 	darkMode: ["class"],
 	content: [
 		"./pages/**/*.{ts,tsx}",
