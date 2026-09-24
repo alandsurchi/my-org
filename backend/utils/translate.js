@@ -209,6 +209,50 @@ async function refreshTranslations(table, id) {
   }
 }
 
+/**
+ * Translates anything that has no translation yet, in the background.
+ *
+ * Runs on boot so posts written before this feature existed — and any that
+ * failed earlier — get picked up without anyone running a command. It is
+ * naturally idempotent: rows that are already current are skipped, so after the
+ * first pass this costs one query and nothing else.
+ *
+ * Paced to stay under the free tier's ~10 requests/minute.
+ */
+async function backfillMissing({ gapMs = 7000, limit = 200 } = {}) {
+  if (!isEnabled()) return;
+
+  for (const [table, bodyColumn] of Object.entries(BODY_COLUMN)) {
+    let rows;
+    try {
+      ({ rows } = await pool.query(
+        `SELECT id, title, ${bodyColumn} AS body, translations FROM ${table} ORDER BY id LIMIT $1`,
+        [limit],
+      ));
+    } catch (error) {
+      console.error(`Translation backfill could not read ${table}:`, error.message);
+      continue;
+    }
+
+    const pending = rows.filter((row) => {
+      const current = row.translations || {};
+      return (
+        current.sourceHash !== sourceHash(row.title, row.body) ||
+        !LANGUAGES.every((l) => current[l])
+      );
+    });
+
+    if (!pending.length) continue;
+    console.log(`Translation backfill: ${pending.length} ${table} row(s) need translating.`);
+
+    for (const row of pending) {
+      await refreshTranslations(table, row.id);
+      await new Promise((r) => setTimeout(r, gapMs));
+    }
+  }
+  console.log('Translation backfill finished.');
+}
+
 /** Fire-and-forget wrapper, so an unhandled rejection can never crash the process. */
 function scheduleTranslation(table, id) {
   setImmediate(() => {
@@ -217,6 +261,7 @@ function scheduleTranslation(table, id) {
 }
 
 module.exports = {
+  backfillMissing,
   translatePost,
   mergeTranslations,
   refreshTranslations,

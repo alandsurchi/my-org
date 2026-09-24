@@ -22,8 +22,10 @@ for (const key of ['DATABASE_URL', 'JWT_SECRET', 'DEFAULT_ADMIN_PASSWORD']) {
 
 const backend = spawn(process.execPath, ['index.js'], {
   cwd: path.join(root, 'backend'),
-  // DEFAULT_ADMIN_RESET makes every boot restore the admin password, so a failed run cannot poison the next one
-  env: { ...process.env, PORT: API_PORT, NODE_ENV: 'test', STORAGE_PATH: process.env.STORAGE_PATH || './uploads-e2e', ALLOWED_ORIGINS: '', DEFAULT_ADMIN_RESET: 'true' },
+  // DEFAULT_ADMIN_RESET makes every boot restore the admin password, so a failed run cannot poison the next one.
+  // TRANSLATE_ON_BOOT=false keeps the suite hermetic: backend/.env supplies a real
+  // GEMINI_API_KEY locally, and tests must not call a paid API or depend on it.
+  env: { ...process.env, PORT: API_PORT, NODE_ENV: 'test', STORAGE_PATH: process.env.STORAGE_PATH || './uploads-e2e', ALLOWED_ORIGINS: '', DEFAULT_ADMIN_RESET: 'true', TRANSLATE_ON_BOOT: 'false' },
   stdio: 'inherit',
 });
 

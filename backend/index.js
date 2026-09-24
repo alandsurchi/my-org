@@ -290,6 +290,15 @@ async function startServer() {
     // leave everything alone.
     await applyAdminEnv();
     await ensureSuperAdmin();
+
+    // Not awaited: posts written before translation existed get picked up in
+    // the background, so nobody has to run a command to backfill them. Skips
+    // anything already current, so after the first pass this costs one query.
+    if (process.env.TRANSLATE_ON_BOOT !== 'false') {
+      require('./utils/translate')
+        .backfillMissing()
+        .catch((e) => console.error('Translation backfill failed:', e.message));
+    }
   } catch (error) {
     console.error('Database initialisation failed:', error.message);
     console.log('Server will start anyway and keep retrying the database.');
