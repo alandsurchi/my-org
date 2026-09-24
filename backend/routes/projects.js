@@ -5,8 +5,9 @@ const upload = require('../middleware/upload');
 const { saveFile } = require('../utils/storage');
 const { requireAuth } = require('../middleware/auth');
 const { projectValidation, validateRequest } = require('../middleware/validator');
+const { scheduleTranslation } = require('../utils/translate');
 
-const PROJECT_COLUMNS = `id, title, description, category, status, image_url AS "imageUrl", location, created_at AS "createdAt", updated_at AS "updatedAt"`;
+const PROJECT_COLUMNS = `id, title, description, category, status, image_url AS "imageUrl", location, translations, created_at AS "createdAt", updated_at AS "updatedAt"`;
 
 const parseId = (value) => {
   const id = parseInt(value, 10);
@@ -68,6 +69,8 @@ router.post('/', requireAuth, upload.single('image'), projectValidation(false), 
         req.body.location || null
       ]
     );
+    // Not awaited: translation takes seconds and the project is already saved.
+    scheduleTranslation('projects', result.rows[0].id);
     res.status(201).json({ success: true, data: withLegacyFields(result.rows[0]) });
   } catch (error) {
     next(error);
@@ -97,6 +100,8 @@ router.put('/:id', requireAuth, upload.single('image'), projectValidation(true),
     values.push(id);
     const result = await pool.query(`UPDATE projects SET ${updates.join(', ')} WHERE id = $${i} RETURNING ${PROJECT_COLUMNS}`, values);
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Project not found' });
+    // mergeTranslations no-ops when the Kurdish text is unchanged.
+    scheduleTranslation('projects', result.rows[0].id);
     res.json({ success: true, data: withLegacyFields(result.rows[0]) });
   } catch (error) {
     next(error);

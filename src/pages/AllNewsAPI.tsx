@@ -15,17 +15,25 @@ import EmptyState from '@/components/site/EmptyState';
 import ErrorState from '@/components/site/ErrorState';
 import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate } from '@/lib/format';
+import { postBody, postTitle } from '@/lib/postText';
 
 const AllNews = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   usePageMeta({ title: t('allNewsTitle'), description: t('allNewsDescription') });
   const [searchTerm, setSearchTerm] = useState('');
   const { data: allNews = [], isLoading, error } = useNews();
 
   const term = searchTerm.toLowerCase();
-  const filteredNews = allNews.filter((item) =>
-    !!item && ((item.title || '').toLowerCase().includes(term) || (item.content || '').toLowerCase().includes(term))
-  );
+  // Searches what the visitor can actually read as well as the Kurdish
+  // original, so an English reader searching "medicine" finds the post.
+  const filteredNews = allNews.filter((item) => {
+    if (!item) return false;
+    const haystack = [
+      item.title, item.content,
+      postTitle(item, language), postBody(item, item.content, language),
+    ].join(' ').toLowerCase();
+    return haystack.includes(term);
+  });
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
@@ -75,10 +83,10 @@ const AllNews = () => {
                 <PostCard
                   key={item.id}
                   index={index}
-                  title={item.title || t('untitledNews')}
-                  excerpt={excerpt(item.content, 160)}
+                  title={postTitle(item, language) || t('untitledNews')}
+                  excerpt={excerpt(postBody(item, item.content, language), 160)}
                   imageUrl={resolveImageUrl(item.imageUrl)}
-                  imageAlt={item.title}
+                  imageAlt={postTitle(item, language)}
                   placeholderIcon={Newspaper}
                   categoryLabel={t('news')}
                   categoryIcon={Newspaper}

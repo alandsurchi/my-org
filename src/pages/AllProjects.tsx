@@ -16,10 +16,11 @@ import EmptyState from '@/components/site/EmptyState';
 import ErrorState from '@/components/site/ErrorState';
 import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate } from '@/lib/format';
+import { postBody, postTitle } from '@/lib/postText';
 import { PROJECT_FILTER_CATEGORIES, projectCategoryIcon, projectCategoryLabel, projectStatusLabel } from '@/lib/labels';
 
 const AllProjects = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   usePageMeta({ title: t('allProjectsTitle'), description: t('allProjectsDescription') });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -27,8 +28,11 @@ const AllProjects = () => {
 
   const term = searchTerm.toLowerCase();
   const filteredProjects = projects.filter((project) => {
-    const matchesSearch = (project.title ?? '').toLowerCase().includes(term) ||
-      (project.description ?? '').toLowerCase().includes(term);
+    // Includes the translated text, so a search works in the language on screen.
+    const matchesSearch = [
+      project.title, project.description,
+      postTitle(project, language), postBody(project, project.description, language),
+    ].join(' ').toLowerCase().includes(term);
     const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -94,10 +98,10 @@ const AllProjects = () => {
                 <PostCard
                   key={p.id}
                   index={index}
-                  title={p.title || p.title_en || ''}
-                  excerpt={excerpt(p.description || p.description_en, 160)}
+                  title={postTitle(p, language)}
+                  excerpt={excerpt(postBody(p, p.description || p.description_en, language), 160)}
                   imageUrl={resolveImageUrl(p.image_url || p.imageUrl)}
-                  imageAlt={p.title || p.title_en}
+                  imageAlt={postTitle(p, language)}
                   categoryLabel={projectCategoryLabel(p.category, t)}
                   categoryIcon={projectCategoryIcon(p.category)}
                   statusLabel={projectStatusLabel(p.status || 'active', t)}

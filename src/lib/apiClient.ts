@@ -49,12 +49,33 @@ export interface ImageAsset {
   uploadedAt?: string;
 }
 
+/**
+ * Machine translations of a post, keyed by language. Written by the backend
+ * when a post is saved; the Kurdish original always stays in `title`/`content`.
+ */
+export interface PostTranslation {
+  title: string;
+  body: string;
+  /** false once a human has edited it — the machine must not overwrite it. */
+  auto: boolean;
+  /** true when the Kurdish source changed after this was written. */
+  stale?: boolean;
+  at?: string;
+}
+
+export interface PostTranslations {
+  sourceHash?: string;
+  en?: PostTranslation;
+  ar?: PostTranslation;
+}
+
 export interface NewsItem {
   id: number;
   title: string;
   content: string;
   category: string | null;
   imageUrl: string | null;
+  translations?: PostTranslations | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -69,6 +90,7 @@ export interface Project {
   status: ProjectStatus;
   imageUrl: string | null;
   location: string | null;
+  translations?: PostTranslations | null;
   createdAt: string;
   updatedAt: string;
   // legacy aliases still returned by the API
@@ -395,6 +417,40 @@ class APIClient {
 
   async deletePhoto(id: string | number) {
     return this.unwrap(await this.request<{ message: string }>(`/gallery/${id}`, { method: 'DELETE' }));
+  }
+
+  // --- Translations ---------------------------------------------------------
+  /** Kurdish source plus the current English/Arabic versions of one post. */
+  getPostTranslations(table: 'news' | 'projects', id: string | number) {
+    return this.request<{
+      id: number;
+      title: string;
+      body: string;
+      translations: PostTranslations | null;
+      languages: string[];
+      enabled: boolean;
+    }>(`/translations/${table}/${id}`);
+  }
+
+  /** Saves a human correction. The server marks it auto:false so re-translation skips it. */
+  savePostTranslation(
+    table: 'news' | 'projects',
+    id: string | number,
+    lang: string,
+    body: { title: string; body: string },
+  ) {
+    return this.request<PostTranslations>(`/translations/${table}/${id}/${lang}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
+
+  /** Throws away the stored version and translates again. */
+  regeneratePostTranslation(table: 'news' | 'projects', id: string | number, lang?: string) {
+    return this.request<PostTranslations>(`/translations/${table}/${id}/regenerate`, {
+      method: 'POST',
+      body: JSON.stringify(lang ? { lang } : {}),
+    });
   }
 
   // --- Analytics / backup -------------------------------------------------

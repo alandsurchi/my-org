@@ -252,6 +252,7 @@ app.use('/api/gallery', require('./routes/gallery'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/staff', require('./routes/staff'));
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/translations', require('./routes/translations'));
 app.use('/api/backup', require('./routes/backup'));
 
 // 404

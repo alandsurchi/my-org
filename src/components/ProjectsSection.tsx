@@ -12,10 +12,11 @@ import PostCardSkeleton from '@/components/site/PostCardSkeleton';
 import EmptyState from '@/components/site/EmptyState';
 import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate, getSortTime } from '@/lib/format';
+import { postBody, postTitle } from '@/lib/postText';
 import { PROJECT_FILTER_CATEGORIES, projectCategoryIcon, projectCategoryLabel, projectStatusLabel } from '@/lib/labels';
 
 const ProjectsSection = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { data: projects = [], isLoading } = useProjects();
 
@@ -59,10 +60,10 @@ const ProjectsSection = () => {
               <PostCard
                 key={p.id}
                 index={index}
-                title={p.title_en || p.title}
-                excerpt={excerpt(p.description_en || p.description, 160)}
+                title={postTitle(p, language)}
+                excerpt={excerpt(postBody(p, p.description || p.description_en, language), 160)}
                 imageUrl={resolveImageUrl(p.image_url || p.imageUrl)}
-                imageAlt={p.title_en || p.title}
+                imageAlt={postTitle(p, language)}
                 categoryLabel={projectCategoryLabel(p.category, t)}
                 categoryIcon={projectCategoryIcon(p.category)}
                 statusLabel={projectStatusLabel(p.status || 'completed', t)}

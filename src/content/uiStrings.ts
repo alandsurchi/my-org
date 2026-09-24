@@ -34,7 +34,8 @@ export type UiStringKey =
   | 'projectImageAlt'
   | 'newsImageAlt'
   | 'galleryPhotoAlt'
-  | 'exploreMore';
+  | 'exploreMore'
+  | 'machineTranslated';
 
 /** The five questions, in order, for the FAQ section and its structured data. */
 export const FAQ_KEYS = [1, 2, 3, 4, 5] as const;
@@ -67,6 +68,7 @@ export const uiStrings: Record<Lang, Record<UiStringKey, string>> = {
     galleryPhotoAlt: 'Photograph from our work',
 
     exploreMore: 'Explore the site',
+    machineTranslated: 'This post was written in Kurdish and translated automatically.',
   },
 
   ar: {
@@ -96,6 +98,7 @@ export const uiStrings: Record<Lang, Record<UiStringKey, string>> = {
     galleryPhotoAlt: 'صورة من عملنا',
 
     exploreMore: 'استكشف الموقع',
+    machineTranslated: 'كُتب هذا المنشور بالكردية وتُرجم آلياً.',
   },
 
   ku: {
@@ -125,5 +128,6 @@ export const uiStrings: Record<Lang, Record<UiStringKey, string>> = {
     galleryPhotoAlt: 'وێنەیەک لە کارەکانمان',
 
     exploreMore: 'گەڕان بە ماڵپەڕدا',
+    machineTranslated: 'ئەم بابەتە بە کوردی نووسراوە و بە شێوەی خۆکار وەرگێڕدراوە.',
   },
 };

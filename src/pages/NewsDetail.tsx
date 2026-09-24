@@ -12,15 +12,17 @@ import ErrorState from '@/components/site/ErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate } from '@/lib/format';
+import { isUntranslated, postBody, postTitle } from '@/lib/postText';
 
 /** One news post, at its own address, so it can be shared, linked and indexed. */
 const NewsDetail = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { id = '' } = useParams();
   const { data: item, isLoading, error } = useNewsById(id);
 
-  const title = item?.title || '';
-  const content = item?.content || '';
+  const title = postTitle(item, language);
+  const content = postBody(item, item?.content, language);
+  const machineTranslated = !isUntranslated(item, language) && language !== 'ku';
   usePageMeta({
     title: title || t('allNewsTitle'),
     description: excerpt(content, 160) || t('allNewsDescription'),
@@ -77,6 +79,12 @@ const NewsDetail = () => {
                   {t('published')}: {formatDate(item.createdAt)}
                 </span>
               </div>
+
+              {machineTranslated && (
+                <p className="mt-8 rounded-card border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
+                  {t('machineTranslated')}
+                </p>
+              )}
 
               <h2 className="mb-3 mt-10 font-display text-h3">{t('fullStory')}</h2>
               <div className="prose prose-lg max-w-none whitespace-pre-line dark:prose-invert">

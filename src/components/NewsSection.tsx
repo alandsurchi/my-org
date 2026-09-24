@@ -13,11 +13,12 @@ import EmptyState from '@/components/site/EmptyState';
 import ErrorState from '@/components/site/ErrorState';
 import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate } from '@/lib/format';
+import { postBody, postTitle } from '@/lib/postText';
 import { NEWS_BUCKET_ICONS } from '@/lib/labels';
 import { NEWS_BUCKETS, NEWS_BUCKET_LABEL_KEYS, bucketNews, type NewsBucket } from '@/lib/newsBuckets';
 
 const NewsSection = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data: allNews = [], isLoading, error } = useNews();
 
   const buckets = bucketNews(allNews);
@@ -44,10 +45,10 @@ const NewsSection = () => {
           <PostCard
             key={item.id}
             index={index}
-            title={item.title || t('untitledNews')}
-            excerpt={excerpt(item.content, 160)}
+            title={postTitle(item, language) || t('untitledNews')}
+            excerpt={excerpt(postBody(item, item.content, language), 160)}
             imageUrl={resolveImageUrl(item.imageUrl)}
-            imageAlt={item.title}
+            imageAlt={postTitle(item, language)}
             placeholderIcon={Icon}
             categoryLabel={t(NEWS_BUCKET_LABEL_KEYS[bucket])}
             categoryIcon={Icon}

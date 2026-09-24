@@ -13,16 +13,18 @@ import ErrorState from '@/components/site/ErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate } from '@/lib/format';
+import { isUntranslated, postBody, postTitle } from '@/lib/postText';
 import { projectCategoryIcon, projectCategoryLabel, projectStatusLabel } from '@/lib/labels';
 
 /** One activity, at its own address, so it can be shared, linked and indexed. */
 const ProjectDetail = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { id = '' } = useParams();
   const { data: project, isLoading, error } = useProjectById(id);
 
-  const title = project?.title || project?.title_en || '';
-  const description = project?.description || project?.description_en || '';
+  const title = postTitle(project, language);
+  const description = postBody(project, project?.description || project?.description_en, language);
+  const machineTranslated = !isUntranslated(project, language) && language !== 'ku';
   usePageMeta({
     title: title || t('allProjectsTitle'),
     description: excerpt(description, 160) || t('allProjectsDescription'),
@@ -90,6 +92,12 @@ const ProjectDetail = () => {
                 <Chip tone="brand" icon={CategoryIcon}>{projectCategoryLabel(category, t)}</Chip>
                 <Chip tone={STATUS_TONE[status] || 'brand'}>{projectStatusLabel(status, t)}</Chip>
               </div>
+
+              {machineTranslated && (
+                <p className="mt-8 rounded-card border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
+                  {t('machineTranslated')}
+                </p>
+              )}
 
               <h2 className="mb-3 mt-10 font-display text-h3">{t('aboutThisProject')}</h2>
               <div className="prose prose-lg max-w-none whitespace-pre-line dark:prose-invert">

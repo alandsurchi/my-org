@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Upload, Trash2, Edit, Plus, Settings, LogOut, Shield, Users, UserPlus, Home, Eye, Heart } from 'lucide-react';
+import { Bell, Upload, Trash2, Edit, Plus, Settings, LogOut, Shield, Users, UserPlus, Home, Eye, Heart, Languages } from 'lucide-react';
+import TranslationDialog from '@/components/admin/TranslationDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -75,6 +76,8 @@ const NewsTab = () => {
   const [selectedNewsCategory, setSelectedNewsCategory] = useState('');
   // Project / news post currently open in the edit dialog
   const [editingPost, setEditingPost] = useState<EditablePost | null>(null);
+  // Post whose translations are open for review
+  const [translatingId, setTranslatingId] = useState<number | string | null>(null);
   // New news creation state
   const [newNewsForm, setNewNewsForm] = useState({
     category: '',
@@ -1062,6 +1065,15 @@ const NewsTab = () => {
                           <Button
                             size="sm"
                             variant="ghost"
+                            className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg"
+                            onClick={() => setTranslatingId(itemId)}
+                            title="Review English and Arabic translations"
+                          >
+                            <Languages className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
                             onClick={() => setEditingPost({ kind: 'news', item })}
                             title="Edit this post"
@@ -1157,6 +1169,12 @@ const NewsTab = () => {
         </Card>
       </TabsContent>
       <PostEditDialog post={editingPost} onClose={() => setEditingPost(null)} />
+      <TranslationDialog
+        table="news"
+        id={translatingId}
+        open={translatingId !== null}
+        onClose={() => setTranslatingId(null)}
+      />
       {cropperImage && cropperType && (
         <ImageCropper
           image={cropperImage}

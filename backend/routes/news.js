@@ -5,8 +5,9 @@ const upload = require('../middleware/upload');
 const { saveFile } = require('../utils/storage');
 const { requireAuth } = require('../middleware/auth');
 const { newsValidation, validateRequest } = require('../middleware/validator');
+const { scheduleTranslation } = require('../utils/translate');
 
-const NEWS_COLUMNS = `id, title, content, category, image_url AS "imageUrl", created_at AS "createdAt", updated_at AS "updatedAt"`;
+const NEWS_COLUMNS = `id, title, content, category, image_url AS "imageUrl", translations, created_at AS "createdAt", updated_at AS "updatedAt"`;
 
 const parseId = (value) => {
   const id = parseInt(value, 10);
@@ -37,6 +38,8 @@ router.get('/:id', async (req, res, next) => {
     if (id === null) return res.status(400).json({ success: false, message: 'Invalid id' });
     const result = await pool.query(`SELECT ${NEWS_COLUMNS} FROM news WHERE id = $1`, [id]);
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'News not found' });
+    // mergeTranslations no-ops when the Kurdish text is unchanged.
+    scheduleTranslation('news', result.rows[0].id);
     res.json({ success: true, data: result.rows[0] });
   } catch (error) {
     next(error);
@@ -51,6 +54,8 @@ router.post('/', requireAuth, upload.single('image'), newsValidation(false), val
       `INSERT INTO news (title, content, category, image_url) VALUES ($1, $2, $3, $4) RETURNING ${NEWS_COLUMNS}`,
       [req.body.title, req.body.content || '', req.body.category || null, imageUrl]
     );
+    // Not awaited: translation takes seconds and the post is already saved.
+    scheduleTranslation('news', result.rows[0].id);
     res.status(201).json({ success: true, data: result.rows[0] });
   } catch (error) {
     next(error);

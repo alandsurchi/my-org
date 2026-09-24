@@ -1,3 +1,6 @@
+// Loaded here too: `npm run db:init` runs this file directly, where nothing
+// else has read .env yet, so DATABASE_URL would be undefined.
+require('dotenv').config();
 const pool = require('./db');
 
 async function initDatabase() {
@@ -128,6 +131,46 @@ async function initDatabase() {
         updated_at TIMESTAMP DEFAULT NOW()
       );
     `);
+
+    // Posts are written in Kurdish and machine-translated into English and
+    // Arabic. The translations live in one JSONB column rather than six more
+    // columns, so adding a language later is a code change, not a migration:
+    //   { "sourceHash": "...",
+    //     "en": { "title": "...", "body": "...", "auto": true, "stale": false },
+    //     "ar": { ... } }
+    // `auto: false` means a human edited it, and the machine must not overwrite
+    // it; `stale: true` means the Kurdish source changed since it was written.
+    await client.query(`ALTER TABLE news ADD COLUMN IF NOT EXISTS translations JSONB;`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS translations JSONB;`);
+
+    // Names that must always be written the same way. Without this, a translator
+    // renders the organisation's own name as "Humanitarian Organization" and
+    // invents a new spelling for every village each time.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS glossary (
+        id SERIAL PRIMARY KEY,
+        term VARCHAR(200) NOT NULL UNIQUE,
+        en VARCHAR(300) NOT NULL,
+        ar VARCHAR(300) NOT NULL,
+        note VARCHAR(300),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    // Seed the terms we already know. ON CONFLICT DO NOTHING so edits survive.
+    // Both Kurdish spellings of the organisation's name are listed: the site
+    // uses مرۆڤدۆستان and the posts use مۆرڤدۆستان.
+    await client.query(
+      `INSERT INTO glossary (term, en, ar, note) VALUES
+         ($1, $2, $3, $4), ($5, $6, $7, $8), ($9, $10, $11, $12)
+       ON CONFLICT (term) DO NOTHING`,
+      [
+        'مرۆڤدۆستان', 'Mrovdostan', 'مروڤدوستان', 'Organisation name (site spelling)',
+        'مۆرڤدۆستان', 'Mrovdostan', 'مروڤدوستان', 'Organisation name (spelling used in posts)',
+        'هەولێر', 'Erbil', 'أربيل', 'City',
+      ],
+    );
 
     // Indexes
     await client.query(`CREATE INDEX IF NOT EXISTS idx_news_created ON news(created_at DESC);`);
