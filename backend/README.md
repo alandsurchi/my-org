@@ -45,6 +45,30 @@ All responses use `{ success, data }` or `{ success: false, message | error, cod
 
 `staff` and `admin` manage content. `super_admin` also manages accounts. Emails listed in `SUPER_ADMINS` are always treated as super admins.
 
+## Getting back in when nobody can sign in
+
+The dashboard needs an account to manage accounts, and the "forgot password"
+email is off until a mail service is configured. If the only super admin forgets
+their password there is no way in through the website.
+
+**The no-SSH way — Railway variables.** On the `charity-backend` service add:
+
+| Variable | Value |
+|---|---|
+| `ADMIN_EMAIL` | the address to create or reset |
+| `ADMIN_PASSWORD` | the password to set (min 8 characters) |
+| `ADMIN_ROLE` | optional, defaults to `super_admin` |
+| `ADMIN_NAME` | optional display name |
+
+The service restarts, the account is created or its password reset, and the log
+says so. **These variables are safe to leave in place.** A fingerprint of what
+was applied is recorded in `app_settings`, so a restart will not re-apply them
+and will not undo a password later changed from the dashboard. To use it again,
+change `ADMIN_PASSWORD` to a new value.
+
+(The older `DEFAULT_ADMIN_RESET=true` still works but re-applies on *every*
+restart until you remove it, which is the trap this replaces.)
+
 ## Managing accounts without the website
 
 The dashboard can only manage staff once you are already signed in, and the

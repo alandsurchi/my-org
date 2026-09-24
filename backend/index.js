@@ -86,6 +86,67 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use('/uploads', express.static(STORAGE_PATH, { maxAge: '7d', immutable: true }));
 
 // ---------------------------------------------------------------------------
+// Account provisioning from environment variables
+// ---------------------------------------------------------------------------
+/**
+ * Creates or updates one account from ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_ROLE.
+ *
+ * This is the way back in when nobody can sign in: the dashboard needs an
+ * account to manage accounts, and the "forgot password" email is off until a
+ * mail service is configured.
+ *
+ * It applies ONCE per distinct set of values. The fingerprint of what was
+ * applied is stored in app_settings, so the variables can safely be left in
+ * place — a restart will not undo a password later changed from the dashboard.
+ * To use it again, change ADMIN_PASSWORD to a new value.
+ */
+const applyAdminEnv = async () => {
+  const email = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD || '';
+  const role = (process.env.ADMIN_ROLE || 'super_admin').trim();
+
+  if (!email || !password) return false;
+  if (!email.includes('@')) {
+    console.error('ADMIN_EMAIL is not a valid email address; skipping account provisioning.');
+    return false;
+  }
+  if (password.length < 8) {
+    console.error('ADMIN_PASSWORD must be at least 8 characters; skipping account provisioning.');
+    return false;
+  }
+  if (!['super_admin', 'admin', 'staff'].includes(role)) {
+    console.error(`ADMIN_ROLE must be super_admin, admin or staff (got "${role}"); skipping account provisioning.`);
+    return false;
+  }
+
+  // Fingerprint rather than a flag, so leaving the variables set is harmless and
+  // changing the password is what triggers a re-apply. The password itself is
+  // never stored here, only a hash of the combination.
+  const fingerprint = crypto.createHash('sha256').update(`${email}|${password}|${role}`).digest('hex');
+  const KEY = 'admin_env_fingerprint';
+
+  const { rows } = await pool.query('SELECT value FROM app_settings WHERE key = $1', [KEY]);
+  if (rows[0]?.value === fingerprint) return false;
+
+  const hashed = await bcrypt.hash(password, 10);
+  const name = (process.env.ADMIN_NAME || email.split('@')[0]).trim();
+  await pool.query(
+    `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)
+     ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password, role = EXCLUDED.role`,
+    [name, email, hashed, role],
+  );
+  await pool.query(
+    `INSERT INTO app_settings (key, value, updated_at) VALUES ($1, $2, NOW())
+     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+    [KEY, fingerprint],
+  );
+
+  console.log(`✅ ADMIN_EMAIL applied: ${email} is now ${role} with the password from ADMIN_PASSWORD.`);
+  console.log('   You can leave these variables in place — they will not be applied again unless you change them.');
+  return true;
+};
+
+// ---------------------------------------------------------------------------
 // Bootstrap: default super admin
 // ---------------------------------------------------------------------------
 const ensureSuperAdmin = async () => {
@@ -223,6 +284,10 @@ async function startServer() {
     console.log('PostgreSQL connected');
 
     await seedDatabase();
+    // Runs first: if the operator set ADMIN_EMAIL/ADMIN_PASSWORD they want that
+    // account to exist, and ensureSuperAdmin should then find a super admin and
+    // leave everything alone.
+    await applyAdminEnv();
     await ensureSuperAdmin();
   } catch (error) {
     console.error('Database initialisation failed:', error.message);

@@ -118,6 +118,17 @@ async function initDatabase() {
     `);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_page_views_day ON page_views(day);`);
 
+    // Small internal key/value store. Used so that account provisioning driven
+    // by environment variables can record that it already ran, instead of
+    // re-applying the same password on every restart.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS app_settings (
+        key VARCHAR(100) PRIMARY KEY,
+        value TEXT,
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
     // Indexes
     await client.query(`CREATE INDEX IF NOT EXISTS idx_news_created ON news(created_at DESC);`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_news_category ON news(category);`);
