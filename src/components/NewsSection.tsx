@@ -15,7 +15,7 @@ import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate } from '@/lib/format';
 import { postBody, postTitle } from '@/lib/postText';
 import { NEWS_BUCKET_ICONS } from '@/lib/labels';
-import { NEWS_BUCKETS, NEWS_BUCKET_LABEL_KEYS, bucketNews, type NewsBucket } from '@/lib/newsBuckets';
+import { NEWS_BUCKETS, NEWS_BUCKET_LABEL_KEYS, bucketNews, newsBucketOf, type NewsBucket } from '@/lib/newsBuckets';
 
 const NewsSection = () => {
   const { t, language } = useLanguage();
@@ -50,8 +50,8 @@ const NewsSection = () => {
             imageUrl={resolveImageUrl(item.imageUrl)}
             imageAlt={postTitle(item, language)}
             placeholderIcon={Icon}
-            categoryLabel={t(NEWS_BUCKET_LABEL_KEYS[bucket])}
-            categoryIcon={Icon}
+            categoryLabel={t(NEWS_BUCKET_LABEL_KEYS[newsBucketOf(item)])}
+            categoryIcon={NEWS_BUCKET_ICONS[newsBucketOf(item)]}
             date={formatDate(item.createdAt)}
             readMoreLabel={t('readMore')}
             href={`/news/${item.id}`}
@@ -69,7 +69,7 @@ const NewsSection = () => {
         {error ? (
           <ErrorState title={t('errorLoadingNews')} />
         ) : (
-          <Tabs defaultValue="placesVisited" className="w-full">
+          <Tabs defaultValue="all" className="w-full">
             <TabsList className="mb-10 grid h-auto w-full grid-cols-2 gap-1 rounded-card bg-muted p-1 sm:inline-flex sm:w-auto sm:rounded-pill">
               {NEWS_BUCKETS.map((bucket) => {
                 const Icon = NEWS_BUCKET_ICONS[bucket];

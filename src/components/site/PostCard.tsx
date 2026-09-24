@@ -43,7 +43,7 @@ const PostCard = ({
     <article
       className={cn(
         'group card-surface fade-in-on-scroll relative flex h-full flex-col overflow-hidden',
-        'motion-safe:transition-[box-shadow,transform] motion-safe:duration-base motion-safe:ease-out hover:-translate-y-0.5 hover:shadow-card-hover',
+        'motion-safe:transition-[box-shadow,transform] motion-safe:duration-base motion-safe:ease-out hover:-translate-y-1 hover:shadow-card-hover',
         'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
         className,
       )}

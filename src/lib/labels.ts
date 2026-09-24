@@ -22,6 +22,7 @@ export const PROJECT_CATEGORY_ICONS: Record<string, LucideIcon> = {
 };
 
 export const NEWS_BUCKET_ICONS: Record<NewsBucket, LucideIcon> = {
+  all: Newspaper,
   placesVisited: MapPin,
   visitors: Users,
   certificatesReceived: Award,

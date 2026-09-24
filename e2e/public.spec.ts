@@ -28,6 +28,33 @@ test.describe('public site', () => {
     }
   });
 
+  test('every news post appears in exactly one category tab', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('section#news').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+
+    // The first tab is "All" and is selected by default, so visitors see the
+    // newest posts before choosing a filter.
+    const tabs = page.locator('section#news [role="tab"]');
+    await expect(tabs.first()).toHaveAttribute('data-state', 'active');
+
+    // A post's category decides its tab. Keyword matching used to run alongside
+    // the category, so a post categorised "Visitors" whose text merely contained
+    // the word "visit" also showed under Places Visited.
+    const counts: Record<string, number> = {};
+    const tabCount = await tabs.count();
+    for (let i = 1; i < tabCount; i += 1) {
+      await tabs.nth(i).click();
+      await page.waitForTimeout(250);
+      const titles = await page
+        .locator('section#news [role="tabpanel"][data-state="active"] article h3')
+        .allInnerTexts();
+      for (const title of titles) counts[title.trim()] = (counts[title.trim()] || 0) + 1;
+    }
+    const duplicated = Object.entries(counts).filter(([, n]) => n > 1);
+    expect(duplicated, `these posts show in more than one tab: ${duplicated.map(([t]) => t).join(', ')}`).toEqual([]);
+  });
+
   test('sections become visible when scrolled into view', async ({ page }) => {
     await page.goto('/');
     await page.locator('section#news').scrollIntoViewIfNeeded();

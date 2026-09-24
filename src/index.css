@@ -256,13 +256,35 @@
   }
 }
 
+/*
+  Transform only, no opacity — this is what the hero's <h1> uses.
+
+  That heading is the page's largest-contentful-paint element. Starting it at
+  opacity 0 would delay the measured LCP by the whole animation, but an element
+  that is painted the entire time and merely slides costs nothing: the browser
+  records the paint immediately. So the headline still moves, and the score
+  does not suffer for it.
+*/
+@keyframes lift-in {
+  from {
+    transform: translateY(22px);
+  }
+  to {
+    transform: none;
+  }
+}
+
 .rise-in {
-  animation: rise-in var(--dur-slow) var(--ease-out) 80ms both;
+  animation: rise-in var(--dur-slow) var(--ease-out) both;
+}
+
+.lift-in {
+  animation: lift-in var(--dur-slow) var(--ease-out) both;
 }
 
 .fade-in-on-scroll {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(22px);
   transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
 }
 .fade-in-on-scroll.animate {
@@ -277,13 +299,15 @@
   .animate-bounce,
   .animate-spin,
   .rise-in,
+  .lift-in,
   .fade-in-on-scroll,
   [class*='transition-'] {
     animation: none !important;
     transition: none !important;
   }
   .fade-in-on-scroll,
-  .rise-in {
+  .rise-in,
+  .lift-in {
     opacity: 1 !important;
     transform: none !important;
   }

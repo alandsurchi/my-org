@@ -17,7 +17,7 @@ const AboutSection = () => {
   const goals = ['goal1', 'goal2', 'goal3', 'goal4'];
 
   return (
-    <Section id="about" tone="base" className="pt-32 md:pt-40">
+    <Section id="about" tone="base">
       <div className="container-site">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-7">
