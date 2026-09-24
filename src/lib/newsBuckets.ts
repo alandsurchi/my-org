@@ -5,6 +5,21 @@ export type NewsBucket = 'placesVisited' | 'visitors' | 'certificatesReceived' |
 export const NEWS_BUCKETS: NewsBucket[] = ['placesVisited', 'visitors', 'certificatesReceived', 'certificatesAwarded'];
 
 /**
+ * Translation key for each bucket's label.
+ *
+ * Three of them happen to match their bucket name, but "visitors" is stored as
+ * `visitorsToOrg`. Calling t('visitors') therefore fell through to t()'s
+ * fallback and printed the raw key "visitors" in every language. This map makes
+ * the label key explicit instead of assuming it equals the bucket name.
+ */
+export const NEWS_BUCKET_LABEL_KEYS: Record<NewsBucket, string> = {
+  placesVisited: 'placesVisited',
+  visitors: 'visitorsToOrg',
+  certificatesReceived: 'certificatesReceived',
+  certificatesAwarded: 'certificatesAwarded',
+};
+
+/**
  * Groups news posts into the four home-page tabs. The matching rules are the
  * ones the site has always used (category names plus Kurdish/English keywords).
  */

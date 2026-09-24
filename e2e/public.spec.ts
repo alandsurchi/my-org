@@ -13,6 +13,21 @@ test.describe('public site', () => {
     expect(health.ok()).toBeTruthy();
   });
 
+  test('no untranslated keys leak into the page', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('section#news').scrollIntoViewIfNeeded();
+    // t() returns the key itself when a translation is missing, so a missing key
+    // renders as camelCase text like "visitors" or "visitorsToOrg" rather than
+    // failing loudly. Tab labels are where that surfaced.
+    const labels = await page.locator('section#news [role="tab"]').allInnerTexts();
+    expect(labels.length).toBeGreaterThan(0);
+    for (const label of labels) {
+      expect(label.trim(), `"${label}" looks like an untranslated translation key`)
+        .not.toMatch(/^[a-z]+[A-Z][a-zA-Z]*$/);
+      expect(label.trim()).not.toBe('visitors');
+    }
+  });
+
   test('sections become visible when scrolled into view', async ({ page }) => {
     await page.goto('/');
     await page.locator('section#news').scrollIntoViewIfNeeded();

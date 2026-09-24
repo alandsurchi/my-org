@@ -14,7 +14,7 @@ import ErrorState from '@/components/site/ErrorState';
 import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate } from '@/lib/format';
 import { NEWS_BUCKET_ICONS } from '@/lib/labels';
-import { NEWS_BUCKETS, bucketNews, type NewsBucket } from '@/lib/newsBuckets';
+import { NEWS_BUCKETS, NEWS_BUCKET_LABEL_KEYS, bucketNews, type NewsBucket } from '@/lib/newsBuckets';
 
 const NewsSection = () => {
   const { t } = useLanguage();
@@ -49,7 +49,7 @@ const NewsSection = () => {
             imageUrl={resolveImageUrl(item.imageUrl)}
             imageAlt={item.title}
             placeholderIcon={Icon}
-            categoryLabel={t(bucket)}
+            categoryLabel={t(NEWS_BUCKET_LABEL_KEYS[bucket])}
             categoryIcon={Icon}
             date={formatDate(item.createdAt)}
             readMoreLabel={t('readMore')}
@@ -79,7 +79,7 @@ const NewsSection = () => {
                     className="gap-2 rounded-pill px-4 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                   >
                     <Icon className="h-4 w-4" aria-hidden="true" />
-                    {t(bucket)}
+                    {t(NEWS_BUCKET_LABEL_KEYS[bucket])}
                   </TabsTrigger>
                 );
               })}
