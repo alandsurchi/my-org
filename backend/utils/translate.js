@@ -12,7 +12,10 @@
 const crypto = require('crypto');
 const pool = require('../db');
 
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+// flash-lite rather than flash: quotas are per model, and the free-tier daily
+// allowance for flash turned out to be only 20 requests. On these short,
+// formulaic posts the two are indistinguishable in quality.
+const MODEL = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
 const TIMEOUT_MS = 20000;
 const MAX_ATTEMPTS = 3;
@@ -24,6 +27,21 @@ const LANGUAGES = ['en', 'ar'];
 const LANGUAGE_NAMES = { en: 'English', ar: 'Arabic' };
 
 const isEnabled = () => !!process.env.GEMINI_API_KEY;
+
+/**
+ * Set when the DAILY quota is gone, which is a different thing from being
+ * briefly rate limited. Retrying a per-day exhaustion is not merely useless, it
+ * spends requests we will want tomorrow — so once this is set we stop calling
+ * out at all until it lapses.
+ */
+let quotaBlockedUntil = 0;
+const isQuotaBlocked = () => Date.now() < quotaBlockedUntil;
+
+/** Google's QuotaFailure detail distinguishes a per-day limit from a per-minute one. */
+function isDailyQuota(errorBody) {
+  const violations = (errorBody?.error?.details || []).flatMap((d) => d.violations || []);
+  return violations.some((v) => /PerDay/i.test(v.quotaId || ''));
+}
 
 /** Identifies the Kurdish source, so we can tell when a translation went stale. */
 const sourceHash = (title, body) =>
@@ -68,6 +86,7 @@ ${body || '(none)'}`;
  */
 async function translatePost(title, body) {
   if (!isEnabled()) return null;
+  if (isQuotaBlocked()) return null;
   const text = `${title || ''}\n${body || ''}`.trim();
   if (!text) return null;
 
@@ -100,6 +119,15 @@ async function translatePost(title, body) {
         const detail = await res.json().catch(() => ({}));
         // Never log the message verbatim — Google echoes the key back in some errors.
         const status = detail?.error?.status || '';
+        if (res.status === 429 && isDailyQuota(detail)) {
+          // Back off until tomorrow rather than spending the rest of the allowance.
+          quotaBlockedUntil = Date.now() + 60 * 60 * 1000;
+          console.error(
+            'Translation stopped: the daily free-tier quota for this model is used up. ' +
+            'It resets at midnight Pacific; anything untranslated is retried automatically after that.',
+          );
+          return null;
+        }
         if (RETRYABLE.has(res.status) && attempt < MAX_ATTEMPTS - 1) {
           waits = res.status === 429 ? RETRY_DELAYS_MS.rateLimit : RETRY_DELAYS_MS.transient;
           const seconds = Math.round(waits[attempt] / 1000);
@@ -246,6 +274,10 @@ async function backfillMissing({ gapMs = 7000, limit = 200 } = {}) {
     console.log(`Translation backfill: ${pending.length} ${table} row(s) need translating.`);
 
     for (const row of pending) {
+      if (isQuotaBlocked()) {
+        console.log('Translation backfill paused: daily quota reached. It resumes on the next restart.');
+        return;
+      }
       await refreshTranslations(table, row.id);
       await new Promise((r) => setTimeout(r, gapMs));
     }
@@ -262,6 +294,7 @@ function scheduleTranslation(table, id) {
 
 module.exports = {
   backfillMissing,
+  isQuotaBlocked,
   translatePost,
   mergeTranslations,
   refreshTranslations,
