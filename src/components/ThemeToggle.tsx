@@ -25,7 +25,7 @@ const ThemeToggle = ({ className = '' }: ThemeToggleProps) => {
       aria-label={label}
       title={label}
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className={`transition-all duration-300 hover:scale-105 touch-manipulation p-2 ${className}`}
+      className={`touch-manipulation p-2 transition-[color,background-color,transform] duration-150 ease-out motion-safe:hover:scale-105 motion-safe:active:scale-95 ${className}`}
     >
       {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
     </Button>

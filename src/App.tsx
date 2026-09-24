@@ -33,7 +33,12 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error) => {
-        // Don't retry client errors (4xx)
+        // Never retry a client error: it will fail identically every time.
+        // The status is read from the error itself; the old version matched
+        // "HTTP 4xx" in the message, which missed whenever the server supplied
+        // its own wording, and a permanent 404 was retried three times.
+        const status = (error as { status?: number | null })?.status;
+        if (typeof status === 'number' && status >= 400 && status < 500) return false;
         if (/HTTP 4\d\d/.test(error?.message ?? '')) return false;
         return failureCount < 3;
       },

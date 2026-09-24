@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Upload, Trash2, Edit, Plus, Settings, LogOut, Shield, Users, UserPlus, Home, Eye, Heart, Languages } from 'lucide-react';
 import TranslationDialog from '@/components/admin/TranslationDialog';
+import { NEWS_TEMPLATES, categoryForTemplate } from '@/lib/newsCategories';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -229,17 +230,8 @@ const NewsTab = () => {
       return;
     }
 
-    // Map to English category based on which template was used
-    let category = 'Place Visited'; // Default
-    if (newNewsForm.category === 'KurdishVisitors') {
-      category = 'Visitors';
-    } else if (newNewsForm.category === 'KurdishCertificate') {
-      category = 'Certificate Awarded';
-    } else if (newNewsForm.category === 'KurdishCertGroup') {
-      category = 'Certificate Awarded';
-    } else if (newNewsForm.category === 'KurdishCertIndividual') {
-      category = 'Certificate Received';
-    }
+    // Same mapping as the template flow, from the one place that defines it.
+    const category = categoryForTemplate(newNewsForm.category);
 
     try {
       await createNews.mutateAsync({
@@ -375,7 +367,7 @@ const NewsTab = () => {
         await createNews.mutateAsync({
           title: title,
           content: content,
-          category: 'Place Visited'
+          category: categoryForTemplate(newNewsForm.category)
         });
         setKurdishTemplateFields({
           dayOfWeek: '',
@@ -408,7 +400,7 @@ const NewsTab = () => {
         await createNews.mutateAsync({
           title: title,
           content: content,
-          category: 'Visitors'
+          category: categoryForTemplate(newNewsForm.category)
         });
         setKurdishVisitorsFields({
           dayOfWeek: '',
@@ -439,7 +431,7 @@ const NewsTab = () => {
         await createNews.mutateAsync({
           title: title,
           content: content,
-          category: 'Certificate Awarded'
+          category: categoryForTemplate(newNewsForm.category)
         });
         setKurdishCertificateFields({
           dayOfWeek: '',
@@ -470,7 +462,7 @@ const NewsTab = () => {
         await createNews.mutateAsync({
           title: title,
           content: content,
-          category: 'Certificate Awarded'
+          category: categoryForTemplate(newNewsForm.category)
         });
         setKurdishCertGroupFields({
           dayOfWeek: '',
@@ -502,7 +494,7 @@ const NewsTab = () => {
         await createNews.mutateAsync({
           title: title,
           content: content,
-          category: 'Certificate Received'
+          category: categoryForTemplate(newNewsForm.category)
         });
         setKurdishCertIndividualFields({
           dayOfWeek: '',
@@ -608,11 +600,9 @@ const NewsTab = () => {
                         <SelectValue placeholder="Select category..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="SardaniFrami">سەردانی فەرمی (Official Visit)</SelectItem>
-                        <SelectItem value="KurdishVisitors">میوانداری (Visitors)</SelectItem>
-                        <SelectItem value="KurdishCertificate">وەرگرتنی سوپاس و پێزانین (Certificate Received)</SelectItem>
-                        <SelectItem value="KurdishCertGroup">وەرگرتنی سوپاس - کۆمەڵگا (Certificate - Group)</SelectItem>
-                        <SelectItem value="KurdishCertIndividual">وەرگرتنی سوپاس - تاک (Certificate - Individual)</SelectItem>
+                        {NEWS_TEMPLATES.map((template) => (
+                          <SelectItem key={template.id} value={template.id}>{template.label}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

@@ -22,6 +22,9 @@ const NewsSection = () => {
   const { data: allNews = [], isLoading, error } = useNews();
 
   const buckets = bucketNews(allNews);
+  // "All" always shows; a category tab only appears once it has something in
+  // it. An empty tab that can never fill up is just a dead end for the reader.
+  const visibleBuckets = NEWS_BUCKETS.filter((b) => b === 'all' || buckets[b].length > 0);
 
   const renderBucket = (bucket: NewsBucket) => {
     const items = [...buckets[bucket]]
@@ -71,7 +74,7 @@ const NewsSection = () => {
         ) : (
           <Tabs defaultValue="all" className="w-full">
             <TabsList className="mb-10 grid h-auto w-full grid-cols-2 gap-1 rounded-card bg-muted p-1 sm:inline-flex sm:w-auto sm:rounded-pill">
-              {NEWS_BUCKETS.map((bucket) => {
+              {visibleBuckets.map((bucket) => {
                 const Icon = NEWS_BUCKET_ICONS[bucket];
                 return (
                   <TabsTrigger
@@ -85,7 +88,7 @@ const NewsSection = () => {
                 );
               })}
             </TabsList>
-            {NEWS_BUCKETS.map((bucket) => (
+            {visibleBuckets.map((bucket) => (
               <TabsContent key={bucket} value={bucket} className="mt-0">
                 {renderBucket(bucket)}
               </TabsContent>

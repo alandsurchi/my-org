@@ -98,7 +98,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-700 text-brand-100 transition-colors hover:bg-brand-800 hover:text-white"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-700 text-brand-100 transition-[color,background-color,border-color,transform] duration-150 ease-out hover:border-brand-500 hover:bg-brand-800 hover:text-white motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-95"
                 >
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </a>

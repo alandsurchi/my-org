@@ -8,6 +8,26 @@ export type Role = 'super_admin' | 'admin' | 'staff';
 export interface ApiResult<T> {
   data: T | null;
   error: string | null;
+  /**
+   * The HTTP status, so callers never have to guess it from the message.
+   *
+   * They used to: the 404 check for the About image tested the error text for
+   * "404", but the server answers a missing image with "No about image set", so
+   * the check missed, the query threw, and React Query retried a permanent
+   * 404 three more times — four requests on every page load.
+   */
+  status: number | null;
+}
+
+/** Carries the HTTP status through a throw, for the retry predicate. */
+export class ApiError extends Error {
+  readonly status: number | null;
+
+  constructor(message: string, status: number | null) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
 }
 
 export interface AuthUser {
@@ -196,6 +216,7 @@ class APIClient {
   private async request<T>(endpoint: string, options: RequestInit = {}, isFormData = false): Promise<ApiResult<T>> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
+    let status: number | null = null;
 
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
@@ -204,6 +225,7 @@ class APIClient {
         signal: controller.signal,
       });
 
+      status = response.status;
       const json = (await response.json().catch(() => null)) as Envelope<T> | T | null;
 
       if (!response.ok) {
@@ -214,11 +236,11 @@ class APIClient {
       // Unwrap { success, data } envelopes; pass raw payloads through.
       const env = json as Envelope<T> | null;
       const data = env && typeof env === 'object' && 'success' in env ? (env.data as T) : (json as T);
-      return { data, error: null };
+      return { data, error: null, status };
     } catch (error) {
       const isTimeout = error instanceof DOMException && error.name === 'AbortError';
       const message = error instanceof Error ? error.message : 'Unknown error';
-      return { data: null, error: isTimeout ? 'Request timed out. The server may be starting up.' : message };
+      return { data: null, error: isTimeout ? 'Request timed out. The server may be starting up.' : message, status };
     } finally {
       clearTimeout(timeoutId);
     }

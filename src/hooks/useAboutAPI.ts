@@ -1,13 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient, type ImageAsset } from '@/lib/apiClient';
+import { ApiError, apiClient, type ImageAsset } from '@/lib/apiClient';
 
 export const useAboutImage = () => {
   return useQuery<ImageAsset | null>({
     queryKey: ['about'],
     queryFn: async () => {
       const result = await apiClient.getAboutImage();
-      if (result.error && /404/.test(result.error)) return null;
-      if (result.error) throw new Error(result.error);
+      // "No about image set" is a normal, permanent answer, not a failure.
+      if (result.status === 404) return null;
+      if (result.error) throw new ApiError(result.error, result.status);
       return result.data;
     },
     staleTime: 5 * 60 * 1000,
