@@ -9,9 +9,27 @@ interface StaffUser {
   isSuperAdmin?: boolean;
 }
 
+/**
+ * Why a sign-in failed, so the page can say something true.
+ * A wrong password and an IP that has hit the rate limit are very different
+ * problems, and reporting both as "invalid credentials" made the second one
+ * impossible to diagnose from the screen.
+ */
+export interface LoginResult {
+  /** True when a session was established. */
+  ok: boolean;
+  /** Absent on success. */
+  reason?: 'invalid' | 'rate_limited' | 'network';
+  /** Seconds until the rate limit resets, when the server reports it. */
+  retryAfterSeconds?: number;
+}
+// Deliberately one shape rather than a discriminated union: this project
+// compiles with "strict": false, and narrowing on a discriminant needs
+// strictNullChecks, so the union would not narrow at the call site.
+
 interface StaffAuthContextType {
   staffUser: StaffUser | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<LoginResult>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -50,7 +68,7 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
     }
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<LoginResult> => {
     try {
       // Call backend login API
       const response = await fetch(`${config.apiUrl}/auth/login`, {
@@ -62,10 +80,20 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
       });
 
       const data = await response.json().catch(() => null);
-      
+
       if (!response.ok) {
         console.error('Login failed:', response.status, data);
-        return false;
+        // The server rate-limits by IP. Reporting that as "invalid credentials"
+        // sends people hunting for a password problem they do not have.
+        if (response.status === 429) {
+          const header = Number(response.headers.get('ratelimit-reset'));
+          return {
+            ok: false,
+            reason: 'rate_limited',
+            retryAfterSeconds: Number.isFinite(header) && header > 0 ? header : data?.retryAfter,
+          };
+        }
+        return { ok: false, reason: 'invalid' };
       }
 
       // Handle both response formats:
@@ -76,7 +104,7 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
 
       if (!token || !userData) {
         console.error('Login response missing token or user:', data);
-        return false;
+        return { ok: false, reason: 'invalid' };
       }
 
       const user: StaffUser = {
@@ -93,11 +121,11 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
       localStorage.setItem('sessionTimestamp', Date.now().toString());
       // Clear any stale lockout data
       localStorage.removeItem('staffLoginAttempts');
-      
-      return true;
+
+      return { ok: true };
     } catch (error) {
       console.error('Login error:', error);
-      return false;
+      return { ok: false, reason: 'network' };
     }
   };
 

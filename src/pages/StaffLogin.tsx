@@ -12,13 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { apiClient } from '@/lib/apiClient';
 
-interface LoginAttempt {
-  timestamp: number;
-  ip?: string;
-}
 
-const MAX_ATTEMPTS = parseInt(import.meta.env.VITE_STAFF_LOGIN_ATTEMPTS_LIMIT) || 3;
-const BLOCK_DURATION = 15 * 60 * 1000; // 15 minutes
 
 const StaffLogin = () => {
   usePageMeta({ title: 'Staff login', noindex: true });
@@ -32,11 +26,6 @@ const StaffLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
-  const [isBlocked, setIsBlocked] = useState(false);
-  const [blockTimeRemaining, setBlockTimeRemaining] = useState(0);
-  const [showCaptcha, setShowCaptcha] = useState(false);
-  const [captchaVerified, setCaptchaVerified] = useState(false);
   const [accessedViaSecret, setAccessedViaSecret] = useState(false);
   // "Forgot password" only works when the server can send email
   const [resetAvailable, setResetAvailable] = useState(false);
@@ -73,23 +62,11 @@ const StaffLogin = () => {
       return;
     }
 
-    // Check if IP is blocked
-    const storedAttempts = localStorage.getItem('staffLoginAttempts');
-    if (storedAttempts) {
-      const attempts: LoginAttempt[] = JSON.parse(storedAttempts);
-      const recentAttempts = attempts.filter(
-        attempt => Date.now() - attempt.timestamp < BLOCK_DURATION
-      );
-      
-      if (recentAttempts.length >= MAX_ATTEMPTS) {
-        setIsBlocked(true);
-        const lastAttempt = Math.max(...recentAttempts.map(a => a.timestamp));
-        const remainingTime = BLOCK_DURATION - (Date.now() - lastAttempt);
-        setBlockTimeRemaining(Math.ceil(remainingTime / 1000));
-      }
-      
-      setLoginAttempts(recentAttempts);
-    }
+    // Remove any lockout counter left by an older build. It lived in
+    // localStorage, so it never stopped an attacker — it only locked the real
+    // owner out of their own browser. The server's per-IP limiter is the
+    // protection that actually works.
+    localStorage.removeItem('staffLoginAttempts');
 
     // Clear form on component mount for security
     return () => {
@@ -98,122 +75,51 @@ const StaffLogin = () => {
     };
   }, [isAuthenticated, navigate, location]);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isBlocked && blockTimeRemaining > 0) {
-      interval = setInterval(() => {
-        setBlockTimeRemaining(prev => {
-          if (prev <= 1) {
-            setIsBlocked(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isBlocked, blockTimeRemaining]);
-
-  const recordFailedAttempt = () => {
-    const newAttempt: LoginAttempt = {
-      timestamp: Date.now(),
-    };
-    
-    const updatedAttempts = [...loginAttempts, newAttempt];
-    setLoginAttempts(updatedAttempts);
-    localStorage.setItem('staffLoginAttempts', JSON.stringify(updatedAttempts));
-
-    if (updatedAttempts.length >= MAX_ATTEMPTS) {
-      setIsBlocked(true);
-      setBlockTimeRemaining(BLOCK_DURATION / 1000);
-    } else if (updatedAttempts.length >= MAX_ATTEMPTS - 1) {
-      setShowCaptcha(true);
-    }
-  };
-
   const handleStaffLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (isBlocked) {
-      toast({
-        title: "Access Blocked",
-        description: `Too many failed attempts. Try again in ${Math.ceil(blockTimeRemaining / 60)} minutes.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (showCaptcha && !captchaVerified) {
-      setError('Please complete the CAPTCHA verification');
-      return;
-    }
 
     setIsLoading(true);
     setError('');
 
     try {
-      const success = await login(email, password);
-      
-      if (success) {
-        // Clear failed attempts on successful login
-        localStorage.removeItem('staffLoginAttempts');
-        
+      const result = await login(email, password);
+
+      if (result.ok) {
         toast({
           title: "Access Granted",
           description: "Welcome to the staff dashboard",
         });
-        
+
         navigate('/dashboard');
+        return;
+      }
+
+      // Say which of the three things actually went wrong. Reporting a rate
+      // limit or an unreachable server as "invalid credentials" sends people
+      // looking for a password problem they do not have.
+      if (result.reason === 'rate_limited') {
+        const minutes = Math.max(1, Math.ceil((result.retryAfterSeconds ?? 900) / 60));
+        const message = `Too many sign-in attempts from this network. Your password may be correct — please wait about ${minutes} minute${minutes === 1 ? '' : 's'} and try again.`;
+        setError(message);
+        toast({ title: "Please wait", description: message, variant: "destructive" });
+      } else if (result.reason === 'network') {
+        setError('Could not reach the server. Check your connection and try again.');
+        toast({ title: "Connection problem", description: "Could not reach the server.", variant: "destructive" });
       } else {
-        recordFailedAttempt();
         setError('Invalid credentials. Access denied.');
-        
-        // Clear form for security
         setPassword('');
-        
         toast({
           title: "Access Denied",
-          description: `Invalid credentials. ${MAX_ATTEMPTS - loginAttempts.length - 1} attempts remaining.`,
+          description: "That email and password do not match an account.",
           variant: "destructive",
         });
       }
     } catch (error) {
       setError('System error. Please try again later.');
-      recordFailedAttempt();
     } finally {
       setIsLoading(false);
     }
   };
-
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  if (isBlocked) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-900 via-gray-900 to-black flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-gray-900 border-red-800">
-          <CardHeader className="text-center">
-            <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-            <CardTitle className="text-red-400">Access Temporarily Blocked</CardTitle>
-            <CardDescription className="text-gray-400">
-              Too many failed login attempts detected
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <div className="text-red-400 text-lg font-mono">
-              {formatTime(blockTimeRemaining)}
-            </div>
-            <p className="text-gray-500 mt-2 text-sm">
-              Please wait before attempting to access this system again.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
@@ -260,15 +166,6 @@ const StaffLogin = () => {
                 </Alert>
               )}
 
-              {loginAttempts.length > 0 && (
-                <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    {MAX_ATTEMPTS - loginAttempts.length} attempts remaining before temporary lockout
-                  </AlertDescription>
-                </Alert>
-              )}
-              
               <div className="space-y-2">
                 <Label htmlFor="staffEmail" className="text-gray-200 font-medium">Staff Email</Label>
                 <Input 
@@ -315,30 +212,9 @@ const StaffLogin = () => {
                 </div>
               </div>
 
-              {showCaptcha && (
-                <div className="space-y-2">
-                  <Label className="text-gray-200">Security Verification</Label>
-                  <div className="p-4 border border-gray-600 rounded bg-gray-800 text-center">
-                    <p className="text-gray-400 text-sm mb-2">Verify you are human</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setCaptchaVerified(true)}
-                      className="text-sm"
-                    >
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      I'm not a robot
-                    </Button>
-                    {captchaVerified && (
-                      <p className="text-green-400 text-sm mt-2">✓ Verified</p>
-                    )}
-                  </div>
-                </div>
-              )}
-              
               <Button 
                 type="submit"
-                disabled={isLoading || (showCaptcha && !captchaVerified)}
+                disabled={isLoading}
                 className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
               >
                 {isLoading ? (
