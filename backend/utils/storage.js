@@ -14,10 +14,20 @@ const STORAGE_PATH = process.env.STORAGE_PATH || '/data/uploads';
 const MAX_EDGE = { hero: 1920, about: 1600, news: 1600, projects: 1600, gallery: 1600 };
 const WEBP_QUALITY = 82;
 
+/**
+ * Base URL for uploaded files.
+ *
+ * Empty for local storage, so images are stored as relative paths like
+ * /uploads/news/x.webp. That matters: the public site proxies /uploads, so a
+ * relative path is served from the site's own domain and cached by the CDN in
+ * front of it. Absolute URLs pointing at this service bypassed that entirely —
+ * every photo went straight to the origin, uncached, plus a second DNS lookup
+ * and TLS handshake for the visitor.
+ *
+ * R2 still needs its absolute public URL: that bucket is not behind our proxy.
+ */
 function getPublicBaseUrl() {
   if (STORAGE_TYPE === 'r2') return process.env.R2_PUBLIC_URL || '';
-  const domain = process.env.RAILWAY_PUBLIC_DOMAIN;
-  if (domain) return `https://${domain}`;
   return '';
 }
 

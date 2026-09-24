@@ -172,6 +172,23 @@ async function initDatabase() {
       ],
     );
 
+    // Uploaded images used to be stored as absolute URLs pointing at this
+    // service's own domain, which meant every photo bypassed the CDN in front
+    // of the public site. Paths are relative now; normalise the rows written
+    // before that. Idempotent: rows already relative do not match.
+    for (const [table, column] of [
+      ['hero_images', 'url'],
+      ['gallery_photos', 'url'],
+      ['about_image', 'url'],
+      ['news', 'image_url'],
+      ['projects', 'image_url'],
+    ]) {
+      await client.query(
+        `UPDATE ${table} SET ${column} = regexp_replace(${column}, '^https?://[^/]+(/uploads/)', '\\1')
+         WHERE ${column} ~ '^https?://[^/]+/uploads/'`,
+      );
+    }
+
     // Indexes
     await client.query(`CREATE INDEX IF NOT EXISTS idx_news_created ON news(created_at DESC);`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_news_category ON news(category);`);
