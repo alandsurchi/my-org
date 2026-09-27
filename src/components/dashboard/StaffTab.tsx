@@ -255,16 +255,16 @@ const StaffTab = () => {
                   <p className="text-gray-500">No staff accounts found. Add some staff members to get started.</p>
                 ) : (
                   staffAccounts.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
+                    <div key={member.id} className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0 flex-1">
                         <h3 className="font-medium">
                           {member.name}
                           {member.isSuperAdmin && (
-                            <Badge variant="destructive" className="ml-2 text-xs">SUPER ADMIN</Badge>
+                            <Badge variant="destructive" className="ms-2 text-xs">SUPER ADMIN</Badge>
                           )}
                         </h3>
-                        <p className="text-sm text-gray-500">{member.email}</p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <p className="break-all text-sm text-gray-500">{member.email}</p>
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
                           <Badge variant={member.role === 'super_admin' ? 'destructive' : 'default'}>
                             {member.role === 'super_admin' ? 'Full Control' : 'Admin'}
                           </Badge>
@@ -280,6 +280,9 @@ const StaffTab = () => {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="h-10 w-10 p-0"
+                              aria-label={`Edit ${member.name}`}
+                              title={`Edit ${member.name}`}
                               onClick={() => handleEditStaffMember(member)}
                             >
                               <Edit className="w-4 h-4" />
@@ -287,6 +290,9 @@ const StaffTab = () => {
                             <Button
                               size="sm"
                               variant="destructive"
+                              className="h-10 w-10 p-0"
+                              aria-label={`Delete ${member.name}`}
+                              title={`Delete ${member.name}`}
                               onClick={() => handleDeleteStaffMember(member.id)}
                               disabled={deleteStaffAccount.isPending}
                             >

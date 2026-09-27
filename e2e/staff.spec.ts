@@ -102,4 +102,17 @@ test.describe('staff login and dashboard', () => {
     await expect(page.getByRole('heading', { name: '404' })).toBeVisible();
     await expect(page).toHaveURL(/\/log-org$/);
   });
+
+  test('the dashboard fits a phone and every tab can be tapped', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await loginAsAdmin(page);
+    const tabs = page.getByRole('tab');
+    await expect(tabs).toHaveCount(5);
+    for (let i = 0; i < 5; i++) {
+      await tabs.nth(i).click({ timeout: 5000 });
+      await expect(tabs.nth(i)).toHaveAttribute('data-state', 'active');
+      const { scrollW, vw } = await page.evaluate(() => ({ scrollW: document.documentElement.scrollWidth, vw: innerWidth }));
+      expect(scrollW, `tab ${i + 1} scrolls sideways`).toBeLessThanOrEqual(vw);
+    }
+  });
 });

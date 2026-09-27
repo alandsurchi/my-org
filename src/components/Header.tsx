@@ -108,7 +108,7 @@ const Header = () => {
           <LanguageSelector tone={tone} />
           <ThemeToggle
             className={cn(
-              'h-10 w-10 rounded-pill',
+              'hidden h-10 w-10 rounded-pill sm:inline-flex',
               tone === 'photo' ? 'border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white' : 'border-border bg-card',
             )}
           />

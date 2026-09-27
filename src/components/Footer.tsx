@@ -57,13 +57,13 @@ const Footer = () => {
 
           <div className="lg:col-span-2">
             <h3 className="mb-4 font-display text-base font-semibold text-white">{t('quickLinks')}</h3>
-            <ul className="space-y-2.5">
+            <ul className="space-y-2.5 [@media(pointer:coarse)]:space-y-0">
               {quickLinks.map((id) => (
                 <li key={id}>
                   <a
                     href={`#${id}`}
                     onClick={(event) => handleSectionClick(event, id)}
-                    className="text-brand-200 underline-offset-4 transition-colors hover:text-white hover:underline"
+                    className="tap-target text-brand-200 underline-offset-4 transition-colors hover:text-white hover:underline"
                   >
                     {t(id)}
                   </a>
@@ -74,9 +74,9 @@ const Footer = () => {
 
           <div className="lg:col-span-3">
             <h3 className="mb-4 font-display text-base font-semibold text-white">{t('contactInfo')}</h3>
-            <ul className="space-y-3 text-brand-200">
+            <ul className="space-y-3 text-brand-200 [@media(pointer:coarse)]:space-y-0">
               <li>
-                <a href="mailto:ohumanism@gmail.com" className="inline-flex items-center gap-2.5 transition-colors hover:text-white">
+                <a href="mailto:ohumanism@gmail.com" className="tap-target inline-flex items-center gap-2.5 transition-colors hover:text-white">
                   <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
                   ohumanism@gmail.com
                 </a>
@@ -90,7 +90,7 @@ const Footer = () => {
 
           <div className="lg:col-span-2">
             <h3 className="mb-4 font-display text-base font-semibold text-white">{t('followUs')}</h3>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {SOCIALS.map(({ label, href, icon: Icon }) => (
                 <a
                   key={label}
@@ -98,7 +98,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-700 text-brand-100 transition-[color,background-color,border-color,transform] duration-150 ease-out hover:border-brand-500 hover:bg-brand-800 hover:text-white motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-95"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brand-700 text-brand-100 transition-[color,background-color,border-color,transform] duration-150 ease-out hover:border-brand-500 hover:bg-brand-800 hover:text-white motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-95"
                 >
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </a>
@@ -112,7 +112,7 @@ const Footer = () => {
           <span aria-hidden="true" className="hidden sm:inline">&middot;</span>
           {/* A real route link, so it cannot live in quickLinks above — that list's
               handleSectionClick calls preventDefault and scrolls to a hash instead. */}
-          <Link to="/privacy" className="underline-offset-4 transition-colors hover:text-white hover:underline">
+          <Link to="/privacy" className="tap-target underline-offset-4 transition-colors hover:text-white hover:underline">
             {t('privacyPolicy')}
           </Link>
         </div>

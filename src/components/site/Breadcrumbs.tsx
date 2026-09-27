@@ -38,7 +38,7 @@ const Breadcrumbs = ({ items }: { items: Crumb[] }) => {
                 {isLast || !crumb.to ? (
                   <BreadcrumbPage className="font-medium text-white">{crumb.label}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink asChild className="hover:text-white">
+                  <BreadcrumbLink asChild className="tap-target hover:text-white">
                     {/* asChild keeps navigation inside the SPA; a bare <a> would full-page reload. */}
                     <Link to={crumb.to}>{crumb.label}</Link>
                   </BreadcrumbLink>

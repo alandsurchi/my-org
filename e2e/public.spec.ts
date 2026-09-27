@@ -78,12 +78,18 @@ test.describe('public site', () => {
   });
 
   test('dark mode toggle is remembered', async ({ page }) => {
+    // Phones keep the toggle in the menu (no room in the header bar); wider screens in the header.
+    const toggle = async (name: RegExp) => {
+      const inHeader = page.getByRole('button', { name });
+      if (!(await inHeader.isVisible())) await page.getByRole('button', { name: 'Menu' }).click();
+      await page.getByRole('button', { name }).click();
+    };
     await page.goto('/');
-    await page.getByRole('button', { name: /Switch to dark mode/i }).click();
+    await toggle(/Switch to dark mode/i);
     await expect(page.locator('html')).toHaveClass(/dark/);
     await page.reload();
     await expect(page.locator('html')).toHaveClass(/dark/);
-    await page.getByRole('button', { name: /Switch to light mode/i }).click();
+    await toggle(/Switch to light mode/i);
     await expect(page.locator('html')).not.toHaveClass(/dark/);
   });
 
@@ -215,4 +221,26 @@ test.describe('public site', () => {
     await page.goto('/');
     await expect(page.locator('#faq button[data-state]')).toHaveCount(inSchema);
   });
+
+  // The smallest phones still in use are 320px wide. The header needs the most
+  // room there: logo, name, language and menu button must all fit, untouched.
+  for (const language of ['ku', 'en', 'ar']) {
+    test(`fits a 320px phone without sideways scrolling (${language})`, async ({ page }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await page.addInitScript((l) => localStorage.setItem('language', l), language);
+      for (const path of ['/', '/projects', '/news', '/gallery', '/privacy']) {
+        await page.goto(path);
+        const { scrollW, vw } = await page.evaluate(() => ({ scrollW: document.documentElement.scrollWidth, vw: innerWidth }));
+        expect(scrollW, `${path} scrolls sideways`).toBeLessThanOrEqual(vw);
+      }
+      await page.goto('/');
+      const menu = await page.getByRole('button', { name: 'Menu' }).boundingBox();
+      expect(menu!.x).toBeGreaterThanOrEqual(0);
+      expect(menu!.x + menu!.width).toBeLessThanOrEqual(320);
+      const name = await page.locator('header span.font-display').boundingBox();
+      const lang = await page.getByRole('combobox', { name: 'Language' }).boundingBox();
+      const apart = name!.x + name!.width <= lang!.x || lang!.x + lang!.width <= name!.x;
+      expect(apart, 'organisation name and language button overlap').toBe(true);
+    });
+  }
 });

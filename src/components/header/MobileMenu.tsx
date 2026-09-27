@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
+import ThemeToggle from '@/components/ThemeToggle';
 import { NAV_ITEMS, type HeaderTone, type NavItem } from './types';
 
 interface MobileMenuProps {
@@ -58,6 +59,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMobileMenuOpen, setIsMobileMe
             );
           })}
         </nav>
+        {/* Phones have no room for this in the header bar, so it sits here. */}
+        <div className="mt-6 border-t border-border px-3 pt-4 sm:hidden">
+          <ThemeToggle className="h-11 w-11 rounded-pill border-border bg-card" />
+        </div>
       </SheetContent>
     </Sheet>
   );

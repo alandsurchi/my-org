@@ -104,9 +104,9 @@ const StaffLogin = () => {
         <div className="mb-6">
           <Link 
             to="/" 
-            className="inline-flex items-center text-gray-300 hover:text-white transition-colors"
+            className="tap-target inline-flex items-center text-gray-300 hover:text-white transition-colors"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="me-2 h-4 w-4 rtl:rotate-180" />
             Back to Home
           </Link>
         </div>

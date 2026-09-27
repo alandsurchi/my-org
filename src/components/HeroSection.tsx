@@ -70,7 +70,7 @@ const HeroSection = () => {
 
       <a
         href="#about"
-        className="absolute bottom-28 end-6 hidden items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white/80 hover:text-white md:inline-flex lg:end-8"
+        className="absolute bottom-28 end-6 -my-3 hidden items-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest text-white/80 hover:text-white md:inline-flex lg:end-8"
       >
         <span>{t('discoverMore')}</span>
         <ArrowDown className="h-4 w-4 motion-safe:animate-bounce" aria-hidden="true" />

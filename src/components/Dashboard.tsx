@@ -37,25 +37,27 @@ const Dashboard = ({ userName }: DashboardProps) => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Staff Dashboard</h1>
+        {/* Phones: title above the buttons; from sm up, side by side. */}
+        <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Staff Dashboard</h1>
             <p className="text-gray-600">Welcome back, {userName}</p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" onClick={handleGoHome}>
-              <Home className="w-4 h-4 mr-2" />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="h-11 flex-1 sm:h-10 sm:flex-none" onClick={handleGoHome}>
+              <Home className="me-2 h-4 w-4" />
               Go to Home
             </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
+            <Button variant="outline" className="h-11 flex-1 sm:h-10 sm:flex-none" onClick={handleLogout}>
+              <LogOut className="me-2 h-4 w-4" />
               Logout
             </Button>
           </div>
         </div>
 
         <Tabs defaultValue="home" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          {/* Phones: two rows (3 + 2) so every tab stays visible and tappable. */}
+          <TabsList className="grid h-auto w-full grid-cols-3 gap-1 sm:grid-cols-5 [&>button]:min-h-10">
             <TabsTrigger value="home">پەرەی سەرەکی</TabsTrigger>
             <TabsTrigger value="projects">چاڵاکیەکان</TabsTrigger>
             <TabsTrigger value="news">هەواڵەکان</TabsTrigger>

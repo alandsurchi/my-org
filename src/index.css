@@ -346,3 +346,24 @@ button,
     text-size-adjust: 100%;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Touch screens (phones, iPads). Mouse users see no change.
+ * ------------------------------------------------------------------------- */
+@media (pointer: coarse) {
+  /* iOS Safari zooms the whole page when a field under 16px gets focus.
+     !important because the fields carry text-sm utilities, which would
+     otherwise win on specificity. */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Text links that sit in lists get a finger-sized hit area. */
+  .tap-target {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+  }
+}
