@@ -116,6 +116,12 @@ const Footer = () => {
             {t('privacyPolicy')}
           </Link>
         </div>
+
+        {/* Build credit. Its own quieter line under the copyright, and dir="ltr"
+            so the name reads left-to-right inside the RTL layouts. */}
+        <p dir="ltr" className="mt-4 text-center text-xs text-brand-300">
+          Built by Aland ENG
+        </p>
       </div>
     </footer>
   );
