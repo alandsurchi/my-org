@@ -36,7 +36,14 @@ export type UiStringKey =
   | 'galleryPhotoAlt'
   | 'exploreMore'
   | 'machineTranslated'
-  | 'newsAll';
+  | 'newsAll'
+  | 'share'
+  | 'shareOnFacebook'
+  | 'shareOnWhatsapp'
+  | 'shareOnTelegram'
+  | 'copyLink'
+  | 'linkCopied'
+  | 'textCopiedForFacebook';
 
 /** The five questions, in order, for the FAQ section and its structured data. */
 export const FAQ_KEYS = [1, 2, 3, 4, 5] as const;
@@ -71,6 +78,13 @@ export const uiStrings: Record<Lang, Record<UiStringKey, string>> = {
     exploreMore: 'Explore the site',
     machineTranslated: 'This post was written in Kurdish and translated automatically.',
     newsAll: 'All',
+    share: 'Share',
+    shareOnFacebook: 'Share on Facebook',
+    shareOnWhatsapp: 'Share on WhatsApp',
+    shareOnTelegram: 'Share on Telegram',
+    copyLink: 'Copy link',
+    linkCopied: 'Link copied',
+    textCopiedForFacebook: 'Text copied. Paste it into the Facebook box that just opened.',
   },
 
   ar: {
@@ -102,6 +116,13 @@ export const uiStrings: Record<Lang, Record<UiStringKey, string>> = {
     exploreMore: 'استكشف الموقع',
     machineTranslated: 'كُتب هذا المنشور بالكردية وتُرجم آلياً.',
     newsAll: 'الكل',
+    share: 'مشاركة',
+    shareOnFacebook: 'مشاركة على فيسبوك',
+    shareOnWhatsapp: 'مشاركة على واتساب',
+    shareOnTelegram: 'مشاركة على تيليغرام',
+    copyLink: 'نسخ الرابط',
+    linkCopied: 'تم نسخ الرابط',
+    textCopiedForFacebook: 'تم نسخ النص. الصقه في مربع فيسبوك الذي فُتح للتو.',
   },
 
   ku: {
@@ -133,5 +154,12 @@ export const uiStrings: Record<Lang, Record<UiStringKey, string>> = {
     exploreMore: 'گەڕان بە ماڵپەڕدا',
     machineTranslated: 'ئەم بابەتە بە کوردی نووسراوە و بە شێوەی خۆکار وەرگێڕدراوە.',
     newsAll: 'هەموو',
+    share: 'هاوبەشکردن',
+    shareOnFacebook: 'هاوبەشکردن لە فەیسبووک',
+    shareOnWhatsapp: 'هاوبەشکردن لە واتساپ',
+    shareOnTelegram: 'هاوبەشکردن لە تێلێگرام',
+    copyLink: 'کۆپیکردنی بەستەر',
+    linkCopied: 'بەستەرەکە کۆپی کرا',
+    textCopiedForFacebook: 'دەقەکە کۆپی کرا. بیچەسپێنە لەو چوارچێوەی فەیسبووکەی کە کرایەوە.',
   },
 };

@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate } from '@/lib/format';
 import { isUntranslated, postBody, postTitle } from '@/lib/postText';
+import ShareButtons from '@/components/site/ShareButtons';
 
 /** One news post, at its own address, so it can be shared, linked and indexed. */
 const NewsDetail = () => {
@@ -95,6 +96,13 @@ const NewsDetail = () => {
                 <h2 className="font-display text-base font-semibold">{t('aboutThisNews')}</h2>
                 <p className="mt-2 text-muted-foreground">{t('aboutThisNewsText')}</p>
               </aside>
+
+              <ShareButtons
+                className="mt-10 border-t border-border pt-8"
+                url={`/news/${item.id}`}
+                title={title}
+                text={content}
+              />
             </article>
           )}
         </div>

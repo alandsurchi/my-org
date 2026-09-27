@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { resolveImageUrl } from '@/lib/images';
 import { excerpt, formatDate } from '@/lib/format';
 import { isUntranslated, postBody, postTitle } from '@/lib/postText';
+import ShareButtons from '@/components/site/ShareButtons';
 import { projectCategoryIcon, projectCategoryLabel, projectStatusLabel } from '@/lib/labels';
 
 /** One activity, at its own address, so it can be shared, linked and indexed. */
@@ -108,6 +109,13 @@ const ProjectDetail = () => {
                 <h2 className="font-display text-base font-semibold">{t('projectImpact')}</h2>
                 <p className="mt-2 text-muted-foreground">{t('projectImpactText')}</p>
               </aside>
+
+              <ShareButtons
+                className="mt-10 border-t border-border pt-8"
+                url={`/projects/${project.id}`}
+                title={title}
+                text={description}
+              />
             </article>
           )}
         </div>

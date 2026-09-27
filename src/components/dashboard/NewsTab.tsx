@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Upload, Trash2, Edit, Plus, Settings, LogOut, Shield, Users, UserPlus, Home, Eye, Heart, Languages } from 'lucide-react';
 import TranslationDialog from '@/components/admin/TranslationDialog';
+import SharePostButton from '@/components/admin/SharePostButton';
 import { NEWS_TEMPLATES, categoryForTemplate } from '@/lib/newsCategories';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -1052,6 +1053,7 @@ const NewsTab = () => {
                       <CardContent className="p-6">
                         {/* Edit and Delete Buttons */}
                         <div className="absolute top-4 right-4 flex gap-2">
+                          <SharePostButton path={`/news/${itemId}`} title={item.title || ''} text={item.content || ''} />
                           <Button
                             size="sm"
                             variant="ghost"

@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Upload, Trash2, Edit, Plus, Settings, LogOut, Shield, Users, UserPlus, Home, Eye, Heart, Languages } from 'lucide-react';
 import TranslationDialog from '@/components/admin/TranslationDialog';
+import SharePostButton from '@/components/admin/SharePostButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -848,6 +849,7 @@ const ProjectsTab = () => {
                           <CardContent className="p-6">
                             {/* Edit and Delete Buttons */}
                             <div className="absolute top-4 right-4 flex gap-2">
+                              <SharePostButton path={`/projects/${project.id}`} title={project.title || ''} text={project.description || ''} />
                               <Button
                                 size="sm"
                                 variant="ghost"
