@@ -139,11 +139,11 @@ function sendText(res, body, type, cacheControl = 'public, max-age=3600') {
 // Per-route title/description for crawlers and link previews (the app updates
 // them again client-side once it loads).
 const ROUTE_META = {
-  '/': { title: 'Mrovdostan Organization for Humanitarian Aid', description: 'Mrovdostan is a non-profit humanitarian organization in the Kurdistan Region of Iraq, building hope and transforming lives through aid, education and community projects.' },
-  '/projects': { title: 'All Activities | Mrovdostan', description: 'Explore all our activities and initiatives making a difference in our communities.' },
-  '/news': { title: 'All News | Mrovdostan', description: 'Stay updated with our latest news, achievements and community impact stories.' },
-  '/gallery': { title: 'Gallery | Mrovdostan', description: 'Moments from our activities and the communities we serve.' },
-  '/privacy': { title: 'Privacy Policy | Mrovdostan', description: 'How Mrovdostan handles visitor information on this website: what we measure, what we never collect, and which other services are involved.' },
+  '/': { title: 'MROVDOSTAN | Humanitarian Aid in the Kurdistan Region of Iraq', description: 'Mrovdostan is a non-profit humanitarian organization in the Kurdistan Region of Iraq, building hope and transforming lives through aid, education and community projects.' },
+  '/projects': { title: 'All Activities | MROVDOSTAN', description: 'Explore all our activities and initiatives making a difference in our communities.' },
+  '/news': { title: 'All News | MROVDOSTAN', description: 'Stay updated with our latest news, achievements and community impact stories.' },
+  '/gallery': { title: 'Gallery | MROVDOSTAN', description: 'Moments from our activities and the communities we serve.' },
+  '/privacy': { title: 'Privacy Policy | MROVDOSTAN', description: 'How Mrovdostan handles visitor information on this website: what we measure, what we never collect, and which other services are involved.' },
 };
 const NOINDEX_PREFIXES = ['/dashboard', '/staff-login', '/forgot-password', '/reset-password'];
 
@@ -304,7 +304,7 @@ async function sendIndex(req, res, pathname) {
   const origin = publicOrigin(req);
   const post = await postForPath(pathname);
   const meta = post
-    ? { title: `${post.title} | Mrovdostan`, description: metaText(post.body) }
+    ? { title: `${post.title} | MROVDOSTAN`, description: metaText(post.body) }
     : ROUTE_META[pathname] || ROUTE_META['/'];
   const hero = await heroImage();
   // A post URL that resolves to nothing is a soft 404: the app renders a "not

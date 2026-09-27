@@ -1,7 +1,7 @@
 import { usePageMeta } from '@/hooks/usePageMeta';
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,7 +17,6 @@ import { apiClient } from '@/lib/apiClient';
 const StaffLogin = () => {
   usePageMeta({ title: 'Staff login', noindex: true });
   const navigate = useNavigate();
-  const location = useLocation();
   const { login, isAuthenticated } = useStaffAuth();
   const { toast } = useToast();
   
@@ -26,7 +25,6 @@ const StaffLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [accessedViaSecret, setAccessedViaSecret] = useState(false);
   // "Forgot password" only works when the server can send email
   const [resetAvailable, setResetAvailable] = useState(false);
   useEffect(() => {
@@ -35,29 +33,8 @@ const StaffLogin = () => {
 
 
   useEffect(() => {
-    // Check if accessed via secret method
-    const referrer = document.referrer;
-    const secretPath = import.meta.env.VITE_SECRET_STAFF_PATH || 'log-org';
-    
-    if (referrer.includes(secretPath) || location.state?.fromSecret) {
-      setAccessedViaSecret(true);
-      
-      // Force clear all authentication data when accessed via secret methods
-      localStorage.removeItem('staffUser');
-      localStorage.removeItem('staffAuthTimestamp');
-      localStorage.removeItem('staffSessionExpiry');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('auth_token');
-      
-      // Clear form fields
-      setEmail('');
-      setPassword('');
-      setError('');
-      
-    }
-
-    // Only redirect if authenticated AND not accessed via secret method
-    if (isAuthenticated && !referrer.includes(secretPath) && !location.state?.fromSecret) {
+    // Already signed in: go straight to the dashboard.
+    if (isAuthenticated) {
       navigate('/dashboard');
       return;
     }
@@ -73,7 +50,7 @@ const StaffLogin = () => {
       setEmail('');
       setPassword('');
     };
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, navigate]);
 
   const handleStaffLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,18 +120,8 @@ const StaffLogin = () => {
               Staff Access
             </CardTitle>
             <CardDescription className="text-gray-300">
-              {accessedViaSecret ? 'Secret access detected - Authorized personnel only' : 'Authorized personnel only'}
+              Authorized personnel only
             </CardDescription>
-            {accessedViaSecret && (
-              <div className="mt-2 space-y-2">
-                <div className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-lg">
-                  <span className="text-blue-400 text-xs">🔐 Accessed via secure method</span>
-                </div>
-                <div className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-lg">
-                  <span className="text-green-400 text-xs">🧹 Session cleared - Fresh login required</span>
-                </div>
-              </div>
-            )}
           </CardHeader>
 
           <CardContent>

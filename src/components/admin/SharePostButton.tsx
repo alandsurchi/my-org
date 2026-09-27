@@ -26,7 +26,7 @@ const SharePostButton = ({ path, title, text }: SharePostButtonProps) => {
       <Button
         size="sm"
         variant="ghost"
-        className="rounded-lg p-2 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600"
+        className="h-8 w-8 rounded-lg p-0 text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
         onClick={() => setOpen(true)}
         title="Share this post"
       >

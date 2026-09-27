@@ -2,7 +2,7 @@ import React, { Suspense, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { WifiOff } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { usePageMeta } from '@/hooks/usePageMeta';
+import { HOME_TITLE, usePageMeta } from '@/hooks/usePageMeta';
 import { useAPIHealthCheck } from '@/hooks/useAPIHealthCheck';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
@@ -18,7 +18,7 @@ import ErrorState from '@/components/site/ErrorState';
 
 const Index = () => {
   const { t } = useLanguage();
-  usePageMeta({ title: t('heroTitle'), description: t('metaHomeDescription') });
+  usePageMeta({ title: HOME_TITLE, exact: true, description: t('metaHomeDescription') });
   const { isHealthy, isChecking, error } = useAPIHealthCheck();
   const location = useLocation();
 

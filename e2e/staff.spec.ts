@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin, apiToken, createProject, deleteProject, openDashboardTab, ADMIN_PASSWORD } from './helpers';
+import { loginAsAdmin, apiToken, createProject, deleteProject, openDashboardTab, ADMIN_EMAIL, ADMIN_PASSWORD } from './helpers';
 
 test.describe('staff login and dashboard', () => {
   test('wrong password is rejected, right password reaches the dashboard', async ({ page }) => {
@@ -66,9 +66,9 @@ test.describe('staff login and dashboard', () => {
     await page.getByRole('button', { name: /Change password/i }).click();
     await expect(page.getByText('Password changed').first()).toBeVisible();
 
-    const old = await request.post('/api/auth/login', { data: { email: 'admin@charity.com', password: ADMIN_PASSWORD } });
+    const old = await request.post('/api/auth/login', { data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD } });
     expect(old.status()).toBe(401);
-    const fresh = await request.post('/api/auth/login', { data: { email: 'admin@charity.com', password: 'E2eTempPass123' } });
+    const fresh = await request.post('/api/auth/login', { data: { email: ADMIN_EMAIL, password: 'E2eTempPass123' } });
     expect(fresh.ok()).toBeTruthy();
     // restore so the other tests keep working
     const token = (await fresh.json()).token as string;
@@ -85,5 +85,11 @@ test.describe('staff login and dashboard', () => {
     await expect(page).toHaveURL(/\/$/);
     await page.goto('/dashboard');
     await expect(page).toHaveURL(/\/staff-login/);
+  });
+
+  test('/dashboard is the only way in: the old hidden path is gone', async ({ page }) => {
+    await page.goto('/log-org');
+    await expect(page.getByRole('heading', { name: '404' })).toBeVisible();
+    await expect(page).toHaveURL(/\/log-org$/);
   });
 });

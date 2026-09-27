@@ -18,7 +18,6 @@ import Index from "./pages/Index";
 // downloads the dashboard or the list pages until they open them.
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const StaffLogin = lazy(() => import("./pages/StaffLogin"));
-const SecretEntryRedirect = lazy(() => import("./pages/SecretEntryRedirect"));
 const AllProjects = lazy(() => import("./pages/AllProjects"));
 const AllNewsAPI = lazy(() => import("./pages/AllNewsAPI"));
 const AllGallery = lazy(() => import("./pages/AllGallery"));
@@ -107,7 +106,6 @@ const App = () => {
                       <Route path="/" element={<Index />} />
                       <Route path="/staff-login" element={<StaffLogin />} />
                       {/* Secret entry route - redirects to staff-login for proper authentication */}
-                      <Route path={`/${import.meta.env.VITE_SECRET_STAFF_PATH || 'log-org'}`} element={<SecretEntryRedirect />} />
                       <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/reset-password" element={<ResetPassword />} />

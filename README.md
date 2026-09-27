@@ -83,7 +83,6 @@ The API accepts requests from any site (safe: auth is a Bearer token, not a cook
 
 ```
 BACKEND_URL=https://<backend-service-domain>
-VITE_SECRET_STAFF_PATH=<hidden login path>
 ```
 
 Do not set `VITE_API_URL` on Railway: the default `/api` goes through the proxy. (Set it only when hosting the frontend somewhere without the proxy, e.g. Vercel.)

@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useHeaderState } from '@/hooks/useHeaderState';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useSecretAccess } from '@/hooks/useSecretAccess';
 import { cn } from '@/lib/utils';
 import HeaderLogo from './header/HeaderLogo';
 import NavigationItems from './header/NavigationItems';
@@ -29,13 +28,6 @@ const Header = () => {
       setActiveSectionFromHook(section);
     }
   }, [setActiveSectionFromHook]);
-
-  // Hidden staff shortcut (Ctrl+Alt+A or triple-click the logo)
-  useSecretAccess({
-    enabled: true,
-    keySequence: ['Control', 'Alt', 'KeyA'],
-    clickSequence: { selector: '.logo-trigger', clicks: 3, timeWindow: 2000 },
-  });
 
   const [pendingSection, setPendingSection] = useState<string | null>(null);
 

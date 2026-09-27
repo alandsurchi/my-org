@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('public site', () => {
   test('home page renders every section and talks to the API', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/Mrovdostan/);
+    await expect(page).toHaveTitle(/MROVDOSTAN/);
     for (const id of ['home', 'about', 'projects', 'news', 'gallery']) {
       await expect(page.locator(`section#${id}`)).toBeVisible();
     }
@@ -90,7 +90,7 @@ test.describe('public site', () => {
   for (const path of ['/projects', '/news', '/gallery']) {
     test(`${path} page loads with its own title`, async ({ page }) => {
       await page.goto(path);
-      await expect(page).toHaveTitle(/\| Mrovdostan$/);
+      await expect(page).toHaveTitle(/\| MROVDOSTAN$/);
       await expect(page.locator('section#main-content')).toBeVisible();
       await expect(page.getByText(/Could not load/i)).toHaveCount(0);
 
@@ -115,7 +115,7 @@ test.describe('public site', () => {
 
   test('the privacy policy is reachable and readable', async ({ page }) => {
     await page.goto('/privacy');
-    await expect(page).toHaveTitle(/\| Mrovdostan$/);
+    await expect(page).toHaveTitle(/\| MROVDOSTAN$/);
     await expect(page.locator('section#main-content')).toBeVisible();
     // Nine policy sections, in whichever language is active.
     expect(await page.locator('h2').count()).toBeGreaterThanOrEqual(6);
@@ -140,19 +140,17 @@ test.describe('public site', () => {
 
   test('crawler metadata is served per route', async ({ request }) => {
     const html = await (await request.get('/news')).text();
-    expect(html).toContain('<title>All News | Mrovdostan</title>');
+    expect(html).toContain('<title>All News | MROVDOSTAN</title>');
     expect(html).toMatch(/<link rel="canonical" href="http:\/\/127\.0\.0\.1:\d+\/news"/);
     const robots = await (await request.get('/robots.txt')).text();
     expect(robots).toContain('Sitemap:');
     expect(robots).toContain('Disallow: /forgot-password');
     expect(robots).toContain('Disallow: /reset-password');
-    // robots.txt is world-readable, so it must never name the secret staff path.
-    expect(robots).not.toContain(process.env.VITE_SECRET_STAFF_PATH || 'log-org');
     const sitemap = await (await request.get('/sitemap.xml')).text();
     expect(sitemap).toContain('<loc>');
     expect(sitemap).toContain('/privacy');
     const privacy = await (await request.get('/privacy')).text();
-    expect(privacy).toContain('<title>Privacy Policy | Mrovdostan</title>');
+    expect(privacy).toContain('<title>Privacy Policy | MROVDOSTAN</title>');
   });
 
   test('structured data is scoped to the right routes', async ({ request }) => {
@@ -181,8 +179,8 @@ test.describe('public site', () => {
     const html = await (await request.get(postUrl!)).text();
     const title = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? '';
     // Its own title, not the home page's — the whole point of giving posts URLs.
-    expect(title).toMatch(/\| Mrovdostan$/);
-    expect(title).not.toBe('Mrovdostan Organization for Humanitarian Aid');
+    expect(title).toMatch(/\| MROVDOSTAN$/);
+    expect(title).not.toBe('MROVDOSTAN | Humanitarian Aid in the Kurdistan Region of Iraq');
     expect(html).toContain('"@type":"BreadcrumbList"');
     expect(html).toMatch(/"@type":"(NewsArticle|CreativeWork)"/);
     expect(html).toContain('"position":3');

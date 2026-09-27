@@ -1052,12 +1052,12 @@ const NewsTab = () => {
                     >
                       <CardContent className="p-6">
                         {/* Edit and Delete Buttons */}
-                        <div className="absolute top-4 right-4 flex gap-2">
+                        <div className="absolute top-3 right-3 flex items-center gap-0.5 rounded-xl border border-gray-200/70 bg-white/75 p-1 shadow-sm backdrop-blur-md">
                           <SharePostButton path={`/news/${itemId}`} title={item.title || ''} text={item.content || ''} />
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg"
+                            className="h-8 w-8 p-0 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg"
                             onClick={() => setTranslatingId(itemId)}
                             title="Review English and Arabic translations"
                           >
@@ -1066,7 +1066,7 @@ const NewsTab = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                            className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
                             onClick={() => setEditingPost({ kind: 'news', item })}
                             title="Edit this post"
                           >
@@ -1075,8 +1075,9 @@ const NewsTab = () => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                            className="h-8 w-8 p-0 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg"
                             onClick={() => handleDeleteNewsItem(itemId)}
+                            title="Delete this post"
                             disabled={deleteNews.isPending}
                           >
                             <Trash2 className="w-4 h-4" />

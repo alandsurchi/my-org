@@ -7,12 +7,12 @@ interface HeaderLogoProps {
   tone: HeaderTone;
 }
 
-/** Logo + wordmark. Keeps the `.logo-trigger` class used by the hidden staff shortcut. */
+/** Logo + wordmark. Staff sign in at /dashboard, so there is no hidden shortcut here. */
 const HeaderLogo: React.FC<HeaderLogoProps> = ({ tone }) => {
   const { t } = useLanguage();
 
   return (
-    <div className="logo-trigger flex cursor-pointer select-none items-center gap-3">
+    <div className="flex select-none items-center gap-3">
       <img
         src="/lovable-uploads/eb6198ca-261c-4e22-ba5c-9af9f83d0c52.png"
         /* Decorative: the {t('orgName')} wordmark beside it already names the organisation. */
