@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { config } from '../config/env';
+import { getAuthToken } from '@/lib/authSession';
 
 export const useFileUpload = () => {
   const [uploading, setUploading] = useState(false);
@@ -13,7 +14,7 @@ export const useFileUpload = () => {
       const response = await fetch(`${config.apiUrl}/gallery`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('auth_token')}`
+          'Authorization': `Bearer ${getAuthToken()}`
         },
         body: formData,
       });

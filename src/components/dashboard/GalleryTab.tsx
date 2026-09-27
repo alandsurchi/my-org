@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getAuthToken } from '@/lib/authSession';
 import { config } from '@/config/env';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,7 +88,7 @@ const GalleryTab = () => {
           formData.append('description', galleryForm.description);
           
           // Upload directly to backend
-          const authToken = localStorage.getItem('authToken') || localStorage.getItem('auth_token') || '';
+          const authToken = getAuthToken() || '';
           const response = await fetch(`${config.apiUrl}/gallery`, {
             method: 'POST',
             headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},

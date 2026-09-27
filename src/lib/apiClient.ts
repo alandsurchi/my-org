@@ -1,4 +1,5 @@
 import { config } from '../config/env';
+import { getAuthToken, setAuthToken } from '@/lib/authSession';
 
 // ---------------------------------------------------------------------------
 // Types shared with the backend API
@@ -185,15 +186,7 @@ interface Envelope<T> {
   error?: string;
 }
 
-const TOKEN_KEYS = ['authToken', 'auth_token'] as const;
-
-export const getStoredToken = (): string | null => {
-  for (const key of TOKEN_KEYS) {
-    const value = localStorage.getItem(key);
-    if (value) return value;
-  }
-  return null;
-};
+export const getStoredToken = (): string | null => getAuthToken();
 
 // ---------------------------------------------------------------------------
 // Client
@@ -258,24 +251,13 @@ class APIClient {
       body: JSON.stringify({ email, password }),
     });
     if (result.data?.token) {
-      localStorage.setItem('authToken', result.data.token);
-      localStorage.setItem('user', JSON.stringify(result.data.user));
+      setAuthToken(result.data.token);
     }
     return result;
   }
 
   logout() {
-    for (const key of TOKEN_KEYS) localStorage.removeItem(key);
-    localStorage.removeItem('user');
-  }
-
-  getStoredUser(): AuthUser | null {
-    try {
-      const user = localStorage.getItem('user');
-      return user ? (JSON.parse(user) as AuthUser) : null;
-    } catch {
-      return null;
-    }
+    setAuthToken(null);
   }
 
   isAuthenticated() {

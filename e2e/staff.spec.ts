@@ -87,6 +87,16 @@ test.describe('staff login and dashboard', () => {
     await expect(page).toHaveURL(/\/staff-login/);
   });
 
+  test('typing /dashboard asks for the password even right after signing in', async ({ page }) => {
+    await loginAsAdmin(page);
+    // Nothing about the session may be written to browser storage...
+    const stored = await page.evaluate(() => Object.keys(localStorage).concat(Object.keys(sessionStorage)));
+    expect(stored.filter((k) => /token|user|session/i.test(k))).toEqual([]);
+    // ...so a fresh load of the address, as when it is typed, lands on the login page.
+    await page.goto('/dashboard');
+    await expect(page).toHaveURL(/\/staff-login/);
+  });
+
   test('/dashboard is the only way in: the old hidden path is gone', async ({ page }) => {
     await page.goto('/log-org');
     await expect(page.getByRole('heading', { name: '404' })).toBeVisible();

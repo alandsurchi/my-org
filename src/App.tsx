@@ -105,7 +105,6 @@ const App = () => {
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/staff-login" element={<StaffLogin />} />
-                      {/* Secret entry route - redirects to staff-login for proper authentication */}
                       <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/reset-password" element={<ResetPassword />} />

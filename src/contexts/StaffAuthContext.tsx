@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { config } from '../config/env';
+import { setAuthToken } from '@/lib/authSession';
 
 interface StaffUser {
   id?: string;
@@ -39,34 +40,7 @@ const StaffAuthContext = createContext<StaffAuthContextType | undefined>(undefin
 export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
 
-  useEffect(() => {
-    // Check for existing session
-    const savedStaffUser = localStorage.getItem('staffUser');
-    const authToken = localStorage.getItem('authToken');
-    
-    if (savedStaffUser && authToken) {
-      try {
-        const user = JSON.parse(savedStaffUser);
-        const sessionTimestamp = localStorage.getItem('sessionTimestamp');
-        const currentTime = Date.now();
-        const sessionTimeout = 60 * 60 * 1000; // 1 hour
-        
-        if (sessionTimestamp && (currentTime - parseInt(sessionTimestamp)) < sessionTimeout) {
-          setStaffUser(user);
-        } else {
-          // Session expired, clear it
-          localStorage.removeItem('staffUser');
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('sessionTimestamp');
-        }
-      } catch (error) {
-        // Invalid session data, clear it
-        localStorage.removeItem('staffUser');
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('sessionTimestamp');
-      }
-    }
-  }, []);
+  // No session is restored on load: see src/lib/authSession.ts.
 
   const login = async (email: string, password: string): Promise<LoginResult> => {
     try {
@@ -115,12 +89,8 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
         isSuperAdmin: userData.isSuperAdmin || false
       };
 
+      setAuthToken(token);
       setStaffUser(user);
-      localStorage.setItem('staffUser', JSON.stringify(user));
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('sessionTimestamp', Date.now().toString());
-      // Clear any stale lockout data
-      localStorage.removeItem('staffLoginAttempts');
 
       return { ok: true };
     } catch (error) {
@@ -130,15 +100,8 @@ export const StaffAuthProvider = ({ children }: { children: React.ReactNode }) =
   };
 
   const logout = () => {
+    setAuthToken(null);
     setStaffUser(null);
-    
-    // Clear all possible authentication-related localStorage items
-    localStorage.removeItem('staffUser');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('sessionTimestamp');
-    localStorage.removeItem('staffAuthTimestamp');
-    localStorage.removeItem('staffSessionExpiry');
-    localStorage.removeItem('auth_token');
   };
 
   const isAuthenticated = !!staffUser;
