@@ -68,7 +68,7 @@ const AllNews = () => {
               retryLabel={t('retry')}
             />
           ) : isLoading ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+            <div className="grid gap-6 max-sm:gap-3 md:grid-cols-2 lg:grid-cols-3" aria-busy="true">
               <PostCardSkeleton count={6} />
             </div>
           ) : filteredNews.length === 0 ? (
@@ -78,7 +78,7 @@ const AllNews = () => {
               action={searchTerm ? <Button variant="outline" onClick={() => setSearchTerm('')}>{t('clearSearch')}</Button> : undefined}
             />
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 max-sm:gap-3 md:grid-cols-2 lg:grid-cols-3">
               {filteredNews.map((item, index) => (
                 <PostCard
                   key={item.id}

@@ -12,7 +12,7 @@ const SectionSkeleton = ({ cards = 3, tone = 'base' as const }: { cards?: number
         <Skeleton className="h-10 w-3/4" />
         <Skeleton className="h-5 w-full" />
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 max-sm:gap-3 md:grid-cols-2 lg:grid-cols-3">
         <PostCardSkeleton count={cards} />
       </div>
     </div>

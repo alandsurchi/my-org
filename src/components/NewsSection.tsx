@@ -34,7 +34,7 @@ const NewsSection = () => {
 
     if (isLoading) {
       return (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+        <div className="grid gap-6 max-sm:gap-3 md:grid-cols-2 lg:grid-cols-3" aria-busy="true">
           <PostCardSkeleton count={3} />
         </div>
       );
@@ -43,7 +43,7 @@ const NewsSection = () => {
       return <EmptyState icon={Newspaper} title={t('noNewsInCategory')} />;
     }
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 max-sm:gap-3 md:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => (
           <PostCard
             key={item.id}
@@ -73,7 +73,7 @@ const NewsSection = () => {
           <ErrorState title={t('errorLoadingNews')} />
         ) : (
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="mb-10 grid h-auto w-full grid-cols-2 gap-1 rounded-card bg-muted p-1 sm:inline-flex sm:w-auto sm:rounded-pill">
+            <TabsList className="mb-10 grid h-auto max-sm:mb-6 w-full grid-cols-2 gap-1 rounded-card bg-muted p-1 sm:inline-flex sm:w-auto sm:rounded-pill">
               {visibleBuckets.map((bucket) => {
                 const Icon = NEWS_BUCKET_ICONS[bucket];
                 return (

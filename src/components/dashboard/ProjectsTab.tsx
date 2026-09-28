@@ -826,7 +826,7 @@ const ProjectsTab = () => {
               </div>
 
               {showAllProjects && (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 max-sm:gap-3 md:grid-cols-2 lg:grid-cols-3">
                   {projects.length === 0 ? (
                     <Card className="col-span-full text-center py-12 bg-gray-50">
                       <CardContent>

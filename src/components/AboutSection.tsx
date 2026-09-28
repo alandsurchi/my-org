@@ -19,15 +19,15 @@ const AboutSection = () => {
   return (
     <Section id="about" tone="base">
       <div className="container-site">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div className="grid gap-12 max-sm:gap-8 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-7">
             <div className="fade-in-on-scroll">
               <p className="eyebrow mb-4">{t('about')}</p>
               <h2 className="font-display text-h2 text-balance">{t('aboutTitle')}</h2>
-              <p className="mt-6 text-lead text-foreground/90">{t('aboutDescription')}</p>
+              <p className="mt-6 text-lead text-foreground/90 max-sm:mt-4">{t('aboutDescription')}</p>
             </div>
 
-            <div className="mt-10 grid gap-6 sm:grid-cols-2">
+            <div className="mt-10 grid gap-6 max-sm:mt-6 max-sm:gap-5 sm:grid-cols-2">
               {pillars.map(({ icon: Icon, title, text }, i) => (
                 <div key={title} className="fade-in-on-scroll" style={{ transitionDelay: `${(i + 1) * 60}ms` }}>
                   <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-200">
@@ -50,12 +50,12 @@ const AboutSection = () => {
               alt={t('aboutImageAlt')}
               loading="lazy"
               decoding="async"
-              className="relative aspect-[4/5] w-full rounded-card object-cover shadow-card"
+              className="relative aspect-[4/5] w-full rounded-card object-cover shadow-card max-sm:aspect-[3/2]"
             />
           </figure>
         </div>
 
-        <div className="fade-in-on-scroll mt-16 rounded-card bg-muted p-8 md:mt-20 md:p-10">
+        <div className="fade-in-on-scroll mt-16 rounded-card bg-muted p-8 max-sm:mt-10 max-sm:p-5 md:mt-20 md:p-10">
           <h3 className="font-display text-h3">{t('goals')}</h3>
           <ul className="mt-6 grid gap-4 sm:grid-cols-2">
             {goals.map((key) => (

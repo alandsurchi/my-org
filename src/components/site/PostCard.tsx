@@ -43,13 +43,15 @@ const PostCard = ({
     <article
       className={cn(
         'group card-surface fade-in-on-scroll relative flex h-full flex-col overflow-hidden',
+        // Phones: a compact row, thumbnail beside the text, so several posts fit on one screen.
+        'max-sm:flex-row',
         'motion-safe:transition-[box-shadow,transform] motion-safe:duration-base motion-safe:ease-out hover:-translate-y-1 hover:shadow-card-hover',
         'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
         className,
       )}
       style={{ transitionDelay: `${Math.min(index, 5) * 40}ms` }}
     >
-      <figure className="relative aspect-[16/10] overflow-hidden bg-muted">
+      <figure className="relative aspect-[16/10] overflow-hidden bg-muted max-sm:aspect-auto max-sm:min-h-28 max-sm:w-28 max-sm:shrink-0">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -58,26 +60,32 @@ const PostCard = ({
             alt={(imageAlt || title || '').trim()}
             loading="lazy"
             decoding="async"
-            className="img-hover h-full w-full object-cover"
+            className="img-hover h-full w-full object-cover max-sm:absolute max-sm:inset-0"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-brand-900 text-brand-200">
-            {Placeholder && <Placeholder className="h-14 w-14 opacity-80" aria-hidden="true" />}
+          <div className="flex h-full w-full items-center justify-center bg-brand-900 text-brand-200 max-sm:absolute max-sm:inset-0">
+            {Placeholder && <Placeholder className="h-14 w-14 opacity-80 max-sm:h-8 max-sm:w-8" aria-hidden="true" />}
           </div>
         )}
         {categoryLabel && (
-          <Chip tone="onPhoto" icon={categoryIcon} className="absolute start-3 top-3">
+          <Chip tone="onPhoto" icon={categoryIcon} className="absolute start-3 top-3 max-sm:hidden">
             {categoryLabel}
           </Chip>
         )}
         {statusLabel && (
-          <Chip tone={statusTone} className="absolute end-3 top-3">
+          <Chip tone={statusTone} className="absolute end-3 top-3 max-sm:hidden">
             {statusLabel}
           </Chip>
         )}
       </figure>
 
-      <div className="flex flex-1 flex-col gap-3 p-5 md:p-6">
+      <div className="flex flex-1 flex-col gap-3 p-5 md:p-6 max-sm:min-w-0 max-sm:gap-1.5 max-sm:p-3">
+        {/* Phones: the thumbnail is too small to carry the chips, so they become one line of text. */}
+        {(categoryLabel || statusLabel) && (
+          <p className="truncate text-xs font-semibold text-primary sm:hidden">
+            {[categoryLabel, statusLabel].filter(Boolean).join(' · ')}
+          </p>
+        )}
         <h3 className="font-display text-h3 text-foreground">
           <Link
             to={href}
@@ -86,9 +94,9 @@ const PostCard = ({
             {title}
           </Link>
         </h3>
-        {excerpt && <p className="line-clamp-3 text-muted-foreground">{excerpt}</p>}
+        {excerpt && <p className="line-clamp-3 text-muted-foreground max-sm:line-clamp-2 max-sm:text-sm">{excerpt}</p>}
 
-        <div className="mt-auto flex min-h-11 items-center justify-between gap-3 border-t border-border pt-4 text-sm text-muted-foreground">
+        <div className="mt-auto flex min-h-11 items-center justify-between gap-3 border-t border-border pt-4 text-sm text-muted-foreground max-sm:min-h-0 max-sm:border-t-0 max-sm:pt-1 max-sm:text-xs">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {date && (
               <span className="inline-flex items-center gap-1.5">
@@ -107,7 +115,7 @@ const PostCard = ({
               card, and a second link to the same place would just be noise for
               screen readers. */}
           <span aria-hidden="true" className="inline-flex shrink-0 items-center gap-1 font-semibold text-primary group-hover:underline">
-            {readMoreLabel}
+            <span className="max-sm:hidden">{readMoreLabel}</span>
             <ArrowRight className="h-4 w-4 rtl:rotate-180 motion-safe:transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
           </span>
         </div>

@@ -17,16 +17,16 @@ const SectionHeading = ({ eyebrow, title, description, as = 'h2', align = 'start
   return (
     <div
       className={cn(
-        'fade-in-on-scroll mb-12 flex flex-col gap-6 md:mb-16',
+        'fade-in-on-scroll mb-12 flex flex-col gap-6 max-sm:mb-6 max-sm:gap-4 md:mb-16',
         actions ? 'md:flex-row md:items-end md:justify-between' : '',
         align === 'center' && !actions ? 'items-center text-center' : '',
         className,
       )}
     >
       <div className={cn('max-w-2xl', align === 'center' && !actions ? 'mx-auto' : '')}>
-        {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
+        {eyebrow && <p className="eyebrow mb-4 max-sm:mb-2">{eyebrow}</p>}
         <Heading className="font-display text-h2 text-balance">{title}</Heading>
-        {description && <p className="mt-4 text-lead text-muted-foreground">{description}</p>}
+        {description && <p className="mt-4 text-lead text-muted-foreground max-sm:mt-2">{description}</p>}
       </div>
       {actions && <div className="shrink-0">{actions}</div>}
     </div>

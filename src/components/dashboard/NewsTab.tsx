@@ -1041,7 +1041,7 @@ const NewsTab = () => {
 
             {/* News Cards Display */}
             {selectedNewsCategory && (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 max-sm:gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {(Array.isArray(news) ? news : [])
                   .map(item => {
                     const itemId = String(item.id);

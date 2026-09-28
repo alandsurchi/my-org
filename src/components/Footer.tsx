@@ -38,9 +38,9 @@ const Footer = () => {
 
   return (
     <footer className="border-t border-brand-800 bg-brand-950 text-brand-100">
-      <div className="container-site py-16">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
-          <div className="lg:col-span-5">
+      <div className="container-site py-16 max-sm:py-10">
+        <div className="grid gap-10 max-sm:grid-cols-2 max-sm:gap-x-6 max-sm:gap-y-8 md:grid-cols-2 lg:grid-cols-12">
+          <div className="max-sm:col-span-2 lg:col-span-5">
             <div className="flex items-center gap-3">
               <img
                 src="/lovable-uploads/1b274aba-eb01-4306-999b-6798375f09e4.png"
@@ -52,7 +52,7 @@ const Footer = () => {
               />
               <span className="font-display text-xl font-bold text-white">{t('orgName')}</span>
             </div>
-            <p className="mt-5 max-w-md leading-relaxed text-brand-200">{t('footerDescription')}</p>
+            <p className="mt-5 max-w-md leading-relaxed text-brand-200 max-sm:mt-3 max-sm:text-sm">{t('footerDescription')}</p>
           </div>
 
           <div className="lg:col-span-2">
@@ -72,7 +72,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className="lg:col-span-3">
+          <div className="max-sm:order-last max-sm:col-span-2 lg:col-span-3">
             <h3 className="mb-4 font-display text-base font-semibold text-white">{t('contactInfo')}</h3>
             <ul className="space-y-3 text-brand-200 [@media(pointer:coarse)]:space-y-0">
               <li>
@@ -107,7 +107,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-3 border-t border-brand-800 pt-8 text-center text-sm text-brand-300 sm:flex-row sm:justify-center sm:gap-4">
+        <div className="mt-12 flex flex-col items-center gap-3 border-t border-brand-800 pt-8 max-sm:mt-8 max-sm:gap-1 max-sm:pt-6 text-center text-sm text-brand-300 sm:flex-row sm:justify-center sm:gap-4">
           <span>{t('footerCopyright').replace(/\b20\d\d\b/, String(new Date().getFullYear()))}</span>
           <span aria-hidden="true" className="hidden sm:inline">&middot;</span>
           {/* A real route link, so it cannot live in quickLinks above — that list's
