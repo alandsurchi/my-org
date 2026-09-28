@@ -233,6 +233,19 @@ test.describe('public site', () => {
         const { scrollW, vw } = await page.evaluate(() => ({ scrollW: document.documentElement.scrollWidth, vw: innerWidth }));
         expect(scrollW, `${path} scrolls sideways`).toBeLessThanOrEqual(vw);
       }
+      // The search bar overlaps the dark page header by design; it must never cover its text.
+      for (const path of ['/projects', '/news', '/gallery']) {
+        await page.goto(path);
+        await page.locator('section#main-content h1').waitFor();
+        await page.locator('.card-surface input').first().waitFor();
+        const gap = await page.evaluate(() => {
+          const hero = document.querySelector('section#main-content');
+          const lastText = [...hero.querySelectorAll('h1, p')].pop()!.getBoundingClientRect();
+          const bar = document.querySelector('.card-surface input')!.closest('.card-surface')!.getBoundingClientRect();
+          return bar.top - lastText.bottom;
+        });
+        expect(gap, `${path}: search bar covers the page header text`).toBeGreaterThanOrEqual(8);
+      }
       await page.goto('/');
       const menu = await page.getByRole('button', { name: 'Menu' }).boundingBox();
       expect(menu!.x).toBeGreaterThanOrEqual(0);

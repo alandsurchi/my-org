@@ -22,7 +22,7 @@ interface PageHeroProps {
  * which keeps the header in its on-photo tone.
  */
 const PageHero = ({ title, description, eyebrow, breadcrumbs, backTo, backLabel, children }: PageHeroProps) => (
-  <section id="main-content" className="relative bg-brand-950 pb-28 pt-28 text-white max-sm:pb-12 max-sm:pt-24 md:pb-36 md:pt-36">
+  <section id="main-content" className="relative bg-brand-950 pb-28 pt-28 text-white max-sm:pb-16 max-sm:pt-24 md:pb-36 md:pt-36">
     <div className="container-site">
       {/* Rendered inside this <section>, never before it: PageHero must stay the
           first <section> in the DOM (useHeaderState measures it) and carries the

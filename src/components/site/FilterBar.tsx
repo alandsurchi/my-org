@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 /** Card that overlaps the page band and holds search/filter controls. */
 const FilterBar = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('card-surface relative z-10 -mt-16 mb-10 flex flex-col gap-3 p-3 md:-mt-20 md:flex-row md:items-center md:p-4', className)}>
+  <div className={cn('card-surface relative z-10 -mt-16 mb-10 flex flex-col gap-3 p-3 max-sm:-mt-10 max-sm:mb-6 md:-mt-20 md:flex-row md:items-center md:p-4', className)}>
     {children}
   </div>
 );
